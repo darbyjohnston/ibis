@@ -44,7 +44,7 @@ jobs:
       run: sh ibis/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/ibistest/ibistest
     
     - name: Code coverage
       if: env.IBIS_GCOV == 'ON'
@@ -92,7 +92,7 @@ jobs:
       run: sh ibis/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/ibistest/ibistest
 
   linux-gles2-minimal-build:
     runs-on: ubuntu-latest
@@ -134,7 +134,7 @@ jobs:
       run: sh ibis/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/ibistest/ibistest
 
   macos-build:
     runs-on: macos-latest
@@ -183,7 +183,7 @@ jobs:
     - name: Run tests
       run: |
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
-        build-Debug/tests/tltest/tltest
+        build-Debug/tests/ibistest/ibistest
 
   windows-build:
     runs-on: windows-latest
@@ -229,4 +229,4 @@ jobs:
 
     - name: Run tests
       shell: cmd
-      run: build-Debug\tests\tltest\Debug\tltest
+      run: build-Debug\tests\ibistest\Debug\ibistest
