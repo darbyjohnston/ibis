@@ -1,0 +1,19 @@
+set BUILD_TYPE=%1
+IF "%BUILD_TYPE%"=="" set BUILD_TYPE=Release
+
+set JOBS=4
+set IBIS_OCIO=ON
+set IBIS_JPEG=ON
+set IBIS_TIFF=ON
+set IBIS_EXR=ON
+set IBIS_FFMPEG=ON
+set IBIS_FFMPEG_MINIMAL=OFF
+set IBIS_OIIO=ON
+set IBIS_USD=OFF
+set IBIS_PYTHON=ON
+set IBIS_TESTS=ON
+set IBIS_GCOV=OFF
+set FTK_API=GL_4_1
+set BUILD_SHARED_LIBS=OFF
+
+ibis\etc\Windows\windows-build-gha.bat %BUILD_TYPE%

@@ -1,0 +1,20 @@
+include(ExternalProject)
+
+set(OpenEXR_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/openexr.git")
+set(OpenEXR_GIT_TAG "v3.3.6")
+
+set(OpenEXR_ARGS
+    ${ibis_EXTERNAL_ARGS}
+    -DOPENEXR_BUILD_TOOLS=OFF
+    -DOPENEXR_BUILD_EXAMPLES=OFF
+    -DBUILD_TESTING=OFF
+    -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON)
+
+ExternalProject_Add(
+    OpenEXR
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OpenEXR
+    DEPENDS Imath ZLIB
+    GIT_REPOSITORY ${OpenEXR_GIT_REPOSITORY}
+    GIT_TAG ${OpenEXR_GIT_TAG}
+    LIST_SEPARATOR |
+    CMAKE_ARGS ${OpenEXR_ARGS})

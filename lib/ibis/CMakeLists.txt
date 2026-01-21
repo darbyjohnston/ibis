@@ -1,0 +1,10 @@
+add_subdirectory(ibisModels)
+add_subdirectory(ibisRender)
+add_subdirectory(ibisUI)
+
+if(ibis_PYTHON)
+    add_subdirectory(ibisModelsPy)
+    add_subdirectory(ibisRenderPy)
+    add_subdirectory(ibisUIPy)
+    add_subdirectory(ibisPy)
+endif()
