@@ -20,8 +20,8 @@ PYBIND11_MODULE(ibisPy, m)
     py::module_::import("opentimelineio");
     py::module_::import("ftkPy");
 
-    ibis::python::modelsBind(m);
-    ibis::python::renderBind(m);
-    ibis::python::uiBind(m);
+    ibis::python::models(m);
+    ibis::python::render(m);
+    ibis::python::ui(m);
 }
 

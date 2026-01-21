@@ -9,6 +9,6 @@ namespace ibis
 {
     namespace python
     {
-        void renderBind(pybind11::module_&);
+        void render(pybind11::module_&);
     }
 }

@@ -9,6 +9,8 @@ namespace ibis
 {
     namespace python
     {
-        void uiBind(pybind11::module_&);
+        void timelineWidget(pybind11::module_&);
+
+        void ui(pybind11::module_&);
     }
 }

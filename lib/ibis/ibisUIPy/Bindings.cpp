@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include <ibis/ibisUIPy/Bindings.h>
+#include "Bindings.h"
 
 #include <ftk/Core/Context.h>
 
@@ -11,8 +11,11 @@ namespace ibis
 {
     namespace python
     {
-        void uiBind(py::module_& m)
+        void ui(py::module_& m)
         {
+            auto mUI = m.def_submodule("ui", "User interface");
+
+            timelineWidget(mUI);
         }
     }
 }

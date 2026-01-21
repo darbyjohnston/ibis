@@ -11,7 +11,7 @@ namespace ibis
 {
     namespace python
     {
-        void modelsBind(py::module_& m)
+        void models(py::module_& m)
         {
         }
     }

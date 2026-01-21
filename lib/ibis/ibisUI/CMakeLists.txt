@@ -1,7 +1,18 @@
-set(HEADERS)
+set(HEADERS
+    DocumentTabs.h
+    NodeBrowser.h
+    NodeEditor.h
+    NodeGraphCanvas.h
+    NodeGraphWidget.h
+    TimelineWidget.h)
 
 set(SOURCE
-    Empty.cpp)
+    DocumentTabs.cpp
+    NodeBrowser.cpp
+    NodeEditor.cpp
+    NodeGraphCanvas.cpp
+    NodeGraphWidget.cpp
+    TimelineWidget.cpp)
 
 set(LIBRARIES ftk::ftkUI)
 

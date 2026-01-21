@@ -9,6 +9,6 @@ namespace ibis
 {
     namespace python
     {
-        void modelsBind(pybind11::module_&);
+        void models(pybind11::module_&);
     }
 }

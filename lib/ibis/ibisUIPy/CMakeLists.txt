@@ -2,7 +2,8 @@ set(HEADERS
     Bindings.h)
 set(HEADERS_PRIVATE)
 set(SOURCE
-    Bindings.cpp)
+    Bindings.cpp
+    TimelineWidget.cpp)
 
 add_library(ibisUIPy ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(ibisUIPy ibisUI Python3::Python)

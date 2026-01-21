@@ -5,6 +5,8 @@ import opentimelineio as otio
 import ftkPy as ftk
 import ibisPy as ibis
 
+import DocumentTab
+
 import weakref
 
 class MainWindow(ftk.MainWindow):
@@ -13,3 +15,6 @@ class MainWindow(ftk.MainWindow):
     """
     def __init__(self, context, app):
         ftk.MainWindow.__init__(self, context, app, ftk.Size2I(1280, 960))
+
+        self._docTab = DocumentTab.DocumentTab(context, app)
+        self.widget = self._docTab
