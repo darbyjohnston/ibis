@@ -7,12 +7,12 @@ import ibisPy as ibis
 
 import weakref
 
-class DocumentWidget(ftk.IWidget):
+class Widget(ftk.IWidget):
     """
     Document widget.
     """
     def __init__(self, context, document):
-        ftk.IWidget.__init__(self, context, "DocumentWidget(")
+        ftk.IWidget.__init__(self, context, "DocumentWidget.Widget")
 
         self._nodeBrowser = ibis.ui.NodeBrowser(context)
 
@@ -24,12 +24,10 @@ class DocumentWidget(ftk.IWidget):
 
         self._timelineWidget = ibis.ui.TimelineWidget(context)
         
-        self._hSplitter0 = ftk.Splitter(context, ftk.Orientation.Horizontal, self)
-        self._hSplitter0.split = 0.25
-        self._nodeBrowser.parent = self._hSplitter0
-        self._hSplitter1 = ftk.Splitter(context, ftk.Orientation.Horizontal, self._hSplitter0)
-        self._hSplitter1.split = 0.75
-        self._layout = ftk.VerticalLayout(context, self._hSplitter1)
+        self._hSplitter = ftk.Splitter(context, ftk.Orientation.Horizontal, self)
+        self._hSplitter.split = 0.75
+
+        self._layout = ftk.VerticalLayout(context, self._hSplitter)
         self._layout.spacingRole = ftk.SizeRole._None
         self._splitter = ftk.Splitter(context, ftk.Orientation.Vertical, self._layout)
         self._splitter.split = 0.7
@@ -37,11 +35,14 @@ class DocumentWidget(ftk.IWidget):
         self._nodeGraphCanvas.parent = self._splitter
         ftk.Divider(context, ftk.Orientation.Vertical, self._layout)
         self._timelineWidget.parent = self._layout
-        self._nodeEditor.parent = self._hSplitter1
+
+        self._tabWiget = ftk.TabWidget(context, self._hSplitter)
+        self._tabWiget.addTab("Browser", self._nodeBrowser)
+        self._tabWiget.addTab("Editor", self._nodeEditor)
 
     def getSizeHint(self):
-        return self._hSplitter0.getSizeHint()
+        return self._hSplitter.getSizeHint()
 
     def setGeometry(self, value):
         ftk.IWidget.setGeometry(self, value)
-        self._hSplitter0.setGeometry(value)
+        self._hSplitter.setGeometry(value)

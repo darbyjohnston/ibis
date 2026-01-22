@@ -25,12 +25,13 @@ namespace ibis
                 .def(
                     py::init(py::overload_cast<const std::shared_ptr<ftk::Context>&>(&DocumentModel::create)),
                     py::arg("context"))
-                .def_property_readonly("documents", &DocumentModel::getDocuments)
-                .def_property_readonly("observeDocuments", &DocumentModel::observeDocuments)
+                .def_property_readonly("get", &DocumentModel::get)
+                .def_property_readonly("observe", &DocumentModel::observe)
                 .def("newDocument", &DocumentModel::newDocument)
-                .def("openDocument", &DocumentModel::openDocument)
-                .def_property("currentDocument", &DocumentModel::getCurrentDocument, &DocumentModel::setCurrentDocument)
-                .def_property_readonly("observeCurrentDocument", &DocumentModel::observeCurrentDocument);
+                .def_property_readonly("observeNewDocument", &DocumentModel::observeNewDocument)
+                .def("open", &DocumentModel::open)
+                .def("close", &DocumentModel::close)
+                .def("closeAll", &DocumentModel::closeAll);
         }
     }
 }
