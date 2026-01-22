@@ -3,7 +3,7 @@
 
 #include "Bindings.h"
 
-#include <ibis/ibisUI/TimelineWidget.h>
+#include <ibis/UI/NodeGraphWidget.h>
 
 #include <ftk/Core/Context.h>
 
@@ -13,15 +13,15 @@ namespace ibis
 {
     namespace python
     {
-        void timelineWidget(py::module_& m)
+        void nodeGraphWidget(py::module_& m)
         {
             using namespace ui;
 
-            py::class_<TimelineWidget, ftk::IWidget, std::shared_ptr<TimelineWidget> >(m, "TimelineWidget")
+            py::class_<NodeGraphWidget, ftk::IWidget, std::shared_ptr<NodeGraphWidget> >(m, "NodeGraphWidget")
                 .def(
                     py::init(py::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
-                        const std::shared_ptr<ftk::IWidget>&>(&TimelineWidget::create)),
+                        const std::shared_ptr<ftk::IWidget>&>(&NodeGraphWidget::create)),
                     py::arg("context"),
                     py::arg("parent") = nullptr);
         }

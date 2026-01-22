@@ -3,7 +3,12 @@ set(HEADERS
 set(HEADERS_PRIVATE)
 set(SOURCE
     Bindings.cpp
-    TimelineWidget.cpp)
+    NodeBrowser.cpp
+    NodeEditor.cpp
+    NodeGraphCanvas.cpp
+    NodeGraphWidget.cpp
+    TimelineWidget.cpp
+    Viewport.cpp)
 
 add_library(ibisUIPy ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(ibisUIPy ibisUI Python3::Python)

@@ -1,7 +1,10 @@
-set(HEADERS)
+set(HEADERS
+    Document.h
+    DocumentModel.h)
 
 set(SOURCE
-    Empty.cpp)
+    Document.cpp
+    DocumentModel.cpp)
 
 set(LIBRARIES ftk::ftkCore)
 

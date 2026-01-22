@@ -1,18 +1,18 @@
 set(HEADERS
-    DocumentTabs.h
     NodeBrowser.h
     NodeEditor.h
     NodeGraphCanvas.h
     NodeGraphWidget.h
-    TimelineWidget.h)
+    TimelineWidget.h
+    Viewport.h)
 
 set(SOURCE
-    DocumentTabs.cpp
     NodeBrowser.cpp
     NodeEditor.cpp
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
-    TimelineWidget.cpp)
+    TimelineWidget.cpp
+    Viewport.cpp)
 
 set(LIBRARIES ftk::ftkUI)
 

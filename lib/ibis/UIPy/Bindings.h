@@ -9,7 +9,12 @@ namespace ibis
 {
     namespace python
     {
+        void nodeBrowser(pybind11::module_&);
+        void nodeEditor(pybind11::module_&);
+        void nodeGraphCanvas(pybind11::module_&);
+        void nodeGraphWidget(pybind11::module_&);
         void timelineWidget(pybind11::module_&);
+        void viewport(pybind11::module_&);
 
         void ui(pybind11::module_&);
     }

@@ -24,6 +24,13 @@ class App(ftk.App):
             "ibis compositor")
 
     def run(self):
+        self._documentModel = ibis.models.DocumentModel(self.context)
+        self._documentModel.newDocument()
+        self._documentModel.newDocument()
+
         self._window = MainWindow.MainWindow(self.context, self)
 
         super().run()
+
+    def documentModel(self):
+        return self._documentModel

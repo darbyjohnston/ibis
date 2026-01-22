@@ -15,7 +15,12 @@ namespace ibis
         {
             auto mUI = m.def_submodule("ui", "User interface");
 
+            nodeBrowser(mUI);
+            nodeEditor(mUI);
+            nodeGraphCanvas(mUI);
+            nodeGraphWidget(mUI);
             timelineWidget(mUI);
+            viewport(mUI);
         }
     }
 }

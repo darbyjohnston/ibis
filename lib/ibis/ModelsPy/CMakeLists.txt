@@ -2,7 +2,9 @@ set(HEADERS
     Bindings.h)
 set(HEADERS_PRIVATE)
 set(SOURCE
-    Bindings.cpp)
+    Bindings.cpp
+    Document.cpp
+    DocumentModel.cpp)
 
 add_library(ibisModelsPy ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(ibisModelsPy ibisModels Python3::Python)
