@@ -20,7 +20,7 @@ namespace ibis
         public:
             virtual ~InputNode();
 
-            static std::string getNodeName();
+            static std::string getNodeID();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -40,7 +40,7 @@ namespace ibis
         public:
             virtual ~OutputNode();
 
-            static std::string getNodeName();
+            static std::string getNodeID();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

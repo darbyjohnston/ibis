@@ -24,19 +24,19 @@ namespace ibis
 
         struct INode::Private
         {
-            std::string name;
+            std::string id;
             std::vector<NodeConnection> inputs;
             int outputCount = -1;
         };
 
         void INode::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::string& name,
+            const std::string& id,
             int inputCount,
             int outputCount)
         {
             FTK_P();
-            p.name = name;
+            p.id = id;
             p.inputs.resize(inputCount);
             p.outputCount = outputCount;
         }
@@ -48,9 +48,9 @@ namespace ibis
         INode::~INode()
         {}
 
-        const std::string& INode::getName() const
+        const std::string& INode::getID() const
         {
-            return _p->name;
+            return _p->id;
         }
 
         const std::vector<NodeConnection>& INode::getInputs() const

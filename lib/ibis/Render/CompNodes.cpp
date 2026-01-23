@@ -13,7 +13,7 @@ namespace ibis
 
         void OverNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, "Over", 2);
+            INode::_init(context, getNodeID(), 2);
             FTK_P();
         }
 
@@ -26,7 +26,7 @@ namespace ibis
         {
         }
 
-        std::string OverNode::getNodeName()
+        std::string OverNode::getNodeID()
         {
             return "Over";
         }

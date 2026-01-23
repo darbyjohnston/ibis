@@ -27,10 +27,10 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[InputNode::getNodeName()] = &InputNode::create;
-            p.nodes[OutputNode::getNodeName()] = &OutputNode::create;
-            p.nodes[OverNode::getNodeName()] = &OverNode::create;
-            p.nodes[AddValueNode::getNodeName()] = &AddValueNode::create;
+            p.nodes[InputNode::getNodeID()] = &InputNode::create;
+            p.nodes[OutputNode::getNodeID()] = &OutputNode::create;
+            p.nodes[OverNode::getNodeID()] = &OverNode::create;
+            p.nodes[AddValueNode::getNodeID()] = &AddValueNode::create;
         }
 
         NodeFactory::NodeFactory() :

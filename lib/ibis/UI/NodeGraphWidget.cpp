@@ -132,7 +132,7 @@ namespace ibis
 
             p.node = node;
 
-            auto label = ftk::Label::create(context, node->getName());
+            auto label = ftk::Label::create(context, node->getID());
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginSmall);
 

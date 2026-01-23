@@ -13,7 +13,7 @@ namespace ibis
 
         void InputNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, "Input", 0);
+            INode::_init(context, getNodeID(), 0);
             FTK_P();
         }
 
@@ -24,7 +24,7 @@ namespace ibis
         InputNode::~InputNode()
         {}
 
-        std::string InputNode::getNodeName()
+        std::string InputNode::getNodeID()
         {
             return "Input";
         }
@@ -43,7 +43,7 @@ namespace ibis
 
         void OutputNode::_init(const std::shared_ptr<ftk::Context>&context)
         {
-            INode::_init(context, "Output", 1, 0);
+            INode::_init(context, getNodeID(), 1, 0);
             FTK_P();
         }
 
@@ -54,7 +54,7 @@ namespace ibis
         OutputNode::~OutputNode()
         {}
 
-        std::string OutputNode::getNodeName()
+        std::string OutputNode::getNodeID()
         {
             return "Output";
         }

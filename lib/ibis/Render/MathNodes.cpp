@@ -13,7 +13,7 @@ namespace ibis
 
         void AddValueNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, "AddValue", 1);
+            INode::_init(context, getNodeID(), 1);
             FTK_P();
         }
 
@@ -24,7 +24,7 @@ namespace ibis
         AddValueNode::~AddValueNode()
         {}
 
-        std::string AddValueNode::getNodeName()
+        std::string AddValueNode::getNodeID()
         {
             return "AddValue";
         }

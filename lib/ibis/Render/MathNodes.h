@@ -20,7 +20,7 @@ namespace ibis
         public:
             virtual ~AddValueNode();
 
-            static std::string getNodeName();
+            static std::string getNodeID();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

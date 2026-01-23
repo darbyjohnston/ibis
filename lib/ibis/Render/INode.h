@@ -33,7 +33,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::string&,
+                const std::string& id,
                 int inputCount,
                 int outputCount = 1);
 
@@ -42,7 +42,7 @@ namespace ibis
         public:
             virtual ~INode();
 
-            const std::string& getName() const;
+            const std::string& getID() const;
 
             const std::vector<NodeConnection>& getInputs() const;
 
