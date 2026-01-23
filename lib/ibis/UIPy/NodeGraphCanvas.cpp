@@ -5,6 +5,10 @@
 
 #include <ibis/UI/NodeGraphCanvas.h>
 
+#include <ibis/Models/Document.h>
+
+#include <ibis/Render/NodeFactory.h>
+
 #include <ftk/Core/Context.h>
 
 namespace py = pybind11;
@@ -21,8 +25,12 @@ namespace ibis
                 .def(
                     py::init(py::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
+                        const std::shared_ptr<models::Document>&,
+                        const std::shared_ptr<render::NodeFactory>&,
                         const std::shared_ptr<ftk::IWidget>&>(&NodeGraphCanvas::create)),
                     py::arg("context"),
+                    py::arg("document"),
+                    py::arg("nodeFactory"),
                     py::arg("parent") = nullptr);
         }
     }

@@ -21,8 +21,10 @@ namespace ibis
                 .def(
                     py::init(py::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
+                        const std::shared_ptr<render::NodeFactory>&,
                         const std::shared_ptr<ftk::IWidget>&>(&NodeBrowser::create)),
                     py::arg("context"),
+                    py::arg("factory"),
                     py::arg("parent") = nullptr);
         }
     }

@@ -20,9 +20,12 @@ namespace ibis
         {
             IWidget::_init(context, "ibis::NodeGraphWidget", parent);
             FTK_P();
+
+            setBackgroundRole(ftk::ColorRole::Red);
+
             p.label = ftk::Label::create(context, "Node Graph Widget", shared_from_this());
             p.label->setHAlign(ftk::HAlign::Center);
-            p.label->setMarginRole(ftk::SizeRole::MarginLarge);
+            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
         }
 
         NodeGraphWidget::NodeGraphWidget() :

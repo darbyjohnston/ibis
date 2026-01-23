@@ -35,11 +35,20 @@ namespace ibis
             std::shared_ptr<ftk::IObservableList<std::shared_ptr<Document> > > observe() const;
 
             void newDocument();
-            std::shared_ptr<ftk::IObservable<int> > observeNewDocument() const;
-
             void open(const std::filesystem::path&);
             void close(int);
             void closeAll();
+
+            ///@}
+
+            //! \name Current Document
+            ///@{
+
+            const std::shared_ptr<Document>& getCurrent();
+            std::shared_ptr<ftk::IObservable<std::shared_ptr<Document> > > observeCurrent() const;
+            std::shared_ptr<ftk::IObservable<int> > observeCurrentIndex() const;
+            void setCurrent(const std::shared_ptr<Document>&);
+            void setCurrent(int);
 
             ///@}
 

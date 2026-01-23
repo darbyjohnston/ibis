@@ -1,5 +1,6 @@
 set(HEADERS
     NodeBrowser.h
+    NodeDragDrop.h
     NodeEditor.h
     NodeGraphCanvas.h
     NodeGraphWidget.h
@@ -8,13 +9,14 @@ set(HEADERS
 
 set(SOURCE
     NodeBrowser.cpp
+    NodeDragDrop.cpp
     NodeEditor.cpp
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
     TimelineWidget.cpp
     Viewport.cpp)
 
-set(LIBRARIES ftk::ftkUI)
+set(LIBRARIES ibisModels ftk::ftkUI)
 
 add_library(ibisUI ${HEADERS} ${SOURCE})
 target_link_libraries(ibisUI ${LIBRARIES})

@@ -55,7 +55,8 @@ class Actions:
         selfWeak = weakref.ref(self)
         self._documentsObserver = ibis.models.DocumentListObserver(
             app.documentModel().observe,
-            lambda documents: selfWeak()._documentsUpdate(documents))
+            lambda documents: selfWeak()._documentsCallback(documents))
 
-    def _documentsUpdate(self, documents):
+    def _documentsCallback(self, documents):
         self.actions["Close"].enabled = len(documents) > 0
+        self.actions["CloseAll"].enabled = len(documents) > 0

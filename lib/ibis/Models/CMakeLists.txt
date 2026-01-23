@@ -6,7 +6,7 @@ set(SOURCE
     Document.cpp
     DocumentModel.cpp)
 
-set(LIBRARIES ftk::ftkCore)
+set(LIBRARIES ibisRender ftk::ftkCore)
 
 add_library(ibisModels ${HEADERS} ${SOURCE})
 target_link_libraries(ibisModels ${LIBRARIES})

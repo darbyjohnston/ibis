@@ -3,19 +3,25 @@
 
 #include "Document.h"
 
+#include <ibis/Render/Graph.h>
+
 namespace ibis
 {
     namespace models
     {
         struct Document::Private
         {
+            std::shared_ptr<ftk::CommandStack> commandStack;
+            std::shared_ptr<render::Graph> graph;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
         };
 
-        void Document::_init(const std::shared_ptr<ftk::Context>&)
+        void Document::_init(const std::shared_ptr<ftk::Context>& context)
         {
             FTK_P();
+            p.commandStack = ftk::CommandStack::create();
+            p.graph = render::Graph::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create("New Document");
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
         }
@@ -42,6 +48,16 @@ namespace ibis
             out->_init(context);
             out->_p->path->setIfChanged(path);
             return out;
+        }
+
+        const std::shared_ptr<ftk::CommandStack>& Document::getCommandStack() const
+        {
+            return _p->commandStack;
+        }
+
+        const std::shared_ptr<render::Graph>& Document::getGraph() const
+        {
+            return _p->graph;
         }
 
         const std::filesystem::path& Document::getPath()

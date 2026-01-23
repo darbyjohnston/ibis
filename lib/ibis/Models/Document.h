@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <ftk/Core/Command.h>
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Observable.h>
 
@@ -12,6 +13,11 @@
 
 namespace ibis
 {
+    namespace render
+    {
+        class Graph;
+    }
+
     namespace models
     {
         //! Document.
@@ -33,6 +39,12 @@ namespace ibis
             static std::shared_ptr<Document> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
+
+            //! Get the command stack.
+            const std::shared_ptr<ftk::CommandStack>& getCommandStack() const;
+
+            //! Get the graph.
+            const std::shared_ptr<render::Graph>& getGraph() const;
 
             //! \name Path
             ///@{

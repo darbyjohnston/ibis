@@ -11,7 +11,8 @@ namespace ibis
         {
             std::weak_ptr<ftk::Context> context;
             std::shared_ptr<ftk::ObservableList<std::shared_ptr<Document> > > documents;
-            std::shared_ptr<ftk::Observable<int> > newDocument;
+            std::shared_ptr<ftk::Observable<std::shared_ptr<Document> > > current;
+            std::shared_ptr<ftk::Observable<int> > currentIndex;
         };
 
         void DocumentModel::_init(const std::shared_ptr<ftk::Context>& context)
@@ -19,7 +20,8 @@ namespace ibis
             FTK_P();
             p.context = context;
             p.documents = ftk::ObservableList<std::shared_ptr<Document> >::create();
-            p.newDocument = ftk::Observable<int>::create();
+            p.current = ftk::Observable<std::shared_ptr<Document> >::create();
+            p.currentIndex = ftk::Observable<int>::create();
         }
 
         DocumentModel::DocumentModel() :
@@ -52,12 +54,8 @@ namespace ibis
             auto document = Document::create(p.context.lock());
             const int index = p.documents->getSize();
             p.documents->pushBack(document);
-            p.newDocument->setIfChanged(index);
-        }
-
-        std::shared_ptr<ftk::IObservable<int> > DocumentModel::observeNewDocument() const
-        {
-            return _p->newDocument;
+            p.current->setIfChanged(document);
+            p.currentIndex->setIfChanged(index);
         }
 
         void DocumentModel::open(const std::filesystem::path&)
@@ -71,12 +69,47 @@ namespace ibis
             if (index >= 0 && index < p.documents->getSize())
             {
                 p.documents->removeItem(index);
+                p.current->setIfChanged(!p.documents->isEmpty() ? p.documents->getItem(0) : nullptr);
+                p.currentIndex->setIfChanged(0);
             }
         }
 
         void DocumentModel::closeAll()
         {
-            _p->documents->clear();
+            FTK_P();
+            p.documents->clear();
+            p.current->setIfChanged(nullptr);
+            p.currentIndex->setIfChanged(-1);
+        }
+
+        const std::shared_ptr<Document>& DocumentModel::getCurrent()
+        {
+            return _p->current->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<std::shared_ptr<Document> > > DocumentModel::observeCurrent() const
+        {
+            return _p->current;
+        }
+
+        std::shared_ptr<ftk::IObservable<int> > DocumentModel::observeCurrentIndex() const
+        {
+            return _p->currentIndex;
+        }
+
+        void DocumentModel::setCurrent(const std::shared_ptr<Document>& value)
+        {
+            _p->current->setIfChanged(value);
+        }
+
+        void DocumentModel::setCurrent(int index)
+        {
+            FTK_P();
+            if (index >= 0 && index < p.documents->getSize())
+            {
+                p.current->setIfChanged(p.documents->getItem(index));
+                p.currentIndex->setIfChanged(index);
+            }
         }
     }
 }

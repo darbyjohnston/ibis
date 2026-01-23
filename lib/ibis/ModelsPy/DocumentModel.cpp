@@ -28,7 +28,6 @@ namespace ibis
                 .def_property_readonly("get", &DocumentModel::get)
                 .def_property_readonly("observe", &DocumentModel::observe)
                 .def("newDocument", &DocumentModel::newDocument)
-                .def_property_readonly("observeNewDocument", &DocumentModel::observeNewDocument)
                 .def("open", &DocumentModel::open)
                 .def("close", &DocumentModel::close)
                 .def("closeAll", &DocumentModel::closeAll);

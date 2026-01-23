@@ -1,7 +1,16 @@
-set(HEADERS)
+set(HEADERS
+    Graph.h
+    GraphCommands.h
+    INode.h
+    IONodes.h
+    NodeFactory.h)
 
 set(SOURCE
-    Empty.cpp)
+    Graph.cpp
+    GraphCommands.cpp
+    INode.cpp
+    IONodes.cpp
+    NodeFactory.cpp)
 
 set(LIBRARIES ftk::ftkGL)
 

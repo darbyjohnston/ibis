@@ -156,6 +156,7 @@ endif()
 # Directories
 
 add_subdirectory(lib/ibis)
+add_subdirectory(bin)
 if(ibis_TESTS)
     add_subdirectory(tests)
 endif()
