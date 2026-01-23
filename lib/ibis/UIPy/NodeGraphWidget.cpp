@@ -5,6 +5,8 @@
 
 #include <ibis/UI/NodeGraphWidget.h>
 
+#include <ibis/render/INode.h>
+
 #include <ftk/Core/Context.h>
 
 namespace py = pybind11;
@@ -21,8 +23,10 @@ namespace ibis
                 .def(
                     py::init(py::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
+                        const std::shared_ptr<render::INode>&,
                         const std::shared_ptr<ftk::IWidget>&>(&NodeGraphWidget::create)),
                     py::arg("context"),
+                    py::arg("node"),
                     py::arg("parent") = nullptr);
         }
     }

@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include <ftk/UI/IWidget.h>
+#include <ftk/UI/IMouseWidget.h>
+
+#include <optional>
 
 namespace ibis
 {
@@ -14,13 +16,16 @@ namespace ibis
 
     namespace render
     {
+        class INode;
         class NodeFactory;
     }
 
     namespace ui
     {
+        class NodeGraphWidget;
+
         //! Node graph canvas.
-        class NodeGraphCanvas : public ftk::IWidget
+        class NodeGraphCanvas : public ftk::IMouseWidget
         {
         protected:
             void _init(
@@ -45,12 +50,48 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
             void drawOverlayEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseMoveEvent(ftk::MouseMoveEvent&) override;
+            void mousePressEvent(ftk::MouseClickEvent&) override;
+            void mouseReleaseEvent(ftk::MouseClickEvent&) override;
             void dragEnterEvent(ftk::DragDropEvent&) override;
             void dragLeaveEvent(ftk::DragDropEvent&) override;
             void dragMoveEvent(ftk::DragDropEvent&) override;
             void dropEvent(ftk::DragDropEvent&) override;
 
         private:
+            struct Move
+            {
+                std::shared_ptr<render::INode> node;
+                std::shared_ptr<NodeGraphWidget> widget;
+            };
+            std::optional<Move> _getMove(const ftk::V2I&);
+
+            struct Connect
+            {
+                std::shared_ptr<render::INode> node;
+                std::shared_ptr<NodeGraphWidget> widget;
+                int input = -1;
+                int output = -1;
+            };
+            std::optional<Connect> _getConnect(const ftk::V2I&);
+
+            struct Input
+            {
+                std::shared_ptr<render::INode> node;
+                std::shared_ptr<NodeGraphWidget> widget;
+                int input = -1;
+            };
+            std::optional<Input> _getInput(const ftk::V2I&);
+
+            struct Output
+            {
+                std::shared_ptr<render::INode> node;
+                std::shared_ptr<NodeGraphWidget> widget;
+                int output = -1;
+            };
+            std::optional<Output> _getOutput(const ftk::V2I&);
+
             void _graphUpdate();
 
             FTK_PRIVATE();

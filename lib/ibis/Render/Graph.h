@@ -27,19 +27,33 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&);
 
             //! Add a node to the graph.
-            void addNode(const std::shared_ptr<INode>&, const ftk::V2I&);
+            void add(const std::shared_ptr<INode>&, const ftk::V2I&);
 
             //! Remove a node from the graph.
-            void removeNode(const std::shared_ptr<INode>&);
+            void remove(const std::shared_ptr<INode>&);
 
             //! Get the nodes in the graph.
             const std::list<std::shared_ptr<INode> >& getNodes() const;
 
             //! Move a node.
-            void moveNode(const std::shared_ptr<INode>&, const ftk::V2I&);
+            void move(const std::shared_ptr<INode>&, const ftk::V2I&);
 
             //! Get a node position.
             ftk::V2I getPos(const std::shared_ptr<INode>&);
+
+            //! Connect nodes.
+            void connect(
+                const std::shared_ptr<INode>& inputNode,
+                int input,
+                const std::shared_ptr<INode>& outputNode,
+                int output);
+
+            //! Disconnect nodes.
+            void disconnect(
+                const std::shared_ptr<INode>& inputNode,
+                int input,
+                const std::shared_ptr<INode>& outputNode,
+                int output);
 
             //! Observe graph changes.
             std::shared_ptr<ftk::IObservable<bool> > observe() const;

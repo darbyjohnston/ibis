@@ -20,10 +20,17 @@ namespace ibis
         {
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::NodeFactory> nodeFactory;
-            std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > widgets;
-            std::map<std::shared_ptr<render::INode>, ftk::V2I> pos;
+
+            std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
+            std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
+            std::map<std::shared_ptr<render::INode>, ftk::V2I> nodeToPos;
+
             int sizeHint = 0;
+            int handle = 0;
+            std::optional<Move> move;
+            std::optional<Connect> connect;
             bool dropTarget = false;
+
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
         };
 
@@ -35,6 +42,9 @@ namespace ibis
         {
             IWidget::_init(context, "ibis::NodeGraphCanvas", parent);
             FTK_P();
+
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true);
 
             p.document = document;
             p.nodeFactory = nodeFactory;
@@ -77,12 +87,12 @@ namespace ibis
         {
             IWidget::setGeometry(value);
             FTK_P();
-            for (const auto i : p.widgets)
+            for (const auto i : p.nodeToWidget)
             {
                 const ftk::Size2I sizeHint = i.second->getSizeHint();
                 ftk::V2I pos;
-                const auto j = p.pos.find(i.first);
-                if (j != p.pos.end())
+                const auto j = p.nodeToPos.find(i.first);
+                if (j != p.nodeToPos.end())
                 {
                     pos = j->second;
                 }
@@ -98,6 +108,7 @@ namespace ibis
         {
             FTK_P();
             p.sizeHint = event.style->getSizeRole(ftk::SizeRole::ScrollArea, event.displayScale);
+            p.handle = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
         }
 
         void NodeGraphCanvas::drawOverlayEvent(
@@ -106,12 +117,151 @@ namespace ibis
         {
             IWidget::drawOverlayEvent(drawRect, event);
             FTK_P();
-            if (p.dropTarget)
+            const ftk::Box2I& g = getGeometry();
+            if (p.connect)
             {
-                const ftk::Box2I& g = getGeometry();
+                ftk::V2I v0;
+                if (p.connect->input != -1)
+                {
+                    v0 = ftk::center(p.connect->widget->getInputs()[p.connect->input]->getGeometry());
+                }
+                else if (p.connect->output != -1)
+                {
+                    v0 = ftk::center(p.connect->widget->getOutputs()[p.connect->output]->getGeometry());
+                }
+                ftk::LineOptions lineOptions;
+                lineOptions.width = p.handle / 2;
+                event.render->drawLine(
+                    v0,
+                    _getMousePos(),
+                    ftk::Color4F(1.F, 1.F, 1.F),
+                    lineOptions);
+            }
+            else if (p.dropTarget)
+            {
                 event.render->drawRect(
                     g,
                     event.style->getColorRole(ftk::ColorRole::Overlay));
+            }
+        }
+
+        void NodeGraphCanvas::drawEvent(
+            const ftk::Box2I& drawRect,
+            const ftk::DrawEvent& event)
+        {
+            IWidget::drawEvent(drawRect, event);
+            FTK_P();
+            const ftk::Box2I& g = getGeometry();
+            for (const auto i : p.nodeToWidget)
+            {
+                const auto& inputs = i.first->getInputs();
+                for (int j = 0; j < inputs.size(); ++j)
+                {
+                    const auto& input = inputs[j];
+                    if (input.node)
+                    {
+                        const auto k = p.nodeToWidget.find(input.node);
+                        if (k != p.nodeToWidget.end())
+                        {
+                            const ftk::V2I v0 = ftk::center(i.second->getInputs()[j]->getGeometry());
+                            const ftk::V2I v1 = ftk::center(k->second->getOutputs()[input.index]->getGeometry());
+                            ftk::LineOptions lineOptions;
+                            lineOptions.width = p.handle / 2;
+                            event.render->drawLine(
+                                v0,
+                                v1,
+                                ftk::Color4F(.5F, .5F, .5F),
+                                lineOptions);
+                        }
+                    }
+                }
+            }
+        }
+
+        void NodeGraphCanvas::mouseMoveEvent(ftk::MouseMoveEvent& event)
+        {
+            IMouseWidget::mouseMoveEvent(event);
+            FTK_P();
+            if (p.move.has_value())
+            {
+                const auto i = p.nodeToPos.find(p.move->node);
+                if (i != p.nodeToPos.end())
+                {
+                    const ftk::Box2I& g = getGeometry();
+                    i->second = event.pos - g.min;
+                    setSizeUpdate();
+                    setDrawUpdate();
+                }
+            }
+            else if (p.connect.has_value())
+            {
+                setDrawUpdate();
+            }
+        }
+
+        void NodeGraphCanvas::mousePressEvent(ftk::MouseClickEvent& event)
+        {
+            IMouseWidget::mousePressEvent(event);
+            FTK_P();
+            p.connect = _getConnect(event.pos);
+            if (p.connect)
+            {
+                moveToFront(p.connect->widget);
+            }
+            else
+            {
+                p.move = _getMove(event.pos);
+                if (p.move)
+                {
+                    moveToFront(p.move->widget);
+                }
+            }
+        }
+
+        void NodeGraphCanvas::mouseReleaseEvent(ftk::MouseClickEvent& event)
+        {
+            IMouseWidget::mouseReleaseEvent(event);
+            FTK_P();
+            const auto& graph = p.document->getGraph();
+            if (p.move.has_value())
+            {
+                const ftk::Box2I& g = getGeometry();
+                p.document->getCommandStack()->push(
+                    render::MoveNodeCommand::create(graph, p.move->node, event.pos - g.min));
+                p.move.reset();
+            }
+            else if (p.connect.has_value())
+            {
+                if (p.connect->input != -1)
+                {
+                    const auto output = _getOutput(event.pos);
+                    if (output.has_value())
+                    {
+                        p.document->getCommandStack()->push(
+                            render::ConnectNodesCommand::create(
+                                graph,
+                                p.connect->node,
+                                p.connect->input,
+                                output->node,
+                                output->output));
+                    }
+                }
+                else if (p.connect->output != -1)
+                {
+                    const auto input = _getInput(event.pos);
+                    if (input.has_value())
+                    {
+                        p.document->getCommandStack()->push(
+                            render::ConnectNodesCommand::create(
+                                graph,
+                                input->node,
+                                input->input,
+                                p.connect->node,
+                                p.connect->output));
+                    }
+                }
+                p.connect.reset();
+                setDrawUpdate();
             }
         }
 
@@ -162,37 +312,159 @@ namespace ibis
             }
         }
 
+        std::optional<NodeGraphCanvas::Move> NodeGraphCanvas::_getMove(const ftk::V2I& pos)
+        {
+            FTK_P();
+            std::optional<NodeGraphCanvas::Move> out;
+            const auto& children = getChildren();
+            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            {
+                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                {
+                    const ftk::Box2I& g = widget->getGeometry();
+                    if (ftk::contains(g, pos))
+                    {
+                        out = Move();
+                        out->node = widget->getNode();
+                        out->widget = widget;
+                        break;
+                    }
+                }
+            }
+            return out;
+        }
+
+        std::optional<NodeGraphCanvas::Connect> NodeGraphCanvas::_getConnect(const ftk::V2I& pos)
+        {
+            std::optional<NodeGraphCanvas::Connect> out;
+            const auto& children = getChildren();
+            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            {
+                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                {
+                    const auto& inputs = widget->getInputs();
+                    for (int i = 0; i < inputs.size(); ++i)
+                    {
+                        const ftk::Box2I& g = inputs[i]->getGeometry();
+                        if (ftk::contains(g, pos))
+                        {
+                            out = Connect();
+                            out->node = widget->getNode();
+                            out->widget = widget;
+                            out->input = i;
+                            break;
+                        }
+                    }
+                    const auto& outputs = widget->getOutputs();
+                    for (int i = 0; i < outputs.size(); ++i)
+                    {
+                        const ftk::Box2I& g = outputs[i]->getGeometry();
+                        if (ftk::contains(g, pos))
+                        {
+                            out = Connect();
+                            out->node = widget->getNode();
+                            out->widget = widget;
+                            out->output = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
+        std::optional<NodeGraphCanvas::Input> NodeGraphCanvas::_getInput(const ftk::V2I& pos)
+        {
+            std::optional<NodeGraphCanvas::Input> out;
+            const auto& children = getChildren();
+            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            {
+                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                {
+                    const auto& inputs = widget->getInputs();
+                    for (int i = 0; i < inputs.size(); ++i)
+                    {
+                        const ftk::Box2I& g = inputs[i]->getGeometry();
+                        if (ftk::contains(g, pos))
+                        {
+                            out = Input();
+                            out->node = widget->getNode();
+                            out->widget = widget;
+                            out->input = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
+        std::optional<NodeGraphCanvas::Output> NodeGraphCanvas::_getOutput(const ftk::V2I& pos)
+        {
+            std::optional<NodeGraphCanvas::Output> out;
+            const auto& children = getChildren();
+            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            {
+                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                {
+                    const auto& outputs = widget->getOutputs();
+                    for (int i = 0; i < outputs.size(); ++i)
+                    {
+                        const ftk::Box2I& g = outputs[i]->getGeometry();
+                        if (ftk::contains(g, pos))
+                        {
+                            out = Output();
+                            out->node = widget->getNode();
+                            out->widget = widget;
+                            out->output = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
         void NodeGraphCanvas::_graphUpdate()
         {
             FTK_P();
-            std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > widgets;
-            std::map<std::shared_ptr<render::INode>, ftk::V2I> pos;
-            auto graph = p.document->getGraph();
-            const auto& nodes = graph->getNodes();
-            for (const auto& node : nodes)
+            std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
+            std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
+            std::map<std::shared_ptr<render::INode>, ftk::V2I> nodeToPos;
+
+            // Create new widgets.
+            const auto& graph = p.document->getGraph();
+            for (const auto& node : graph->getNodes())
             {
-                const auto j = p.widgets.find(node);
-                if (j == p.widgets.end())
+                std::shared_ptr<NodeGraphWidget> widget;
+                const auto j = p.nodeToWidget.find(node);
+                if (j == p.nodeToWidget.end())
                 {
-                    auto widget = NodeGraphWidget::create(getContext(), shared_from_this());
-                    widgets[node] = widget;
+                    widget = NodeGraphWidget::create(getContext(), node, shared_from_this());
                 }
                 else
                 {
-                    widgets[node] = j->second;
+                    widget = j->second;
                 }
-                pos[node] = graph->getPos(node);
+                nodeToWidget[node] = widget;
+                widgetToNode[widget] = node;
+                nodeToPos[node] = graph->getPos(node);
             }
-            for (const auto i : p.widgets)
+
+            // Remove old widgets.
+            for (const auto i : p.nodeToWidget)
             {
-                const auto j = widgets.find(i.first);
-                if (j == widgets.end())
+                const auto j = nodeToWidget.find(i.first);
+                if (j == nodeToWidget.end())
                 {
                     i.second->setParent(nullptr);
                 }
             }
-            p.widgets = widgets;
-            p.pos = pos;
+
+            p.nodeToWidget = nodeToWidget;
+            p.widgetToNode = widgetToNode;
+            p.nodeToPos = nodeToPos;
+            setSizeUpdate();
             setDrawUpdate();
         }
     }

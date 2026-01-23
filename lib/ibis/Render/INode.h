@@ -12,13 +12,30 @@ namespace ibis
 {
     namespace render
     {
+        class INode;
+
+        //! Node connection.
+        struct NodeConnection
+        {
+            NodeConnection() = default;
+            NodeConnection(const std::shared_ptr<INode>&, int index);
+
+            std::shared_ptr<INode> node;
+            int index = -1;
+
+            bool operator == (const NodeConnection&) const;
+            bool operator != (const NodeConnection&) const;
+        };
+
         //! Base class for nodes.
         class INode : public std::enable_shared_from_this<INode>
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::string&);
+                const std::string&,
+                int inputCount,
+                int outputCount = 1);
 
             INode();
 
@@ -26,6 +43,12 @@ namespace ibis
             virtual ~INode();
 
             const std::string& getName() const;
+
+            const std::vector<NodeConnection>& getInputs() const;
+
+            void setInput(int, const NodeConnection&);
+
+            int getOutputCount() const;
 
         private:
             FTK_PRIVATE();

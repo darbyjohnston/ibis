@@ -1,15 +1,19 @@
 set(HEADERS
+    CompNodes.h
     Graph.h
     GraphCommands.h
     INode.h
     IONodes.h
+    MathNodes.h
     NodeFactory.h)
 
 set(SOURCE
+    CompNodes.cpp
     Graph.cpp
     GraphCommands.cpp
     INode.cpp
     IONodes.cpp
+    MathNodes.cpp
     NodeFactory.cpp)
 
 set(LIBRARIES ftk::ftkGL)

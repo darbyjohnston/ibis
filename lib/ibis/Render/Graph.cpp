@@ -34,7 +34,7 @@ namespace ibis
             return out;
         }
 
-        void Graph::addNode(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
+        void Graph::add(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
         {
             FTK_P();
             p.nodes.push_back(node);
@@ -42,7 +42,7 @@ namespace ibis
             p.changed->setAlways(true);
         }
 
-        void Graph::removeNode(const std::shared_ptr<INode>& node)
+        void Graph::remove(const std::shared_ptr<INode>& node)
         {
             FTK_P();
             bool changed = false;
@@ -69,7 +69,7 @@ namespace ibis
             return _p->nodes;
         }
 
-        void Graph::moveNode(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
+        void Graph::move(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
         {
             FTK_P();
             const auto i = p.pos.find(node);
@@ -90,6 +90,28 @@ namespace ibis
                 out = i->second;
             }
             return out;
+        }
+
+        void Graph::connect(
+            const std::shared_ptr<INode>& inputNode,
+            int input,
+            const std::shared_ptr<INode>& outputNode,
+            int output)
+        {
+            FTK_P();
+            inputNode->setInput(input, NodeConnection(outputNode, output));
+            p.changed->setAlways(true);
+        }
+
+        void Graph::disconnect(
+            const std::shared_ptr<INode>& inputNode,
+            int input,
+            const std::shared_ptr<INode>& outputNode,
+            int output)
+        {
+            FTK_P();
+            inputNode->setInput(input, NodeConnection());
+            p.changed->setAlways(true);
         }
 
         std::shared_ptr<ftk::IObservable<bool> > Graph::observe() const

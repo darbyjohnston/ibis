@@ -3,7 +3,9 @@
 
 #include "NodeFactory.h"
 
+#include "CompNodes.h"
 #include "IONodes.h"
+#include "MathNodes.h"
 
 namespace ibis
 {
@@ -27,6 +29,8 @@ namespace ibis
 
             p.nodes[InputNode::getNodeName()] = &InputNode::create;
             p.nodes[OutputNode::getNodeName()] = &OutputNode::create;
+            p.nodes[OverNode::getNodeName()] = &OverNode::create;
+            p.nodes[AddValueNode::getNodeName()] = &AddValueNode::create;
         }
 
         NodeFactory::NodeFactory() :
