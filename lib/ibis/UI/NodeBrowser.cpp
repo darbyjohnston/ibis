@@ -147,7 +147,7 @@ namespace ibis
             p.layout = ftk::VerticalLayout::create(context);
             p.layout->setMarginRole(ftk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
-            for (const auto& node : factory->getNodeNames())
+            for (const auto& node : factory->getNodeIDs())
             {
                 auto item = NodeBrowserItem::create(context, node, p.layout);
             }

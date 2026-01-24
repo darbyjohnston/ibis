@@ -8,6 +8,8 @@
 
 #include <opentimelineio/version.h>
 
+#include <nlohmann/json.hpp>
+
 namespace ibis
 {
     namespace render
@@ -21,11 +23,14 @@ namespace ibis
             NodeConnection(const std::shared_ptr<INode>&, int index);
 
             std::shared_ptr<INode> node;
-            int index = -1;
+            int                    index = -1;
 
             bool operator == (const NodeConnection&) const;
             bool operator != (const NodeConnection&) const;
         };
+
+        //! Node attributes.
+        typedef std::map<std::string, nlohmann::json> NodeAttr;
 
         //! Base class for nodes.
         class INode : public std::enable_shared_from_this<INode>
@@ -35,20 +40,34 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const std::string& id,
                 int inputCount,
-                int outputCount = 1);
+                int outputCount = 1,
+                const NodeAttr& = {});
 
             INode();
 
         public:
-            virtual ~INode();
+            virtual ~INode() = 0;
 
+            //! Get the ID.
             const std::string& getID() const;
 
+            //! Get the inputs.
             const std::vector<NodeConnection>& getInputs() const;
 
+            //! Set an input.
             void setInput(int, const NodeConnection&);
 
+            //! Get the output count.
             int getOutputCount() const;
+
+            //! Get the attribute keys.
+            std::vector<std::string> getAttrKeys() const;
+
+            //! Get an attribute.
+            nlohmann::json getAttr(const std::string&) const;
+
+            //! Set an attribute.
+            virtual bool setAttr(const std::string&, const nlohmann::json&);
 
         private:
             FTK_PRIVATE();

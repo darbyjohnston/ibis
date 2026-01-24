@@ -1,10 +1,12 @@
 set(HEADERS
     Document.h
-    DocumentModel.h)
+    DocumentModel.h
+    NodeSelectionModel.h)
 
 set(SOURCE
     Document.cpp
-    DocumentModel.cpp)
+    DocumentModel.cpp
+    NodeSelectionModel.cpp)
 
 set(LIBRARIES ibisRender ftk::ftkCore)
 

@@ -29,8 +29,10 @@ namespace ibis
             static std::shared_ptr<NodeFactory> create(
                 const std::shared_ptr<ftk::Context>&);
 
-            std::vector<std::string> getNodeNames() const;
+            //! Get node IDs.
+            std::vector<std::string> getNodeIDs() const;
 
+            //! Create a node.
             std::shared_ptr<INode> createNode(const std::string&);
 
         private:

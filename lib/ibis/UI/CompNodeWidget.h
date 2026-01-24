@@ -3,40 +3,35 @@
 
 #pragma once
 
-#include <ftk/UI/IWidget.h>
+#include <ibis/UI/INodeWidget.h>
 
 namespace ibis
 {
-    namespace models
-    {
-        class Document;
-    }
-
     namespace ui
     {
-        class NodeWidgetFactory;
-
-        //! Node editor.
-        class NodeEditor : public ftk::IWidget
+        //! Over node widget.
+        class OverNodeWidget : public INodeWidget
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<NodeWidgetFactory>&,
-                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            NodeEditor();
+            OverNodeWidget();
 
         public:
-            virtual ~NodeEditor();
+            virtual ~OverNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<NodeEditor> create(
+            static std::shared_ptr<OverNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<NodeWidgetFactory>&,
-                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+            static std::string getNodeID();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;

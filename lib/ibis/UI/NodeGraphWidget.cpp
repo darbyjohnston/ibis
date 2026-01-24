@@ -117,6 +117,7 @@ namespace ibis
             std::shared_ptr<render::INode> node;
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
+            bool selected = false;
             std::shared_ptr<ftk::VerticalLayout> layout;
         };
 
@@ -128,7 +129,7 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeGraphWidget", parent);
             FTK_P();
 
-            setBackgroundRole(ftk::ColorRole::Red);
+            setBackgroundRole(ftk::ColorRole::Button);
 
             p.node = node;
 
@@ -183,6 +184,23 @@ namespace ibis
         const std::vector<std::shared_ptr<NodeGraphOutput> >& NodeGraphWidget::getOutputs() const
         {
             return _p->outputs;
+        }
+
+        bool NodeGraphWidget::isSelected() const
+        {
+            return _p->selected;
+        }
+
+        void NodeGraphWidget::setSelected(bool value)
+        {
+            FTK_P();
+            if (value == p.selected)
+                return;
+            p.selected = value;
+            setBackgroundRole(
+                p.selected ?
+                ftk::ColorRole::Checked :
+                ftk::ColorRole::Button);
         }
 
         ftk::Size2I NodeGraphWidget::getSizeHint() const

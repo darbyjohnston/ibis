@@ -3,7 +3,13 @@
 
 #include "NodeEditor.h"
 
-#include <ftk/UI/Label.h>
+#include "NodeWidgetFactory.h"
+
+#include <ibis/Models/Document.h>
+#include <ibis/Models/NodeSelectionModel.h>
+
+#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/ScrollWidget.h>
 
 namespace ibis
 {
@@ -11,18 +17,39 @@ namespace ibis
     {
         struct NodeEditor::Private
         {
-            std::shared_ptr<ftk::Label> label;
+            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::ScrollWidget> scrollWidget;
+
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
         };
 
         void NodeEditor::_init(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<NodeWidgetFactory>& factory,
+            const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::NodeEditor", parent);
             FTK_P();
-            p.label = ftk::Label::create(context, "Node Editor", shared_from_this());
-            p.label->setHAlign(ftk::HAlign::Center);
-            p.label->setMarginRole(ftk::SizeRole::MarginLarge);
+
+            p.layout = ftk::VerticalLayout::create(context);
+
+            p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
+            p.scrollWidget->setBorder(false);
+            p.scrollWidget->setWidget(p.layout);
+
+            p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
+                document->getSelectionModel()->observe(),
+                [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
+                {
+                    FTK_P();
+                    p.layout->clear();
+                    for (const auto& node : selection)
+                    {
+                        auto widget = factory->createWidget(document->getGraph(), node);
+                        widget->setParent(p.layout);
+                    }
+                });
         }
 
         NodeEditor::NodeEditor() :
@@ -34,22 +61,24 @@ namespace ibis
 
         std::shared_ptr<NodeEditor> NodeEditor::create(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<NodeWidgetFactory>& factory,
+            const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeEditor> out(new NodeEditor);
-            out->_init(context, parent);
+            out->_init(context, factory, document, parent);
             return out;
         }
 
         ftk::Size2I NodeEditor::getSizeHint() const
         {
-            return _p->label->getSizeHint();
+            return _p->scrollWidget->getSizeHint();
         }
 
         void NodeEditor::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _p->label->setGeometry(value);
+            _p->scrollWidget->setGeometry(value);
         }
     }
 }

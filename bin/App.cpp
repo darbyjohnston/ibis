@@ -5,6 +5,8 @@
 
 #include "MainWindow.h"
 
+#include <ibis/UI/NodeWidgetFactory.h>
+
 #include <ftk/UI/DialogSystem.h>
 #include <ftk/UI/FileBrowser.h>
 #include <ftk/Core/Path.h>
@@ -44,6 +46,11 @@ namespace ibis
         return _nodeFactory;
     }
 
+    const std::shared_ptr<ui::NodeWidgetFactory>& App::getNodeWidgetFactory() const
+    {
+        return _nodeWidgetFactory;
+    }
+
     const std::shared_ptr<models::DocumentModel>& App::getDocumentModel() const
     {
         return _documentModel;
@@ -54,6 +61,8 @@ namespace ibis
         _recentFilesModel = ftk::RecentFilesModel::create(_context);
 
         _nodeFactory = render::NodeFactory::create(_context);
+
+        _nodeWidgetFactory = ui::NodeWidgetFactory::create(_context);
 
         _documentModel = models::DocumentModel::create(_context);
         _documentModel->newDocument();

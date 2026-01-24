@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include <ibis/Render/NodeFactory.h>
+#include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ibis/Models/DocumentModel.h>
+
+#include <ibis/Render/NodeFactory.h>
 
 #include <ftk/UI/App.h>
 #include <ftk/UI/RecentFilesModel.h>
@@ -38,6 +40,8 @@ namespace ibis
 
         const std::shared_ptr<render::NodeFactory>& getNodeFactory() const;
 
+        const std::shared_ptr<ui::NodeWidgetFactory>& getNodeWidgetFactory() const;
+
         const std::shared_ptr<models::DocumentModel>& getDocumentModel() const;
 
         void run() override;
@@ -50,6 +54,7 @@ namespace ibis
 
         std::shared_ptr<ftk::RecentFilesModel> _recentFilesModel;
         std::shared_ptr<render::NodeFactory> _nodeFactory;
+        std::shared_ptr<ui::NodeWidgetFactory> _nodeWidgetFactory;
         std::shared_ptr<models::DocumentModel> _documentModel;
 
         std::shared_ptr<MainWindow> _window;

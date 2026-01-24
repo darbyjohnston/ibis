@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "CompNodes.h"
+#include "CompNode.h"
 
 namespace ibis
 {

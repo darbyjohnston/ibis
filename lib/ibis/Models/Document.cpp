@@ -3,6 +3,8 @@
 
 #include "Document.h"
 
+#include "NodeSelectionModel.h"
+
 #include <ibis/Render/Graph.h>
 
 namespace ibis
@@ -11,8 +13,9 @@ namespace ibis
     {
         struct Document::Private
         {
-            std::shared_ptr<ftk::CommandStack> commandStack;
             std::shared_ptr<render::Graph> graph;
+            std::shared_ptr<ftk::CommandStack> commandStack;
+            std::shared_ptr<NodeSelectionModel> selectionModel;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
         };
@@ -20,8 +23,9 @@ namespace ibis
         void Document::_init(const std::shared_ptr<ftk::Context>& context)
         {
             FTK_P();
-            p.commandStack = ftk::CommandStack::create();
             p.graph = render::Graph::create(context);
+            p.commandStack = ftk::CommandStack::create();
+            p.selectionModel = NodeSelectionModel::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create("New Document");
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
         }
@@ -50,14 +54,19 @@ namespace ibis
             return out;
         }
 
+        const std::shared_ptr<render::Graph>& Document::getGraph() const
+        {
+            return _p->graph;
+        }
+
         const std::shared_ptr<ftk::CommandStack>& Document::getCommandStack() const
         {
             return _p->commandStack;
         }
 
-        const std::shared_ptr<render::Graph>& Document::getGraph() const
+        const std::shared_ptr<NodeSelectionModel>& Document::getSelectionModel() const
         {
-            return _p->graph;
+            return _p->selectionModel;
         }
 
         const std::filesystem::path& Document::getPath()

@@ -95,6 +95,9 @@ namespace ibis
             const std::vector<std::shared_ptr<NodeGraphInput> >& getInputs() const;
             const std::vector<std::shared_ptr<NodeGraphOutput> >& getOutputs() const;
 
+            bool isSelected() const;
+            void setSelected(bool);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
 

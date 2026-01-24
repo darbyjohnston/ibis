@@ -27,18 +27,21 @@ namespace ibis
             std::string id;
             std::vector<NodeConnection> inputs;
             int outputCount = -1;
+            NodeAttr attr;
         };
 
         void INode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::string& id,
             int inputCount,
-            int outputCount)
+            int outputCount,
+            const NodeAttr& attr)
         {
             FTK_P();
             p.id = id;
             p.inputs.resize(inputCount);
             p.outputCount = outputCount;
+            p.attr = attr;
         }
 
         INode::INode() :
@@ -70,6 +73,50 @@ namespace ibis
         int INode::getOutputCount() const
         {
             return _p->outputCount;
+        }
+
+        std::vector<std::string> INode::getAttrKeys() const
+        {
+            FTK_P();
+            std::vector<std::string> out;
+            for (const auto& i : p.attr)
+            {
+                out.push_back(i.first);
+            }
+            return out;
+        }
+
+        nlohmann::json INode::getAttr(const std::string& key) const
+        {
+            FTK_P();
+            nlohmann::json out;
+            const auto i = p.attr.find(key);
+            if (i != p.attr.end())
+            {
+                out = i->second;
+            }
+            return out;
+        }
+
+        bool INode::setAttr(const std::string& key, const nlohmann::json& value)
+        {
+            FTK_P();
+            bool out = false;
+            auto i = p.attr.find(key);
+            if (i != p.attr.end())
+            {
+                if (value != i->second)
+                {
+                    i->second = value;
+                    out = true;
+                }
+            }
+            else
+            {
+                p.attr[key] = value;
+                out = true;
+            }
+            return out;
         }
     }
 }

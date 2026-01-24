@@ -1,18 +1,28 @@
 set(HEADERS
+    CompNodeWidget.h
+    IONodeWidget.h
+    INodeWidget.h
+    MathNodeWidget.h
     NodeBrowser.h
     NodeDragDrop.h
     NodeEditor.h
     NodeGraphCanvas.h
     NodeGraphWidget.h
+    NodeWidgetFactory.h
     TimelineWidget.h
     Viewport.h)
 
 set(SOURCE
+    CompNodeWidget.cpp
+    IONodeWidget.cpp
+    INodeWidget.cpp
+    MathNodeWidget.cpp
     NodeBrowser.cpp
     NodeDragDrop.cpp
     NodeEditor.cpp
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
+    NodeWidgetFactory.cpp
     TimelineWidget.cpp
     Viewport.cpp)
 

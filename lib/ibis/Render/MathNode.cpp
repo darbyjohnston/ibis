@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "MathNodes.h"
+#include "MathNode.h"
 
 namespace ibis
 {
@@ -13,7 +13,9 @@ namespace ibis
 
         void AddValueNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, getNodeID(), 1);
+            NodeAttr attr;
+            attr["Value"] = 0.0;
+            INode::_init(context, getNodeID(), 1, 1, attr);
             FTK_P();
         }
 

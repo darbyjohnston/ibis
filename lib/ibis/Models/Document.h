@@ -20,6 +20,8 @@ namespace ibis
 
     namespace models
     {
+        class NodeSelectionModel;
+
         //! Document.
         class Document : public std::enable_shared_from_this<Document>
         {
@@ -40,11 +42,14 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
 
+            //! Get the graph.
+            const std::shared_ptr<render::Graph>& getGraph() const;
+
             //! Get the command stack.
             const std::shared_ptr<ftk::CommandStack>& getCommandStack() const;
 
-            //! Get the graph.
-            const std::shared_ptr<render::Graph>& getGraph() const;
+            //! Get the selection model.
+            const std::shared_ptr<NodeSelectionModel>& getSelectionModel() const;
 
             //! \name Path
             ///@{

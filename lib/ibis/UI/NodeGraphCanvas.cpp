@@ -7,6 +7,7 @@
 #include "NodeGraphWidget.h"
 
 #include <ibis/Models/Document.h>
+#include <ibis/Models/NodeSelectionModel.h>
 
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCommands.h>
@@ -28,10 +29,12 @@ namespace ibis
             int sizeHint = 0;
             int handle = 0;
             std::optional<Move> move;
+            std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
             std::optional<Connect> connect;
             bool dropTarget = false;
 
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
         };
 
         void NodeGraphCanvas::_init(
@@ -56,6 +59,29 @@ namespace ibis
                     if (value)
                     {
                         _graphUpdate();
+                    }
+                });
+
+            p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
+                document->getSelectionModel()->observe(),
+                [this](const std::vector<std::shared_ptr<render::INode> >& selection)
+                {
+                    FTK_P();
+
+                    for (const auto i : p.nodeToWidget)
+                    {
+                        const auto j = std::find(selection.begin(), selection.end(), i.first);
+                        i.second->setSelected(j != selection.end());
+                    }
+
+                    p.moveNodes.clear();
+                    for (const auto& node : selection)
+                    {
+                        const auto i = p.nodeToPos.find(node);
+                        if (i != p.nodeToPos.end())
+                        {
+                            p.moveNodes[node] = i->second;
+                        }
                     }
                 });
         }
@@ -184,14 +210,17 @@ namespace ibis
             FTK_P();
             if (p.move.has_value())
             {
-                const auto i = p.nodeToPos.find(p.move->node);
-                if (i != p.nodeToPos.end())
+                const ftk::V2I offset = event.pos - _getMousePressPos();
+                for (const auto i : p.moveNodes)
                 {
-                    const ftk::Box2I& g = getGeometry();
-                    i->second = event.pos - g.min;
-                    setSizeUpdate();
-                    setDrawUpdate();
+                    const auto j = p.nodeToPos.find(i.first);
+                    if (j != p.nodeToPos.end())
+                    {
+                        j->second = i.second + offset;
+                    }
                 }
+                setSizeUpdate();
+                setDrawUpdate();
             }
             else if (p.connect.has_value())
             {
@@ -214,6 +243,21 @@ namespace ibis
                 if (p.move)
                 {
                     moveToFront(p.move->widget);
+
+                    p.document->getSelectionModel()->set({ p.move->node });
+
+                    for (auto& i : p.moveNodes)
+                    {
+                        const auto j = p.nodeToPos.find(i.first);
+                        if (j != p.nodeToPos.end())
+                        {
+                            i.second = j->second;
+                        }
+                    }
+                }
+                else
+                {
+                    p.document->getSelectionModel()->clear();
                 }
             }
         }
@@ -225,9 +269,16 @@ namespace ibis
             const auto& graph = p.document->getGraph();
             if (p.move.has_value())
             {
-                const ftk::Box2I& g = getGeometry();
-                p.document->getCommandStack()->push(
-                    render::MoveNodeCommand::create(graph, p.move->node, event.pos - g.min));
+                const ftk::V2I offset = event.pos - _getMousePressPos();
+                for (const auto i : p.moveNodes)
+                {
+                    const auto j = p.nodeToPos.find(i.first);
+                    if (j != p.nodeToPos.end())
+                    {
+                        p.document->getCommandStack()->push(
+                            render::MoveNodeCommand::create(graph, i.first, i.second + offset));
+                    }
+                }
                 p.move.reset();
             }
             else if (p.connect.has_value())

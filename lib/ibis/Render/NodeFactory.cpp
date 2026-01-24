@@ -3,9 +3,9 @@
 
 #include "NodeFactory.h"
 
-#include "CompNodes.h"
-#include "IONodes.h"
-#include "MathNodes.h"
+#include "CompNode.h"
+#include "IONode.h"
+#include "MathNode.h"
 
 namespace ibis
 {
@@ -47,7 +47,7 @@ namespace ibis
             return out;
         }
 
-        std::vector<std::string> NodeFactory::getNodeNames() const
+        std::vector<std::string> NodeFactory::getNodeIDs() const
         {
             FTK_P();
             std::vector<std::string> out;
@@ -58,11 +58,11 @@ namespace ibis
             return out;
         }
 
-        std::shared_ptr<INode> NodeFactory::createNode(const std::string& name)
+        std::shared_ptr<INode> NodeFactory::createNode(const std::string& id)
         {
             FTK_P();
             std::shared_ptr<INode> out;
-            const auto i = p.nodes.find(name);
+            const auto i = p.nodes.find(id);
             if (i != p.nodes.end())
             {
                 out = i->second(p.context.lock());

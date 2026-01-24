@@ -24,7 +24,7 @@ namespace ibis
 
         _nodeBrowser = ui::NodeBrowser::create(context, app->getNodeFactory());
 
-        _nodeEditor = ui::NodeEditor::create(context);
+        _nodeEditor = ui::NodeEditor::create(context, app->getNodeWidgetFactory(), document);
 
         _layout = ftk::VerticalLayout::create(context, shared_from_this());
         _layout->setSpacingRole(ftk::SizeRole::None);
