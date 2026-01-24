@@ -8,7 +8,7 @@ set(SOURCE
     DocumentModel.cpp
     NodeSelectionModel.cpp)
 
-set(LIBRARIES ibisRender ftk::ftkCore)
+set(LIBRARIES ibisRender)
 
 add_library(ibisModels ${HEADERS} ${SOURCE})
 target_link_libraries(ibisModels ${LIBRARIES})

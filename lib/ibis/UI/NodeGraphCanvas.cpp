@@ -10,7 +10,7 @@
 #include <ibis/Models/NodeSelectionModel.h>
 
 #include <ibis/Render/Graph.h>
-#include <ibis/Render/GraphCommands.h>
+#include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/NodeFactory.h>
 
 namespace ibis

@@ -3,7 +3,7 @@ set(HEADERS)
 set(SOURCE
     main.cpp)
 
-set(LIBRARIES ibisModels)
+set(LIBRARIES ibisUITest ibisModelsTest ibisRenderTest ibisCoreTest)
 
 add_executable(ibistest ${SOURCE} ${HEADERS})
 target_link_libraries(ibistest ${LIBRARIES})

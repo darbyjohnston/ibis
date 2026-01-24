@@ -1,1 +1,6 @@
+add_subdirectory(CoreTest)
+add_subdirectory(ModelsTest)
+add_subdirectory(RenderTest)
+add_subdirectory(TestLib)
+add_subdirectory(UITest)
 add_subdirectory(ibistest)

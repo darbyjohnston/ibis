@@ -1,7 +1,7 @@
 set(HEADERS
     CompNode.h
     Graph.h
-    GraphCommands.h
+    GraphCmd.h
     INode.h
     IONode.h
     MathNode.h
@@ -10,13 +10,13 @@ set(HEADERS
 set(SOURCE
     CompNode.cpp
     Graph.cpp
-    GraphCommands.cpp
+    GraphCmd.cpp
     INode.cpp
     IONode.cpp
     MathNode.cpp
     NodeFactory.cpp)
 
-set(LIBRARIES ftk::ftkGL)
+set(LIBRARIES ibisCore ftk::ftkGL)
 
 add_library(ibisRender ${HEADERS} ${SOURCE})
 target_link_libraries(ibisRender ${LIBRARIES})

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "GraphCommands.h"
+#include "GraphCmd.h"
 
 namespace ibis
 {
