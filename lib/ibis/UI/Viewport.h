@@ -7,6 +7,11 @@
 
 namespace ibis
 {
+    namespace render
+    {
+        class Graph;
+    }
+
     namespace ui
     {
         //! Viewport.
@@ -15,6 +20,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::Graph>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             Viewport();
@@ -25,10 +31,13 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<Viewport> create(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::Graph>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
 
         private:
             FTK_PRIVATE();

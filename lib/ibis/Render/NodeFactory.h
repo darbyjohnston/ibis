@@ -4,9 +4,6 @@
 #pragma once
 
 #include <ftk/Core/Context.h>
-#include <ftk/Core/Observable.h>
-
-#include <opentimelineio/version.h>
 
 namespace ibis
 {

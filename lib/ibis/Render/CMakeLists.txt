@@ -2,6 +2,7 @@ set(HEADERS
     CompNode.h
     Graph.h
     GraphCmd.h
+    GraphRender.h
     INode.h
     IONode.h
     MathNode.h
@@ -11,6 +12,7 @@ set(SOURCE
     CompNode.cpp
     Graph.cpp
     GraphCmd.cpp
+    GraphRender.cpp
     INode.cpp
     IONode.cpp
     MathNode.cpp

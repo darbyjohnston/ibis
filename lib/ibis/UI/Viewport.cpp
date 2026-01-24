@@ -3,7 +3,7 @@
 
 #include "Viewport.h"
 
-#include <ftk/UI/Label.h>
+#include <ibis/Render/GraphRender.h>
 
 namespace ibis
 {
@@ -11,18 +11,20 @@ namespace ibis
     {
         struct Viewport::Private
         {
-            std::shared_ptr<ftk::Label> label;
+            std::shared_ptr<render::Graph> graph;
+            std::shared_ptr<render::GraphRender> render;
+            int sizeHint = 0;
         };
 
         void Viewport::_init(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<render::Graph>& graph,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            IWidget::_init(context, "ibis::Viewport", parent);
+            IWidget::_init(context, "ibis::ui::Viewport", parent);
             FTK_P();
-            p.label = ftk::Label::create(context, "Viewport", shared_from_this());
-            p.label->setHAlign(ftk::HAlign::Center);
-            p.label->setMarginRole(ftk::SizeRole::MarginLarge);
+            p.graph = graph;
+
         }
 
         Viewport::Viewport() :
@@ -34,22 +36,37 @@ namespace ibis
 
         std::shared_ptr<Viewport> Viewport::create(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<render::Graph>& graph,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<Viewport> out(new Viewport);
-            out->_init(context, parent);
+            out->_init(context, graph, parent);
             return out;
         }
 
         ftk::Size2I Viewport::getSizeHint() const
         {
-            return _p->label->getSizeHint();
+            FTK_P();
+            return ftk::Size2I(p.sizeHint, p.sizeHint);
         }
 
         void Viewport::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _p->label->setGeometry(value);
+        }
+
+        void Viewport::sizeHintEvent(const ftk::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            FTK_P();
+            p.sizeHint = event.style->getSizeRole(ftk::SizeRole::ScrollArea, event.displayScale);
+        }
+
+        void Viewport::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
+        {
+            FTK_P();
+            render::GraphRenderOptions options;
+            p.render->render(p.graph, options);
         }
     }
 }
