@@ -4,7 +4,8 @@
 #include "NodeFactory.h"
 
 #include "CompNode.h"
-#include "IONode.h"
+#include "GenNode.h"
+#include "InputNode.h"
 #include "MathNode.h"
 
 namespace ibis
@@ -14,11 +15,7 @@ namespace ibis
         struct NodeFactory::Private
         {
             std::weak_ptr<ftk::Context> context;
-
-            std::map<
-                std::string,
-                std::function<std::shared_ptr<INode>(const std::shared_ptr<ftk::Context>&)> >
-                nodes;
+            std::map<std::string, NodeCreate> nodes;
         };
 
         void NodeFactory::_init(const std::shared_ptr<ftk::Context>& context)
@@ -27,10 +24,10 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[InputNode::getNodeID()] = &InputNode::create;
-            p.nodes[OutputNode::getNodeID()] = &OutputNode::create;
-            p.nodes[OverNode::getNodeID()] = &OverNode::create;
             p.nodes[AddValueNode::getNodeID()] = &AddValueNode::create;
+            p.nodes[InputNode::getNodeID()] = &InputNode::create;
+            p.nodes[OverNode::getNodeID()] = &OverNode::create;
+            p.nodes[SolidColorNode::getNodeID()] = &SolidColorNode::create;
         }
 
         NodeFactory::NodeFactory() :
@@ -47,7 +44,12 @@ namespace ibis
             return out;
         }
 
-        std::vector<std::string> NodeFactory::getNodeIDs() const
+        void NodeFactory::add(const std::string& id, const NodeCreate& create)
+        {
+            _p->nodes[id] = create;
+        }
+
+        std::vector<std::string> NodeFactory::getIDs() const
         {
             FTK_P();
             std::vector<std::string> out;

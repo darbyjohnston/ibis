@@ -19,6 +19,7 @@ namespace ibis
         auto actions = fileActions->getActions();
         addAction(actions["New"]);
         addAction(actions["Open"]);
+        addAction(actions["Save"]);
         addAction(actions["Close"]);
         addAction(actions["CloseAll"]);
         _recentMenu = addSubMenu("Recent");

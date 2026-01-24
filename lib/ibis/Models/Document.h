@@ -9,6 +9,8 @@
 
 #include <opentimelineio/version.h>
 
+#include <nlohmann/json.hpp>
+
 #include <filesystem>
 
 namespace ibis
@@ -16,6 +18,7 @@ namespace ibis
     namespace render
     {
         class Graph;
+        class NodeFactory;
     }
 
     namespace models
@@ -26,7 +29,11 @@ namespace ibis
         class Document : public std::enable_shared_from_this<Document>
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::filesystem::path&,
+                const nlohmann::json&,
+                const std::shared_ptr<render::NodeFactory>&);
 
             Document();
 
@@ -35,12 +42,13 @@ namespace ibis
 
             //! Create a new document.
             static std::shared_ptr<Document> create(
-                const std::shared_ptr<ftk::Context>&);
-
-            //! Create a new document.
-            static std::shared_ptr<Document> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::filesystem::path&);
+                const std::filesystem::path& = {},
+                const nlohmann::json& = {},
+                const std::shared_ptr<render::NodeFactory>& = nullptr);
+
+            //! Serialize to JSON.
+            nlohmann::json to_json();
 
             //! Get the graph.
             const std::shared_ptr<render::Graph>& getGraph() const;

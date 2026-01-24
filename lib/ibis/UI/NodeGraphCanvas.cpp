@@ -52,6 +52,8 @@ namespace ibis
             p.document = document;
             p.nodeFactory = nodeFactory;
 
+            _graphUpdate();
+
             p.changedObserver = ftk::Observer<bool>::create(
                 document->getGraph()->observe(),
                 [this](bool value)

@@ -3,6 +3,8 @@
 
 #include "DocumentModel.h"
 
+#include <ftk/Core/FileIO.h>
+
 namespace ibis
 {
     namespace models
@@ -48,19 +50,13 @@ namespace ibis
             return _p->documents;
         }
 
-        void DocumentModel::newDocument()
+        void DocumentModel::add(const std::shared_ptr<Document>& document)
         {
             FTK_P();
-            auto document = Document::create(p.context.lock());
             const int index = p.documents->getSize();
             p.documents->pushBack(document);
             p.current->setIfChanged(document);
             p.currentIndex->setIfChanged(index);
-        }
-
-        void DocumentModel::open(const std::filesystem::path&)
-        {
-
         }
 
         void DocumentModel::close(int index)

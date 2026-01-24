@@ -1,20 +1,22 @@
 set(HEADERS
     CompNode.h
+    GenNode.h
     Graph.h
     GraphCmd.h
     GraphRender.h
     INode.h
-    IONode.h
+    InputNode.h
     MathNode.h
     NodeFactory.h)
 
 set(SOURCE
     CompNode.cpp
+    GenNode.cpp
     Graph.cpp
     GraphCmd.cpp
     GraphRender.cpp
     INode.cpp
-    IONode.cpp
+    InputNode.cpp
     MathNode.cpp
     NodeFactory.cpp)
 

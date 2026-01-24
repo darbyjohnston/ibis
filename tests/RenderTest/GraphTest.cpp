@@ -4,6 +4,8 @@
 #include "GraphTest.h"
 
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/INode.h>
+#include <ibis/Render/NodeFactory.h>
 
 #include <ftk/Core/Assert.h>
 
@@ -31,13 +33,15 @@ namespace ibis
             protected:
                 void _init(const std::shared_ptr<ftk::Context>& context)
                 {
-                    INode::_init(context, "TestNode", 1);
+                    INode::_init(context, getNodeID(), 1);
                 }
 
                 TestNode() = default;
 
             public:
                 virtual ~TestNode() = default;
+
+                static std::string getNodeID() { return "TestNode"; }
 
                 static std::shared_ptr<INode> create(
                     const std::shared_ptr<ftk::Context>& context)
@@ -98,6 +102,19 @@ namespace ibis
                 FTK_ASSERT(!node->getInputs()[0].node);
                 FTK_ASSERT(-1 == node->getInputs()[0].index);
                 FTK_ASSERT(changed);
+            }
+            {
+                auto graph = render::Graph::create(_context);
+                auto node = TestNode::create(_context);
+                ftk::V2I pos(100, 200);
+                graph->add(node, pos);
+                auto json = graph->to_json();
+                _print(json.dump(4));
+
+                auto nodeFactory = render::NodeFactory::create(_context);
+                nodeFactory->add(TestNode::getNodeID(), &TestNode::create);
+                auto graph2 = render::Graph::create(_context, json, nodeFactory);
+                FTK_ASSERT(graph->getNodes().size() == graph2->getNodes().size());
             }
         }
     }

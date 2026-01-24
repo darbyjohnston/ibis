@@ -4,7 +4,8 @@
 #include "NodeWidgetFactory.h"
 
 #include "CompNodeWidget.h"
-#include "IONodeWidget.h"
+#include "GenNodeWidget.h"
+#include "InputNodeWidget.h"
 #include "MathNodeWidget.h"
 
 #include <ibis/Render/INode.h>
@@ -33,10 +34,10 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[InputNodeWidget::getNodeID()] = &InputNodeWidget::create;
-            p.nodes[OutputNodeWidget::getNodeID()] = &OutputNodeWidget::create;
-            p.nodes[OverNodeWidget::getNodeID()] = &OverNodeWidget::create;
             p.nodes[AddValueNodeWidget::getNodeID()] = &AddValueNodeWidget::create;
+            p.nodes[InputNodeWidget::getNodeID()] = &InputNodeWidget::create;
+            p.nodes[OverNodeWidget::getNodeID()] = &OverNodeWidget::create;
+            p.nodes[SolidColorNodeWidget::getNodeID()] = &SolidColorNodeWidget::create;
         }
 
         NodeWidgetFactory::NodeWidgetFactory() :

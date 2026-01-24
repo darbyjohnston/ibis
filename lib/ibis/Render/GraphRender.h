@@ -4,6 +4,7 @@
 #pragma once
 
 #include <ftk/Core/Context.h>
+#include <ftk/Core/IRender.h>
 #include <ftk/Core/Size.h>
 
 namespace ibis
@@ -38,6 +39,7 @@ namespace ibis
 
             //! Render the graph.
             void render(
+                const std::shared_ptr<ftk::IRender>&,
                 const std::shared_ptr<Graph>&,
                 const GraphRenderOptions&);
 

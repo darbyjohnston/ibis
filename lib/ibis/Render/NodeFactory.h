@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ftk/Core/Context.h>
+#include <ibis/Render/INode.h>
 
 namespace ibis
 {
@@ -26,8 +26,11 @@ namespace ibis
             static std::shared_ptr<NodeFactory> create(
                 const std::shared_ptr<ftk::Context>&);
 
+            //! Add a node.
+            void add(const std::string&, const NodeCreate&);
+
             //! Get node IDs.
-            std::vector<std::string> getNodeIDs() const;
+            std::vector<std::string> getIDs() const;
 
             //! Create a node.
             std::shared_ptr<INode> createNode(const std::string&);

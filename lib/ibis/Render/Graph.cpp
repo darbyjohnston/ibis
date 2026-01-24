@@ -3,6 +3,9 @@
 
 #include "Graph.h"
 
+#include "INode.h"
+#include "NodeFactory.h"
+
 namespace ibis
 {
     namespace render
@@ -14,9 +17,45 @@ namespace ibis
             std::shared_ptr<ftk::Observable<bool> > changed;
         };
 
-        void Graph::_init(const std::shared_ptr<ftk::Context>& context)
+        void Graph::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json,
+            const std::shared_ptr<render::NodeFactory>& nodeFactory)
         {
             FTK_P();
+
+            if (!json.empty() && nodeFactory)
+            {
+                if (json.find("Nodes") != json.end())
+                {
+                    for (const auto& i : json["Nodes"])
+                    {
+                        if (i.contains("ID"))
+                        {
+                            auto node = nodeFactory->createNode(i["ID"]);
+                            if (i.contains("Attr"))
+                            {
+                                for (const auto& j : i["Attr"].items())
+                                {
+                                    node->setAttr(j.key(), j.value());
+                                }
+                            }
+                            ftk::V2I pos;
+                            if (i.contains("Pos"))
+                            {
+                                pos = i["Pos"];
+                            }
+                            p.nodes.push_back(node);
+                            p.pos[node] = pos;
+                        }
+                        else
+                        {
+                            throw std::runtime_error("Invalid ID");
+                        }
+                    }
+                }
+            }
+
             p.changed = ftk::Observable<bool>::create(false);
         }
 
@@ -27,10 +66,41 @@ namespace ibis
         Graph::~Graph()
         {}
 
-        std::shared_ptr<Graph> Graph::create(const std::shared_ptr<ftk::Context>& context)
+        std::shared_ptr<Graph> Graph::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json,
+            const std::shared_ptr<render::NodeFactory>& nodeFactory)
         {
             std::shared_ptr<Graph> out(new Graph);
-            out->_init(context);
+            out->_init(context, json, nodeFactory);
+            return out;
+        }
+
+        nlohmann::json Graph::to_json()
+        {
+            FTK_P();
+            nlohmann::json out;
+            nlohmann::json nodesJSON;
+            size_t nodeIndex = 0;
+            for (const auto& node : p.nodes)
+            {
+                nlohmann::json nodeJSON;
+                nodeJSON["ID"] = node->getID();
+                nodeJSON["Pos"] = getPos(node);
+                const auto& attrKeys = node->getAttrKeys();
+                if (!attrKeys.empty())
+                {
+                    nlohmann::json attrJSON;
+                    for (const auto& key : node->getAttrKeys())
+                    {
+                        attrJSON[key] = node->getAttr(key);
+                    }
+                    nodeJSON["Attr"] = attrJSON;
+                }
+                nodesJSON.push_back(nodeJSON);
+                ++nodeIndex;
+            }
+            out["Nodes"] = nodesJSON;
             return out;
         }
 
@@ -90,6 +160,22 @@ namespace ibis
                 out = i->second;
             }
             return out;
+        }
+
+        void Graph::setAttr(
+            const std::shared_ptr<INode>& node,
+            const std::string& key,
+            const nlohmann::json& value)
+        {
+            FTK_P();
+            const auto i =std::find(p.nodes.begin(), p.nodes.end(), node);
+            if (i != p.nodes.end())
+            {
+                if ((*i)->setAttr(key, value))
+                {
+                    p.changed->setAlways(true);
+                }
+            }
         }
 
         void Graph::connect(

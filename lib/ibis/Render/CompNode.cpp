@@ -19,12 +19,10 @@ namespace ibis
 
         OverNode::OverNode() :
             _p(new Private)
-        {
-        }
+        {}
 
         OverNode::~OverNode()
-        {
-        }
+        {}
 
         std::string OverNode::getNodeID()
         {

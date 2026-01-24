@@ -3,19 +3,24 @@
 
 #pragma once
 
-#include <ibis/Render/INode.h>
-
+#include <ftk/Core/Context.h>
 #include <ftk/Core/Vector.h>
 
 namespace ibis
 {
     namespace render
     {
+        class INode;
+        class NodeFactory;
+
         //! Graph.
         class Graph : public std::enable_shared_from_this<Graph>
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&,
+                const std::shared_ptr<NodeFactory>&);
 
             Graph();
 
@@ -24,7 +29,12 @@ namespace ibis
 
             //! Create a new graph.
             static std::shared_ptr<Graph> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {},
+                const std::shared_ptr<NodeFactory>& = nullptr);
+
+            //! Serialize to JSON.
+            nlohmann::json to_json();
 
             //! Add a node to the graph.
             void add(const std::shared_ptr<INode>&, const ftk::V2I&);
@@ -40,6 +50,12 @@ namespace ibis
 
             //! Get a node position.
             ftk::V2I getPos(const std::shared_ptr<INode>&);
+
+            //! Set a node attribute.
+            void setAttr(
+                const std::shared_ptr<INode>&,
+                const std::string&,
+                const nlohmann::json&);
 
             //! Connect nodes.
             void connect(

@@ -32,10 +32,10 @@ namespace ibis
         }
 
         void GraphRender::render(
+            const std::shared_ptr<ftk::IRender>& render,
             const std::shared_ptr<Graph>& graph,
             const GraphRenderOptions& options)
         {
-
         }
     }
 }

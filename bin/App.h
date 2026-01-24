@@ -12,6 +12,7 @@
 #include <ftk/UI/App.h>
 #include <ftk/UI/RecentFilesModel.h>
 #include <ftk/Core/CmdLine.h>
+#include <ftk/Core/Path.h>
 
 namespace ibis
 {
@@ -44,11 +45,17 @@ namespace ibis
 
         const std::shared_ptr<models::DocumentModel>& getDocumentModel() const;
 
+        void newDocument();
+        void open(const ftk::Path&);
+        void open();
+        void save();
+
         void run() override;
 
     private:
         struct CmdLine
         {
+            std::shared_ptr<ftk::CmdLineListArg<std::string> > inputs;
         };
         CmdLine _cmdLine;
 

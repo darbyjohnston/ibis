@@ -1,7 +1,8 @@
 set(HEADERS
     CompNodeWidget.h
-    IONodeWidget.h
+    GenNodeWidget.h
     INodeWidget.h
+    InputNodeWidget.h
     MathNodeWidget.h
     NodeBrowser.h
     NodeDragDrop.h
@@ -14,8 +15,9 @@ set(HEADERS
 
 set(SOURCE
     CompNodeWidget.cpp
-    IONodeWidget.cpp
+    GenNodeWidget.cpp
     INodeWidget.cpp
+    InputNodeWidget.cpp
     MathNodeWidget.cpp
     NodeBrowser.cpp
     NodeDragDrop.cpp

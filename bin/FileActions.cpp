@@ -20,7 +20,7 @@ namespace ibis
             ftk::KeyShortcut(ftk::Key::N, ftk::commandKeyModifier),
             [appWeak]
             {
-                appWeak.lock()->getDocumentModel()->newDocument();
+                appWeak.lock()->newDocument();
             });
         _actions["New"]->setTooltip("Create a new file.");
 
@@ -30,8 +30,19 @@ namespace ibis
             ftk::KeyShortcut(ftk::Key::O, ftk::commandKeyModifier),
             [appWeak]
             {
+                appWeak.lock()->open();
             });
         _actions["Open"]->setTooltip("Open a file.");
+
+        _actions["Save"] = ftk::Action::create(
+            "Save",
+            "FileSave",
+            ftk::KeyShortcut(ftk::Key::S, ftk::commandKeyModifier),
+            [appWeak]
+            {
+                appWeak.lock()->save();
+            });
+        _actions["Save"]->setTooltip("Save the current file.");
 
         std::weak_ptr<MainWindow> mainWindowWeak(mainWindow);
         _actions["Close"] = ftk::Action::create(

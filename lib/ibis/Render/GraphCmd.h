@@ -4,6 +4,7 @@
 #pragma once
 
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/INode.h>
 
 #include <ftk/Core/Command.h>
 

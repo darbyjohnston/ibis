@@ -20,13 +20,24 @@ namespace ibis
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
         };
 
-        void Document::_init(const std::shared_ptr<ftk::Context>& context)
+        void Document::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::filesystem::path& path,
+            const nlohmann::json& json,
+            const std::shared_ptr<render::NodeFactory>& nodeFactory)
         {
             FTK_P();
-            p.graph = render::Graph::create(context);
+            if (!json.empty() && json.contains("Graph"))
+            {
+                p.graph = render::Graph::create(context, json["Graph"], nodeFactory);
+            }
+            if (!p.graph)
+            {
+                p.graph = render::Graph::create(context);
+            }
             p.commandStack = ftk::CommandStack::create();
             p.selectionModel = NodeSelectionModel::create(context);
-            p.path = ftk::Observable<std::filesystem::path>::create("New Document");
+            p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
         }
 
@@ -37,20 +48,22 @@ namespace ibis
         Document::~Document()
         {}
 
-        std::shared_ptr<Document> Document::create(const std::shared_ptr<ftk::Context>&context)
+        std::shared_ptr<Document> Document::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::filesystem::path& path,
+            const nlohmann::json& json,
+            const std::shared_ptr<render::NodeFactory>& nodeFactory)
         {
             std::shared_ptr<Document> out(new Document);
-            out->_init(context);
+            out->_init(context, path, json, nodeFactory);
             return out;
         }
 
-        std::shared_ptr<Document> Document::create(
-            const std::shared_ptr<ftk::Context>& context,
-            const std::filesystem::path& path)
+        nlohmann::json Document::to_json()
         {
-            std::shared_ptr<Document> out(new Document);
-            out->_init(context);
-            out->_p->path->setIfChanged(path);
+            FTK_P();
+            nlohmann::json out;
+            out["Graph"] = p.graph->to_json();
             return out;
         }
 

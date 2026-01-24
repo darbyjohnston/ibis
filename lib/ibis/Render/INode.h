@@ -32,6 +32,9 @@ namespace ibis
         //! Node attributes.
         typedef std::map<std::string, nlohmann::json> NodeAttr;
 
+        //! Node create function.
+        typedef std::function<std::shared_ptr<INode>(const std::shared_ptr<ftk::Context>&)> NodeCreate;
+
         //! Base class for nodes.
         class INode : public std::enable_shared_from_this<INode>
         {

@@ -34,8 +34,7 @@ namespace ibis
             const std::vector<std::shared_ptr<Document> >& get();
             std::shared_ptr<ftk::IObservableList<std::shared_ptr<Document> > > observe() const;
 
-            void newDocument();
-            void open(const std::filesystem::path&);
+            void add(const std::shared_ptr<Document>&);
             void close(int);
             void closeAll();
 
