@@ -3,6 +3,7 @@
 
 #include "MathNodeWidget.h"
 
+#include <ibis/Render/Graph.h>
 #include <ibis/Render/MathNode.h>
 
 #include <ftk/UI/Divider.h>
@@ -20,6 +21,8 @@ namespace ibis
             std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::VerticalLayout> layout;
+
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
         void AddValueNodeWidget::_init(
@@ -44,6 +47,26 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context, p.layout);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
+
+            p.valueSlider->setCallback(
+                [this](double value)
+                {
+                    _graph->setAttr(_node, "Value", value);
+                });
+
+            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+                _node->observeAttr(),
+                [this](const std::map<std::string, nlohmann::json>& value)
+                {
+                    FTK_P();
+                    double v = 0.0;
+                    auto i = value.find("Value");
+                    if (i != value.end())
+                    {
+                        v = i->second;
+                    }
+                    p.valueSlider->setValue(v);
+                });
         }
 
         AddValueNodeWidget::AddValueNodeWidget() :

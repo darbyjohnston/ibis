@@ -5,10 +5,21 @@
 
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Observable.h>
+#include <ftk/Core/ObservableMap.h>
 
 #include <opentimelineio/version.h>
 
 #include <nlohmann/json.hpp>
+
+namespace ftk
+{
+    class IRender;
+
+    namespace gl
+    {
+        class OffscreenBuffer;
+    }
+}
 
 namespace ibis
 {
@@ -60,8 +71,8 @@ namespace ibis
             //! Set an input.
             void setInput(int, const NodeConnection&);
 
-            //! Get the output count.
-            int getOutputCount() const;
+            //! Get the outputs.
+            const std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> >& getOutputs() const;
 
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
@@ -69,11 +80,20 @@ namespace ibis
             //! Get an attribute.
             nlohmann::json getAttr(const std::string&) const;
 
+            //! Observe the attributes.
+            std::shared_ptr<ftk::IObservableMap<std::string, nlohmann::json> > observeAttr() const;
+
             //! Set an attribute.
             virtual bool setAttr(const std::string&, const nlohmann::json&);
 
-        private:
-            FTK_PRIVATE();
+            //! Execute the node.
+            virtual void exec(const std::shared_ptr<ftk::IRender>&);
+
+        protected:
+            std::string _id;
+            std::vector<NodeConnection> _inputs;
+            std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
+            std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;
         };
     }
 }

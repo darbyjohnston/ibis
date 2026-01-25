@@ -12,7 +12,7 @@ namespace ibis
     {
         struct Graph::Private
         {
-            std::list<std::shared_ptr<INode> > nodes;
+            std::vector<std::shared_ptr<INode> > nodes;
             std::map<std::shared_ptr<INode>, ftk::V2I> pos;
             std::shared_ptr<ftk::Observable<bool> > changed;
         };
@@ -112,6 +112,22 @@ namespace ibis
             p.changed->setAlways(true);
         }
 
+        void Graph::add(
+            const std::vector<std::shared_ptr<INode> >& nodes,
+            const std::vector<ftk::V2I>& pos)
+        {
+            FTK_P();
+            for (size_t i = 0; i < nodes.size(); ++i)
+            {
+                p.nodes.push_back(nodes[i]);
+                if (i < pos.size())
+                {
+                    p.pos[nodes[i]] = pos[i];
+                }
+            }
+            p.changed->setAlways(true);
+        }
+
         void Graph::remove(const std::shared_ptr<INode>& node)
         {
             FTK_P();
@@ -120,6 +136,16 @@ namespace ibis
             if (i != p.nodes.end())
             {
                 p.nodes.erase(i);
+                for (const auto& node2 : p.nodes)
+                {
+                    for (const auto& input : node2->getInputs())
+                    {
+                        if (input.node == node)
+                        {
+                            node2->setInput(input.index, NodeConnection());
+                        }
+                    }
+                }
                 changed = true;
             }
             const auto j = p.pos.find(node);
@@ -134,7 +160,42 @@ namespace ibis
             }
         }
 
-        const std::list<std::shared_ptr<INode> >& Graph::getNodes() const
+        void Graph::remove(const std::vector<std::shared_ptr<INode> >& nodes)
+        {
+            FTK_P();
+            bool changed = false;
+            for (const auto& node : nodes)
+            {
+                const auto i = std::find(p.nodes.begin(), p.nodes.end(), node);
+                if (i != p.nodes.end())
+                {
+                    p.nodes.erase(i);
+                    for (const auto& node2 : p.nodes)
+                    {
+                        for (const auto& input : node2->getInputs())
+                        {
+                            if (input.node == node)
+                            {
+                                node2->setInput(input.index, NodeConnection());
+                            }
+                        }
+                    }
+                    changed = true;
+                }
+                const auto j = p.pos.find(node);
+                if (j != p.pos.end())
+                {
+                    p.pos.erase(j);
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
+                p.changed->setAlways(true);
+            }
+        }
+
+        const std::vector<std::shared_ptr<INode> >& Graph::getNodes() const
         {
             return _p->nodes;
         }
@@ -176,6 +237,35 @@ namespace ibis
                     p.changed->setAlways(true);
                 }
             }
+        }
+
+        std::vector<std::shared_ptr<INode> > Graph::getLeafNodes() const
+        {
+            FTK_P();
+            std::vector<std::shared_ptr<INode> > out;
+            std::map<std::shared_ptr<INode>, int> connections;
+            for (const auto& node : p.nodes)
+            {
+                connections[node] = 0;
+            }
+            for (const auto& node : p.nodes)
+            {
+                for (const auto& input : node->getInputs())
+                {
+                    if (input.node)
+                    {
+                        connections[input.node]++;
+                    }
+                }
+            }
+            for (const auto i : connections)
+            {
+                if (0 == i.second)
+                {
+                    out.push_back(i.first);
+                }
+            }
+            return out;
         }
 
         void Graph::connect(

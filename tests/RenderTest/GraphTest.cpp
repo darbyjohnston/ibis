@@ -58,6 +58,7 @@ namespace ibis
             {
                 auto graph = render::Graph::create(_context);
                 FTK_ASSERT(graph->getNodes().empty());
+                FTK_ASSERT(graph->getLeafNodes().empty());
 
                 bool changed = false;
                 auto changedObserver = ftk::Observer<bool>::create(
@@ -70,9 +71,11 @@ namespace ibis
                 auto node = TestNode::create(_context);
                 ftk::V2I pos(100, 200);
                 graph->add(node, pos);
-                FTK_ASSERT(!graph->getNodes().empty());
-                FTK_ASSERT(node == graph->getNodes().front());
+                FTK_ASSERT(1 == graph->getNodes().size());
+                FTK_ASSERT(node == graph->getNodes()[0]);
                 FTK_ASSERT(pos == graph->getPos(node));
+                FTK_ASSERT(1 == graph->getLeafNodes().size());
+                FTK_ASSERT(node == graph->getLeafNodes()[0]);
                 FTK_ASSERT(changed);
 
                 changed = false;
@@ -95,12 +98,27 @@ namespace ibis
                 graph->connect(node, 0, node2, 0);
                 FTK_ASSERT(node->getInputs()[0].node == node2);
                 FTK_ASSERT(node->getInputs()[0].index == 0);
+                FTK_ASSERT(1 == graph->getLeafNodes().size());
+                FTK_ASSERT(node == graph->getLeafNodes()[0]);
                 FTK_ASSERT(changed);
 
                 changed = false;
                 graph->disconnect(node, 0, node2, 0);
                 FTK_ASSERT(!node->getInputs()[0].node);
                 FTK_ASSERT(-1 == node->getInputs()[0].index);
+                FTK_ASSERT(2 == graph->getLeafNodes().size());
+                FTK_ASSERT(changed);
+
+                changed = false;
+                graph->remove({ node, node2 });
+                FTK_ASSERT(graph->getNodes().empty());
+                FTK_ASSERT(changed);
+
+                changed = false;
+                graph->add({ node, node2 });
+                FTK_ASSERT(2 == graph->getNodes().size());
+                FTK_ASSERT(node == graph->getNodes()[0]);
+                FTK_ASSERT(node2 == graph->getNodes()[1]);
                 FTK_ASSERT(changed);
             }
             {

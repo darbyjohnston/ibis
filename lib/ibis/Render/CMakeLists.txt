@@ -3,7 +3,6 @@ set(HEADERS
     GenNode.h
     Graph.h
     GraphCmd.h
-    GraphRender.h
     INode.h
     InputNode.h
     MathNode.h
@@ -14,16 +13,23 @@ set(SOURCE
     GenNode.cpp
     Graph.cpp
     GraphCmd.cpp
-    GraphRender.cpp
     INode.cpp
     InputNode.cpp
     MathNode.cpp
     NodeFactory.cpp)
 
 set(LIBRARIES ibisCore ftk::ftkGL)
+set(LIBRARIES_PRIVATE)
+if(ibis_OIIO)
+    list(APPEND LIBRARIES_PRIVATE OpenImageIO::OpenImageIO)
+    if(ibis_TIFF AND BUILD_SHARED_LIBS)
+        # \bug OIIO link bug?
+        list(APPEND LIBRARIES_PRIVATE TIFF::TIFF)
+    endif()
+endif()
 
 add_library(ibisRender ${HEADERS} ${SOURCE})
-target_link_libraries(ibisRender ${LIBRARIES})
+target_link_libraries(ibisRender PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(ibisRender PROPERTIES FOLDER lib)
 set_target_properties(ibisRender PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

@@ -41,6 +41,33 @@ namespace ibis
             ftk::V2I _pos;
         };
 
+        //! Remove nodes.
+        class RemoveNodesCommand : public ftk::ICommand
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<Graph>&,
+                const std::vector<std::shared_ptr<INode> >&);
+
+            RemoveNodesCommand() = default;
+
+        public:
+            virtual ~RemoveNodesCommand() = default;
+
+            //! Create a new command.
+            static std::shared_ptr<RemoveNodesCommand> create(
+                const std::shared_ptr<Graph>&,
+                const std::vector<std::shared_ptr<INode> >&);
+
+            void exec() override;
+            void undo() override;
+
+        private:
+            std::shared_ptr<Graph> _graph;
+            std::vector<std::shared_ptr<INode> > _nodes;
+            std::vector<NodeConnection> _connections;
+        };
+
         //! Move a node.
         class MoveNodeCommand : public ftk::ICommand
         {

@@ -37,6 +37,33 @@ namespace ibis
             _graph->remove(_node);
         }
 
+        void RemoveNodesCommand::_init(
+            const std::shared_ptr<Graph>& graph,
+            const std::vector<std::shared_ptr<INode> >& nodes)
+        {
+            _graph = graph;
+            _nodes = nodes;
+        }
+
+        std::shared_ptr<RemoveNodesCommand> RemoveNodesCommand::create(
+            const std::shared_ptr<Graph>& graph,
+            const std::vector<std::shared_ptr<INode> >& nodes)
+        {
+            std::shared_ptr<RemoveNodesCommand> out(new RemoveNodesCommand);
+            out->_init(graph, nodes);
+            return out;
+        }
+
+        void RemoveNodesCommand::exec()
+        {
+            _graph->remove(_nodes);
+        }
+
+        void RemoveNodesCommand::undo()
+        {
+            _graph->add(_nodes);
+        }
+
         void MoveNodeCommand::_init(
             const std::shared_ptr<Graph>& graph,
             const std::shared_ptr<INode>& node,

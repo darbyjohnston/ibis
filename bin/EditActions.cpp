@@ -6,6 +6,10 @@
 #include "App.h"
 #include "MainWindow.h"
 
+#include <ibis/Models/NodeSelectionModel.h>
+
+#include <ibis/Render/GraphCmd.h>
+
 namespace ibis
 {
     void EditActions::_init(
@@ -40,12 +44,28 @@ namespace ibis
             });
         _actions["Redo"]->setTooltip("Redo the last command.");
 
+        _actions["Delete"] = ftk::Action::create(
+            "Delete",
+            ftk::KeyShortcut(ftk::Key::Delete),
+            [appWeak]
+            {
+                if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
+                {
+                    document->getCommandStack()->push(
+                        render::RemoveNodesCommand::create(
+                            document->getGraph(),
+                            document->getSelectionModel()->get()));
+                }
+            });
+        _actions["Delete"]->setTooltip("Delete the selection.");
+
         _currentObserver = ftk::Observer<std::shared_ptr<models::Document> >::create(
             app->getDocumentModel()->observeCurrent(),
             [this](const std::shared_ptr<models::Document>& value)
             {
                 _hasUndoObserver.reset();
                 _hasRedoObserver.reset();
+                _selectionObserver.reset();
                 if (value)
                 {
                     _hasUndoObserver = ftk::Observer<bool>::create(
@@ -60,11 +80,18 @@ namespace ibis
                         {
                             _actions["Redo"]->setEnabled(value);
                         });
+                    _selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
+                        value->getSelectionModel()->observe(),
+                        [this](const std::vector<std::shared_ptr<render::INode> >& value)
+                        {
+                            _actions["Delete"]->setEnabled(!value.empty());
+                        });
                 }
                 else
                 {
                     _actions["Undo"]->setEnabled(false);
                     _actions["Redo"]->setEnabled(false);
+                    _actions["Delete"]->setEnabled(false);
                 }
             });
     }

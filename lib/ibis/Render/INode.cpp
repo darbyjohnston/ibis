@@ -22,14 +22,6 @@ namespace ibis
             return !(*this == other);
         }
 
-        struct INode::Private
-        {
-            std::string id;
-            std::vector<NodeConnection> inputs;
-            int outputCount = -1;
-            NodeAttr attr;
-        };
-
         void INode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::string& id,
@@ -37,15 +29,13 @@ namespace ibis
             int outputCount,
             const NodeAttr& attr)
         {
-            FTK_P();
-            p.id = id;
-            p.inputs.resize(inputCount);
-            p.outputCount = outputCount;
-            p.attr = attr;
+            _id = id;
+            _inputs.resize(inputCount);
+            _outputs.resize(outputCount);
+            _attr = ftk::ObservableMap<std::string, nlohmann::json>::create(attr);
         }
 
-        INode::INode() :
-            _p(new Private)
+        INode::INode()
         {}
 
         INode::~INode()
@@ -53,70 +43,71 @@ namespace ibis
 
         const std::string& INode::getID() const
         {
-            return _p->id;
+            return _id;
         }
 
         const std::vector<NodeConnection>& INode::getInputs() const
         {
-            return _p->inputs;
+            return _inputs;
         }
 
         void INode::setInput(int index, const NodeConnection& connection)
         {
-            FTK_P();
-            if (index >= 0 && index < p.inputs.size())
+            if (index >= 0 && index < _inputs.size())
             {
-                p.inputs[index] = connection;
+                _inputs[index] = connection;
             }
         }
 
-        int INode::getOutputCount() const
+        const std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> >& INode::getOutputs() const
         {
-            return _p->outputCount;
+            return _outputs;
         }
 
         std::vector<std::string> INode::getAttrKeys() const
         {
-            FTK_P();
-            std::vector<std::string> out;
-            for (const auto& i : p.attr)
-            {
-                out.push_back(i.first);
-            }
-            return out;
+            return _attr->getKeys();
         }
 
         nlohmann::json INode::getAttr(const std::string& key) const
         {
-            FTK_P();
             nlohmann::json out;
-            const auto i = p.attr.find(key);
-            if (i != p.attr.end())
+            if (_attr->hasKey(key))
             {
-                out = i->second;
+                out = _attr->getItem(key);
             }
             return out;
         }
 
+        std::shared_ptr<ftk::IObservableMap<std::string, nlohmann::json> > INode::observeAttr() const
+        {
+            return _attr;
+        }
+
         bool INode::setAttr(const std::string& key, const nlohmann::json& value)
         {
-            FTK_P();
             bool out = false;
-            auto i = p.attr.find(key);
-            if (i != p.attr.end())
+            if (_attr->hasKey(key))
             {
-                if (value != i->second)
-                {
-                    i->second = value;
-                    out = true;
-                }
+                out = _attr->setItemOnlyIfChanged(key, value);
             }
             else
             {
-                p.attr[key] = value;
+                _attr->setItem(key, value);
                 out = true;
             }
             return out;
+        }
+
+        void INode::exec(const std::shared_ptr<ftk::IRender>& render)
+        {
+            for (const auto& input : _inputs)
+            {
+                if (input.node)
+                {
+                    input.node->exec(render);
+                }
+            }
         }
     }
 }

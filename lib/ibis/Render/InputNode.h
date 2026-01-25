@@ -25,25 +25,7 @@ namespace ibis
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
 
-        private:
-            FTK_PRIVATE();
-        };
-
-        //! Output node.
-        class OutputNode : public INode
-        {
-        protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
-
-            OutputNode();
-
-        public:
-            virtual ~OutputNode();
-
-            static std::string getNodeID();
-
-            static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+            void exec(const std::shared_ptr<ftk::IRender>&) override;
 
         private:
             FTK_PRIVATE();

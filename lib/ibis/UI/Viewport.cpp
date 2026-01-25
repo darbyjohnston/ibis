@@ -4,7 +4,7 @@
 #include "Viewport.h"
 
 #include <ibis/Render/Graph.h>
-#include <ibis/Render/GraphRender.h>
+#include <ibis/Render/INode.h>
 
 #include <ftk/GL/GL.h>
 #include <ftk/GL/OffscreenBuffer.h>
@@ -22,7 +22,6 @@ namespace ibis
             int sizeHint = 0;
 
             bool doRender = true;
-            std::shared_ptr<render::GraphRender> render;
             std::shared_ptr<ftk::gl::OffscreenBuffer> buffer;
 
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
@@ -107,27 +106,42 @@ namespace ibis
                     {
                         p.buffer = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
+                    ftk::gl::OffscreenBufferBinding binding(p.buffer);
 
                     const ftk::ViewportState viewportState(event.render);
                     const ftk::ClipRectEnabledState clipRectEnabledState(event.render);
                     const ftk::ClipRectState clipRectState(event.render);
                     const ftk::TransformState transformState(event.render);
                     const ftk::RenderSizeState renderSizeState(event.render);
-                    event.render->setRenderSize(size);
-                    event.render->setViewport(ftk::Box2I(0, 0, g.w(), g.h()));
                     event.render->setClipRectEnabled(false);
 
-                    ftk::gl::OffscreenBufferBinding binding(p.buffer);
-                    event.render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-
-                    render::GraphRenderOptions options;
-                    const auto& nodes = p.graph->getNodes();
+                    const auto nodes = p.graph->getLeafNodes();
                     if (!nodes.empty())
                     {
-                        options.node = nodes.front();
+                        auto& node = nodes.front();
+                        node->exec(event.render);
+                        const auto& outputs = node->getOutputs();
+                        if (!outputs.empty() && outputs.front())
+                        {
+                            event.render->setRenderSize(size);
+                            event.render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                            event.render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                            const auto pm = ftk::ortho(
+                                0.F,
+                                static_cast<float>(size.w),
+                                static_cast<float>(size.h),
+                                0.F,
+                                -1.F,
+                                1.F);
+                            const ftk::M44F vm;
+                            event.render->setTransform(pm * vm);
+
+                            const auto& output = outputs.front();
+                            event.render->drawTexture(
+                                output->getColorID(),
+                                ftk::Box2I(ftk::V2I(0, 0), output->getSize()));
+                        }
                     }
-                    options.size = size;
-                    p.render->render(event.render, p.graph, options);
                 }
                 catch (const std::exception& e)
                 {

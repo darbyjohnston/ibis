@@ -3,9 +3,12 @@
 
 #include "InputNodeWidget.h"
 
+#include <ibis/Render/Graph.h>
 #include <ibis/Render/InputNode.h>
 
 #include <ftk/UI/Divider.h>
+#include <ftk/UI/FileEdit.h>
+#include <ftk/UI/FormLayout.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -16,7 +19,10 @@ namespace ibis
         struct InputNodeWidget::Private
         {
             std::shared_ptr<ftk::Label> label;
+            std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::VerticalLayout> layout;
+
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
         void InputNodeWidget::_init(
@@ -32,10 +38,35 @@ namespace ibis
             p.label->setMarginRole(ftk::SizeRole::MarginSmall);
             p.label->setBackgroundRole(ftk::ColorRole::Button);
 
+            p.fileEdit = ftk::FileEdit::create(context);
+
             p.layout = ftk::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
             p.label->setParent(p.layout);
             ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
+            auto formLayout = ftk::FormLayout::create(context, p.layout);
+            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            formLayout->addRow("Path:", p.fileEdit);
+
+            p.fileEdit->setCallback(
+                [this](const ftk::Path& path)
+                {
+                    _graph->setAttr(_node, "Path", path.get());
+                });
+
+            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+                _node->observeAttr(),
+                [this](const std::map<std::string, nlohmann::json>& value)
+                {
+                    FTK_P();
+                    std::string path;
+                    auto i = value.find("Path");
+                    if (i != value.end())
+                    {
+                        path = i->second;
+                    }
+                    p.fileEdit->setPath(ftk::Path(path));
+                });
         }
 
         InputNodeWidget::InputNodeWidget() :

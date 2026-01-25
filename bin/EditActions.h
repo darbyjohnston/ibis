@@ -9,6 +9,11 @@
 
 namespace ibis
 {
+    namespace render
+    {
+        class INode;
+    }
+
     class App;
     class MainWindow;
 
@@ -41,5 +46,6 @@ namespace ibis
         std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > _currentObserver;
         std::shared_ptr<ftk::Observer<bool> > _hasUndoObserver;
         std::shared_ptr<ftk::Observer<bool> > _hasRedoObserver;
+        std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > _selectionObserver;
     };
 }

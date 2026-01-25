@@ -148,7 +148,7 @@ namespace ibis
             label->setParent(p.layout);
             hLayout = ftk::HorizontalLayout::create(context, p.layout);
             p.layout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            for (int i = 0; i < node->getOutputCount(); ++i)
+            for (int i = 0; i < node->getOutputs().size(); ++i)
             {
                 p.outputs.push_back(NodeGraphOutput::create(context, node, hLayout));
             }

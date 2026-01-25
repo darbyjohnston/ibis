@@ -19,6 +19,8 @@ namespace ibis
         auto actions = editActions->getActions();
         addAction(actions["Undo"]);
         addAction(actions["Redo"]);
+        addDivider();
+        addAction(actions["Delete"]);
     }
 
     EditMenu::~EditMenu()

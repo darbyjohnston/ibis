@@ -37,13 +37,21 @@ namespace ibis
             nlohmann::json to_json();
 
             //! Add a node to the graph.
-            void add(const std::shared_ptr<INode>&, const ftk::V2I&);
+            void add(const std::shared_ptr<INode>&, const ftk::V2I& = ftk::V2I());
+
+            //! Add nodes to the graph.
+            void add(
+                const std::vector<std::shared_ptr<INode> >&,
+                const std::vector<ftk::V2I>& = {});
 
             //! Remove a node from the graph.
             void remove(const std::shared_ptr<INode>&);
 
+            //! Remove nodes from the graph.
+            void remove(const std::vector<std::shared_ptr<INode> >&);
+
             //! Get the nodes in the graph.
-            const std::list<std::shared_ptr<INode> >& getNodes() const;
+            const std::vector<std::shared_ptr<INode> >& getNodes() const;
 
             //! Move a node.
             void move(const std::shared_ptr<INode>&, const ftk::V2I&);
@@ -70,6 +78,9 @@ namespace ibis
                 int input,
                 const std::shared_ptr<INode>& outputNode,
                 int output);
+
+            //! Get leaf nodes.
+            std::vector<std::shared_ptr<INode> > getLeafNodes() const;
 
             //! Observe graph changes.
             std::shared_ptr<ftk::IObservable<bool> > observe() const;
