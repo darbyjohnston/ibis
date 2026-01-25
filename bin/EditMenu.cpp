@@ -20,6 +20,10 @@ namespace ibis
         addAction(actions["Undo"]);
         addAction(actions["Redo"]);
         addDivider();
+        addAction(actions["SelectAll"]);
+        addAction(actions["SelectNone"]);
+        addAction(actions["SelectInvert"]);
+        addDivider();
         addAction(actions["Delete"]);
     }
 

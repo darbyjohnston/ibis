@@ -39,7 +39,7 @@ namespace ibis
             p.scrollWidget->setWidget(p.layout);
 
             p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
-                document->getSelectionModel()->observe(),
+                document->observeSelection(),
                 [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
                 {
                     FTK_P();

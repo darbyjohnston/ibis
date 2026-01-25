@@ -18,6 +18,7 @@ namespace ibis
     namespace render
     {
         class Graph;
+        class INode;
         class NodeFactory;
     }
 
@@ -53,12 +54,6 @@ namespace ibis
             //! Get the graph.
             const std::shared_ptr<render::Graph>& getGraph() const;
 
-            //! Get the command stack.
-            const std::shared_ptr<ftk::CommandStack>& getCommandStack() const;
-
-            //! Get the selection model.
-            const std::shared_ptr<NodeSelectionModel>& getSelectionModel() const;
-
             //! \name Path
             ///@{
 
@@ -79,9 +74,27 @@ namespace ibis
             //! \name Editing
             ///@{
 
+            void command(const std::shared_ptr<ftk::ICommand>&);
+
             void undo();
             void redo();
+            std::shared_ptr<ftk::IObservable<bool> > observeHasUndo() const;
+            std::shared_ptr<ftk::IObservable<bool> > observeHasRedo() const;
+
             void deleteSelection();
+
+            ///@}
+
+            //! \name Selection
+            ///@{
+
+            const std::vector<std::shared_ptr<render::INode> > getSelection() const;
+            std::shared_ptr<ftk::IObservableList<std::shared_ptr<render::INode> > > observeSelection() const;
+
+            void select(const std::vector<std::shared_ptr<render::INode> >&);
+            void selectAll();
+            void clearSelection();
+            void invertSelection();
 
             ///@}
 

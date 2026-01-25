@@ -7,7 +7,6 @@
 #include "NodeGraphWidget.h"
 
 #include <ibis/Models/Document.h>
-#include <ibis/Models/NodeSelectionModel.h>
 
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
@@ -65,7 +64,7 @@ namespace ibis
                 });
 
             p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
-                document->getSelectionModel()->observe(),
+                document->observeSelection(),
                 [this](const std::vector<std::shared_ptr<render::INode> >& selection)
                 {
                     FTK_P();
@@ -251,7 +250,12 @@ namespace ibis
                 if (p.move)
                 {
                     moveToFront(p.move->widget);
-                    p.document->getSelectionModel()->set({ p.move->node });
+                    const auto& selection = p.document->getSelection();
+                    const auto i = std::find(selection.begin(), selection.end(), p.move->node);
+                    if (i == selection.end())
+                    {
+                        p.document->select({ p.move->node });
+                    }
                     for (auto& i : p.moveNodes)
                     {
                         const auto j = p.nodeToPos.find(i.first);
@@ -263,7 +267,7 @@ namespace ibis
                 }
                 else
                 {
-                    p.document->getSelectionModel()->clear();
+                    p.document->clearSelection();
                 }
             }
         }
@@ -286,7 +290,7 @@ namespace ibis
                         nodes.push_back(i.first);
                         pos.push_back(i.second + offset);
                     }
-                    p.document->getCommandStack()->push(
+                    p.document->command(
                         render::MoveNodesCmd::create(graph, nodes, pos));
                 }
                 p.move.reset();
@@ -299,7 +303,7 @@ namespace ibis
                     const auto output = _getOutput(event.pos);
                     if (output.has_value())
                     {
-                        p.document->getCommandStack()->push(
+                        p.document->command(
                             render::ConnectNodesCmd::create(
                                 graph,
                                 p.connect->node,
@@ -313,7 +317,7 @@ namespace ibis
                     const auto input = _getInput(event.pos);
                     if (input.has_value())
                     {
-                        p.document->getCommandStack()->push(
+                        p.document->command(
                             render::ConnectNodesCmd::create(
                                 graph,
                                 input->node,
@@ -364,7 +368,7 @@ namespace ibis
                 if (auto node = p.nodeFactory->createNode(data->getNode()))
                 {
                     const ftk::Box2I& g = getGeometry();
-                    p.document->getCommandStack()->push(
+                    p.document->command(
                         render::AddNodesCmd::create(
                             p.document->getGraph(),
                             { node },

@@ -40,7 +40,7 @@ namespace ibis
 
             //! Remove from the selection.
             void remove(const std::shared_ptr<render::INode>&);
-
+            
             //! Clear the selection.
             void clear();
 

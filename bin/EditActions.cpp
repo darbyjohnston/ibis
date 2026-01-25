@@ -6,8 +6,6 @@
 #include "App.h"
 #include "MainWindow.h"
 
-#include <ibis/Models/NodeSelectionModel.h>
-
 #include <ibis/Render/GraphCmd.h>
 
 namespace ibis
@@ -44,6 +42,41 @@ namespace ibis
             });
         _actions["Redo"]->setTooltip("Redo the last command.");
 
+        _actions["SelectAll"] = ftk::Action::create(
+            "Select All",
+            ftk::KeyShortcut(ftk::Key::A, ftk::commandKeyModifier),
+            [appWeak]
+            {
+                if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
+                {
+                    document->selectAll();
+                }
+            });
+        _actions["SelectAll"]->setTooltip("Select all nodes.");
+
+        _actions["SelectNone"] = ftk::Action::create(
+            "Clear Selection",
+            ftk::KeyShortcut(ftk::Key::A, ftk::commandKeyModifier, ftk::KeyModifier::Shift),
+            [appWeak]
+            {
+                if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
+                {
+                    document->clearSelection();
+                }
+            });
+        _actions["SelectNone"]->setTooltip("Clear the selection.");
+
+        _actions["SelectInvert"] = ftk::Action::create(
+            "Invert Selection",
+            [appWeak]
+            {
+                if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
+                {
+                    document->invertSelection();
+                }
+            });
+        _actions["SelectInvert"]->setTooltip("Invert the selection.");
+
         _actions["Delete"] = ftk::Action::create(
             "Delete",
             ftk::KeyShortcut(ftk::Key::Delete),
@@ -65,22 +98,26 @@ namespace ibis
                 _selectionObserver.reset();
                 if (value)
                 {
+                    _actions["SelectAll"]->setEnabled(true);
+                    _actions["SelectInvert"]->setEnabled(true);
+
                     _hasUndoObserver = ftk::Observer<bool>::create(
-                        value->getCommandStack()->observeHasUndo(),
+                        value->observeHasUndo(),
                         [this](bool value)
                         {
                             _actions["Undo"]->setEnabled(value);
                         });
                     _hasRedoObserver = ftk::Observer<bool>::create(
-                        value->getCommandStack()->observeHasRedo(),
+                        value->observeHasRedo(),
                         [this](bool value)
                         {
                             _actions["Redo"]->setEnabled(value);
                         });
                     _selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
-                        value->getSelectionModel()->observe(),
+                        value->observeSelection(),
                         [this](const std::vector<std::shared_ptr<render::INode> >& value)
                         {
+                            _actions["SelectNone"]->setEnabled(!value.empty());
                             _actions["Delete"]->setEnabled(!value.empty());
                         });
                 }
@@ -88,6 +125,9 @@ namespace ibis
                 {
                     _actions["Undo"]->setEnabled(false);
                     _actions["Redo"]->setEnabled(false);
+                    _actions["SelectAll"]->setEnabled(false);
+                    _actions["SelectNone"]->setEnabled(false);
+                    _actions["SelectInvert"]->setEnabled(false);
                     _actions["Delete"]->setEnabled(false);
                 }
             });

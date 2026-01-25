@@ -73,16 +73,6 @@ namespace ibis
             return _p->graph;
         }
 
-        const std::shared_ptr<ftk::CommandStack>& Document::getCommandStack() const
-        {
-            return _p->commandStack;
-        }
-
-        const std::shared_ptr<NodeSelectionModel>& Document::getSelectionModel() const
-        {
-            return _p->selectionModel;
-        }
-
         const std::filesystem::path& Document::getPath()
         {
             return _p->path->get();
@@ -108,6 +98,11 @@ namespace ibis
             _p->timeRange->setIfChanged(value);
         }
 
+        void Document::command(const std::shared_ptr<ftk::ICommand>& command)
+        {
+            _p->commandStack->push(command);
+        }
+
         void Document::undo()
         {
             FTK_P();
@@ -121,6 +116,16 @@ namespace ibis
             p.commandStack->redo();
         }
 
+        std::shared_ptr<ftk::IObservable<bool> > Document::observeHasUndo() const
+        {
+            return _p->commandStack->observeHasUndo();
+        }
+
+        std::shared_ptr<ftk::IObservable<bool> > Document::observeHasRedo() const
+        {
+            return _p->commandStack->observeHasRedo();
+        }
+
         void Document::deleteSelection()
         {
             FTK_P();
@@ -128,6 +133,49 @@ namespace ibis
             p.selectionModel->clear();
             p.commandStack->push(
                 render::RemoveNodesCmd::create(p.graph, selection));
+        }
+
+        void Document::select(const std::vector<std::shared_ptr<render::INode> >& value)
+        {
+            _p->selectionModel->set(value);
+        }
+
+        void Document::selectAll()
+        {
+            FTK_P();
+            p.selectionModel->set(p.graph->getNodes());
+        }
+
+        void Document::clearSelection()
+        {
+            _p->selectionModel->clear();
+        }
+
+        void Document::invertSelection()
+        {
+            FTK_P();
+            const auto nodes = p.graph->getNodes();
+            const auto selection = p.selectionModel->get();
+            std::vector<std::shared_ptr<render::INode> > invert;
+            for (const auto& node : nodes)
+            {
+                const auto i = std::find(selection.begin(), selection.end(), node);
+                if (i == selection.end())
+                {
+                    invert.push_back(node);
+                }
+            }
+            p.selectionModel->set(invert);
+        }
+
+        const std::vector<std::shared_ptr<render::INode> > Document::getSelection() const
+        {
+            return _p->selectionModel->get();
+        }
+
+        std::shared_ptr<ftk::IObservableList<std::shared_ptr<render::INode> > > Document::observeSelection() const
+        {
+            return _p->selectionModel->observe();
         }
     }
 }
