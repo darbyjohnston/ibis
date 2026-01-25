@@ -278,7 +278,10 @@ namespace ibis
                     if (j != p.nodeToPos.end())
                     {
                         p.document->getCommandStack()->push(
-                            render::MoveNodeCommand::create(graph, i.first, i.second + offset));
+                            render::MoveNodeCmd::create(
+                                graph,
+                                i.first,
+                                i.second + offset));
                     }
                 }
                 p.move.reset();
@@ -291,7 +294,7 @@ namespace ibis
                     if (output.has_value())
                     {
                         p.document->getCommandStack()->push(
-                            render::ConnectNodesCommand::create(
+                            render::ConnectNodesCmd::create(
                                 graph,
                                 p.connect->node,
                                 p.connect->input,
@@ -305,7 +308,7 @@ namespace ibis
                     if (input.has_value())
                     {
                         p.document->getCommandStack()->push(
-                            render::ConnectNodesCommand::create(
+                            render::ConnectNodesCmd::create(
                                 graph,
                                 input->node,
                                 input->input,
@@ -356,7 +359,7 @@ namespace ibis
                 {
                     const ftk::Box2I& g = getGeometry();
                     p.document->getCommandStack()->push(
-                        render::AddNodeCommand::create(
+                        render::AddNodeCmd::create(
                             p.document->getGraph(),
                             node,
                             event.pos - g.min));

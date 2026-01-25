@@ -133,6 +133,7 @@ if(ibis_OCIO)
 endif()
 
 if(ibis_OIIO)
+    find_package(OpenEXR)
     find_package(OpenImageIO)
     if(OpenImageIO_FOUND)
         add_definitions(-DIBIS_OIIO)

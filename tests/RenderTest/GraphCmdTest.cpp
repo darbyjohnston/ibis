@@ -57,7 +57,7 @@ namespace ibis
                 auto graph = render::Graph::create(_context);
                 auto node = TestNode::create(_context);
                 ftk::V2I pos(100, 200);
-                cmdStack->push(render::AddNodeCommand::create(graph, node, pos));
+                cmdStack->push(render::AddNodeCmd::create(graph, node, pos));
                 FTK_ASSERT(!graph->getNodes().empty());
                 FTK_ASSERT(node == graph->getNodes().front());
                 FTK_ASSERT(pos == graph->getPos(node));
@@ -74,10 +74,10 @@ namespace ibis
                 auto graph = render::Graph::create(_context);
                 auto node = TestNode::create(_context);
                 ftk::V2I pos(100, 200);
-                cmdStack->push(render::AddNodeCommand::create(graph, node, pos));
+                cmdStack->push(render::AddNodeCmd::create(graph, node, pos));
  
                 ftk::V2I pos2(300, 400);
-                cmdStack->push(render::MoveNodeCommand::create(graph, node, pos2));
+                cmdStack->push(render::MoveNodeCmd::create(graph, node, pos2));
                 FTK_ASSERT(pos2 == graph->getPos(node));
                 cmdStack->undo();
                 FTK_ASSERT(pos == graph->getPos(node));
@@ -88,13 +88,13 @@ namespace ibis
                 auto cmdStack = ftk::CommandStack::create();
                 auto graph = render::Graph::create(_context);
                 auto node = TestNode::create(_context);
-                cmdStack->push(render::AddNodeCommand::create(graph, node, ftk::V2I(100, 200)));
+                cmdStack->push(render::AddNodeCmd::create(graph, node, ftk::V2I(100, 200)));
                 auto node2 = TestNode::create(_context);
-                cmdStack->push(render::AddNodeCommand::create(graph, node2, ftk::V2I(300, 400)));
+                cmdStack->push(render::AddNodeCmd::create(graph, node2, ftk::V2I(300, 400)));
                 auto node3 = TestNode::create(_context);
-                cmdStack->push(render::AddNodeCommand::create(graph, node3, ftk::V2I(500, 600)));
+                cmdStack->push(render::AddNodeCmd::create(graph, node3, ftk::V2I(500, 600)));
 
-                cmdStack->push(render::ConnectNodesCommand::create(graph, node, 0, node2, 0));
+                cmdStack->push(render::ConnectNodesCmd::create(graph, node, 0, node2, 0));
                 FTK_ASSERT(node->getInputs()[0].node == node2);
                 FTK_ASSERT(node->getInputs()[0].index == 0);
                 cmdStack->undo();
@@ -104,7 +104,7 @@ namespace ibis
                 FTK_ASSERT(node->getInputs()[0].node == node2);
                 FTK_ASSERT(node->getInputs()[0].index == 0);
 
-                cmdStack->push(render::ConnectNodesCommand::create(graph, node, 0, node3, 0));
+                cmdStack->push(render::ConnectNodesCmd::create(graph, node, 0, node3, 0));
                 FTK_ASSERT(node->getInputs()[0].node == node3);
                 FTK_ASSERT(node->getInputs()[0].index == 0);
                 cmdStack->undo();

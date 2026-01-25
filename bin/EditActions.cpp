@@ -52,7 +52,7 @@ namespace ibis
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
                     document->getCommandStack()->push(
-                        render::RemoveNodesCommand::create(
+                        render::RemoveNodesCmd::create(
                             document->getGraph(),
                             document->getSelectionModel()->get()));
                 }
