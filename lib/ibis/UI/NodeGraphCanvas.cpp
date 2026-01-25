@@ -148,6 +148,7 @@ namespace ibis
             const ftk::Box2I& g = getGeometry();
             if (p.connect)
             {
+                // Draw in-progress connection.
                 ftk::V2I v0;
                 if (p.connect->input != -1)
                 {
@@ -182,6 +183,7 @@ namespace ibis
             const ftk::Box2I& g = getGeometry();
             for (const auto i : p.nodeToWidget)
             {
+                // Draw connections.
                 const auto& inputs = i.first->getInputs();
                 for (int j = 0; j < inputs.size(); ++j)
                 {
@@ -212,6 +214,7 @@ namespace ibis
             FTK_P();
             if (p.move.has_value())
             {
+                // Temporarily move the nodes.
                 const ftk::V2I offset = event.pos - _getMousePressPos();
                 for (const auto i : p.moveNodes)
                 {
@@ -234,6 +237,8 @@ namespace ibis
         {
             IMouseWidget::mousePressEvent(event);
             FTK_P();
+
+            // Check for a connection.
             p.connect = _getConnect(event.pos);
             if (p.connect)
             {
@@ -241,13 +246,12 @@ namespace ibis
             }
             else
             {
+                // Check for a move.
                 p.move = _getMove(event.pos);
                 if (p.move)
                 {
                     moveToFront(p.move->widget);
-
                     p.document->getSelectionModel()->set({ p.move->node });
-
                     for (auto& i : p.moveNodes)
                     {
                         const auto j = p.nodeToPos.find(i.first);
@@ -271,23 +275,25 @@ namespace ibis
             const auto& graph = p.document->getGraph();
             if (p.move.has_value())
             {
+                // Move the nodes.
                 const ftk::V2I offset = event.pos - _getMousePressPos();
-                for (const auto i : p.moveNodes)
+                if (ftk::length(offset) > 0.F)
                 {
-                    const auto j = p.nodeToPos.find(i.first);
-                    if (j != p.nodeToPos.end())
+                    std::vector<std::shared_ptr<render::INode> > nodes;
+                    std::vector<ftk::V2I> pos;
+                    for (const auto i : p.moveNodes)
                     {
-                        p.document->getCommandStack()->push(
-                            render::MoveNodesCmd::create(
-                                graph,
-                                { i.first },
-                                { i.second + offset }));
+                        nodes.push_back(i.first);
+                        pos.push_back(i.second + offset);
                     }
+                    p.document->getCommandStack()->push(
+                        render::MoveNodesCmd::create(graph, nodes, pos));
                 }
                 p.move.reset();
             }
             else if (p.connect.has_value())
             {
+                // Connect the nodes.
                 if (p.connect->input != -1)
                 {
                     const auto output = _getOutput(event.pos);

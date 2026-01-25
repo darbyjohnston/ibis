@@ -26,6 +26,7 @@ namespace ibis
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
+                    document->getSelectionModel()->clear();
                     document->getCommandStack()->undo();
                 }
             });
@@ -51,10 +52,10 @@ namespace ibis
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
+                    const auto selection = document->getSelectionModel()->get();
+                    document->getSelectionModel()->clear();
                     document->getCommandStack()->push(
-                        render::RemoveNodesCmd::create(
-                            document->getGraph(),
-                            document->getSelectionModel()->get()));
+                        render::RemoveNodesCmd::create(document->getGraph(), selection));
                 }
             });
         _actions["Delete"]->setTooltip("Delete the selection.");
