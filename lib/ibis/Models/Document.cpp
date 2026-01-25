@@ -6,6 +6,7 @@
 #include "NodeSelectionModel.h"
 
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/GraphCmd.h>
 
 namespace ibis
 {
@@ -105,6 +106,28 @@ namespace ibis
         void Document::setTimeRange(const OTIO_NS::TimeRange& value)
         {
             _p->timeRange->setIfChanged(value);
+        }
+
+        void Document::undo()
+        {
+            FTK_P();
+            p.selectionModel->clear();
+            p.commandStack->undo();
+        }
+
+        void Document::redo()
+        {
+            FTK_P();
+            p.commandStack->redo();
+        }
+
+        void Document::deleteSelection()
+        {
+            FTK_P();
+            const auto selection = p.selectionModel->get();
+            p.selectionModel->clear();
+            p.commandStack->push(
+                render::RemoveNodesCmd::create(p.graph, selection));
         }
     }
 }

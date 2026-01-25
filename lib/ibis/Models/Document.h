@@ -76,6 +76,15 @@ namespace ibis
 
             ///@}
 
+            //! \name Editing
+            ///@{
+
+            void undo();
+            void redo();
+            void deleteSelection();
+
+            ///@}
+
         private:
             FTK_PRIVATE();
         };

@@ -26,8 +26,7 @@ namespace ibis
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
-                    document->getSelectionModel()->clear();
-                    document->getCommandStack()->undo();
+                    document->undo();
                 }
             });
         _actions["Undo"]->setTooltip("Undo the last command.");
@@ -40,7 +39,7 @@ namespace ibis
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
-                    document->getCommandStack()->redo();
+                    document->redo();
                 }
             });
         _actions["Redo"]->setTooltip("Redo the last command.");
@@ -52,10 +51,7 @@ namespace ibis
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
                 {
-                    const auto selection = document->getSelectionModel()->get();
-                    document->getSelectionModel()->clear();
-                    document->getCommandStack()->push(
-                        render::RemoveNodesCmd::create(document->getGraph(), selection));
+                    document->deleteSelection();
                 }
             });
         _actions["Delete"]->setTooltip("Delete the selection.");
