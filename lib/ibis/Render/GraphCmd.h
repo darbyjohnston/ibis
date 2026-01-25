@@ -12,33 +12,33 @@ namespace ibis
 {
     namespace render
     {
-        //! Add a node.
-        class AddNodeCmd : public ftk::ICommand
+        //! Add nodes.
+        class AddNodesCmd : public ftk::ICommand
         {
         protected:
             void _init(
                 const std::shared_ptr<Graph>&,
-                const std::shared_ptr<INode>&,
-                const ftk::V2I&);
+                const std::vector<std::shared_ptr<INode> >&,
+                const std::vector<ftk::V2I>&);
 
-            AddNodeCmd() = default;
+            AddNodesCmd() = default;
 
         public:
-            virtual ~AddNodeCmd() = default;
+            virtual ~AddNodesCmd() = default;
 
             //! Create a new command.
-            static std::shared_ptr<AddNodeCmd> create(
+            static std::shared_ptr<AddNodesCmd> create(
                 const std::shared_ptr<Graph>&,
-                const std::shared_ptr<INode>&,
-                const ftk::V2I&);
+                const std::vector<std::shared_ptr<INode> >&,
+                const std::vector<ftk::V2I>& = {});
 
             void exec() override;
             void undo() override;
 
         private:
             std::shared_ptr<Graph> _graph;
-            std::shared_ptr<INode> _node;
-            ftk::V2I _pos;
+            std::vector<std::shared_ptr<INode> > _nodes;
+            std::vector<ftk::V2I> _pos;
         };
 
         //! Remove nodes.
@@ -65,37 +65,38 @@ namespace ibis
         private:
             std::shared_ptr<Graph> _graph;
             std::vector<std::shared_ptr<INode> > _nodes;
-            std::vector<NodeConnection> _connections;
+            std::vector<ftk::V2I> _posPrev;
+            std::vector<GraphConnect> _connectPrev;
         };
 
-        //! Move a node.
-        class MoveNodeCmd : public ftk::ICommand
+        //! Move nodes.
+        class MoveNodesCmd : public ftk::ICommand
         {
         protected:
             void _init(
                 const std::shared_ptr<Graph>&,
-                const std::shared_ptr<INode>&,
-                const ftk::V2I&);
+                const std::vector<std::shared_ptr<INode> >&,
+                const std::vector<ftk::V2I>&);
 
-            MoveNodeCmd() = default;
+            MoveNodesCmd() = default;
 
         public:
-            virtual ~MoveNodeCmd() = default;
+            virtual ~MoveNodesCmd() = default;
 
             //! Create a new command.
-            static std::shared_ptr<MoveNodeCmd> create(
+            static std::shared_ptr<MoveNodesCmd> create(
                 const std::shared_ptr<Graph>&,
-                const std::shared_ptr<INode>&,
-                const ftk::V2I&);
+                const std::vector<std::shared_ptr<INode> >&,
+                const std::vector<ftk::V2I>&);
 
             void exec() override;
             void undo() override;
 
         private:
             std::shared_ptr<Graph> _graph;
-            std::shared_ptr<INode> _node;
-            ftk::V2I _pos;
-            ftk::V2I _posPrev;
+            std::vector<std::shared_ptr<INode> > _nodes;
+            std::vector<ftk::V2I > _pos;
+            std::vector<ftk::V2I > _posPrev;
         };
 
         //! Connect nodes.
@@ -104,10 +105,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<Graph>&,
-                const std::shared_ptr<INode>&,
-                int input,
-                const std::shared_ptr<INode>&,
-                int output);
+                const GraphConnect&);
 
             ConnectNodesCmd() = default;
 
@@ -127,10 +125,7 @@ namespace ibis
 
         private:
             std::shared_ptr<Graph> _graph;
-            std::shared_ptr<INode> _inputNode;
-            int _input = -1;
-            std::shared_ptr<INode> _outputNode;
-            int _output = -1;
+            GraphConnect _connect;
             NodeConnection _prev;
         };
     }

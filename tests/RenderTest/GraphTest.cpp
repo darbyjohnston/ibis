@@ -103,7 +103,7 @@ namespace ibis
                 FTK_ASSERT(changed);
 
                 changed = false;
-                graph->disconnect(node, 0, node2, 0);
+                graph->disconnect(node, 0);
                 FTK_ASSERT(!node->getInputs()[0].node);
                 FTK_ASSERT(-1 == node->getInputs()[0].index);
                 FTK_ASSERT(2 == graph->getLeafNodes().size());
@@ -120,12 +120,39 @@ namespace ibis
                 FTK_ASSERT(node == graph->getNodes()[0]);
                 FTK_ASSERT(node2 == graph->getNodes()[1]);
                 FTK_ASSERT(changed);
+
+                changed = false;
+                pos = ftk::V2I(100, 200);
+                ftk::V2I pos2(300, 400);
+                graph->move({ node, node2 }, { pos, pos2 });
+                FTK_ASSERT(std::vector<ftk::V2I>({ pos, pos2 }) == graph->getPos({node, node2}));
+                FTK_ASSERT(changed);
+                changed = false;
+                graph->move({ node, node2 }, { pos, pos2 });
+                FTK_ASSERT(!changed);
+                pos = ftk::V2I(10, 20);
+                pos2 = ftk::V2I(30, 40);
+                changed = false;
+                graph->move({ node, node2 }, { pos, pos2 });
+                FTK_ASSERT(changed);
             }
             {
                 auto graph = render::Graph::create(_context);
                 auto node = TestNode::create(_context);
-                ftk::V2I pos(100, 200);
-                graph->add(node, pos);
+                auto node2 = TestNode::create(_context);
+                auto node3 = TestNode::create(_context);
+                auto node4 = TestNode::create(_context);
+                std::vector<ftk::V2I> pos =
+                {
+                    ftk::V2I(100, 100),
+                    ftk::V2I(100, 200),
+                    ftk::V2I(100, 300),
+                    ftk::V2I(100, 400)
+                };
+                graph->add({ node, node2, node3, node4 }, pos);
+                graph->connect(node3, 0, node2, 0);
+                graph->connect(node4, 0, node2, 0);
+                graph->connect(node2, 0, node, 0);
                 auto json = graph->to_json();
                 _print(json.dump(4));
 
@@ -133,6 +160,17 @@ namespace ibis
                 nodeFactory->add(TestNode::getNodeID(), &TestNode::create);
                 auto graph2 = render::Graph::create(_context, json, nodeFactory);
                 FTK_ASSERT(graph->getNodes().size() == graph2->getNodes().size());
+                node = graph2->getNodes()[0];
+                node2 = graph2->getNodes()[1];
+                node3 = graph2->getNodes()[2];
+                node4 = graph2->getNodes()[3];
+                FTK_ASSERT(pos[0] == graph2->getPos(node));
+                FTK_ASSERT(pos[1] == graph2->getPos(node2));
+                FTK_ASSERT(pos[2] == graph2->getPos(node3));
+                FTK_ASSERT(pos[3] == graph2->getPos(node4));
+                FTK_ASSERT(node2->getInputs()[0].node == node);
+                FTK_ASSERT(node3->getInputs()[0].node == node2);
+                FTK_ASSERT(node4->getInputs()[0].node == node2);
             }
         }
     }

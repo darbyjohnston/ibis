@@ -17,6 +17,17 @@ namespace ibis
             std::shared_ptr<ftk::Observable<bool> > changed;
         };
 
+        namespace
+        {
+            struct GraphConnectionTmp
+            {
+                std::shared_ptr<INode> inputNode;
+                int input = -1;
+                int outputNode = -1;
+                int output = -1;
+            };
+        }
+
         void Graph::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json,
@@ -26,8 +37,9 @@ namespace ibis
 
             if (!json.empty() && nodeFactory)
             {
-                if (json.find("Nodes") != json.end())
+                if (json.contains("Nodes"))
                 {
+                    std::vector<GraphConnectionTmp> connections;
                     for (const auto& i : json["Nodes"])
                     {
                         if (i.contains("ID"))
@@ -45,12 +57,29 @@ namespace ibis
                             {
                                 pos = i["Pos"];
                             }
+                            if (i.contains("Inputs"))
+                            {
+                                const auto& inputs = i["Inputs"];
+                                for (int j = 0; j < inputs.size(); ++j)
+                                {
+                                    connections.push_back({
+                                        node,
+                                        j,
+                                        int(inputs[j]["Index"]),
+                                        int(inputs[j]["Output"]) });
+                                }
+                            }
                             p.nodes.push_back(node);
                             p.pos[node] = pos;
                         }
-                        else
+                    }
+                    for (const auto& connection : connections)
+                    {
+                        if (connection.outputNode >= 0 && connection.outputNode < p.nodes.size())
                         {
-                            throw std::runtime_error("Invalid ID");
+                            connection.inputNode->setInput(
+                                connection.input,
+                                NodeConnection(p.nodes[connection.outputNode], connection.output));
                         }
                     }
                 }
@@ -81,9 +110,9 @@ namespace ibis
             FTK_P();
             nlohmann::json out;
             nlohmann::json nodesJSON;
-            size_t nodeIndex = 0;
-            for (const auto& node : p.nodes)
+            for (size_t i = 0; i < p.nodes.size(); ++i)
             {
+                const auto& node = p.nodes[i];
                 nlohmann::json nodeJSON;
                 nodeJSON["ID"] = node->getID();
                 nodeJSON["Pos"] = getPos(node);
@@ -97,8 +126,26 @@ namespace ibis
                     }
                     nodeJSON["Attr"] = attrJSON;
                 }
+                const auto& inputs = node->getInputs();
+                if (!inputs.empty())
+                {
+                    nlohmann::json inputsJSON;
+                    for (const auto& input : inputs)
+                    {
+                        nlohmann::json inputJSON;
+                        int index = -1;
+                        const auto j = std::find(p.nodes.begin(), p.nodes.end(), input.node);
+                        if (j != p.nodes.end())
+                        {
+                            index = j - p.nodes.begin();
+                        }
+                        inputJSON["Index"] = index;
+                        inputJSON["Output"] = input.index;
+                        inputsJSON.push_back(inputJSON);
+                    }
+                    nodeJSON["Inputs"] = inputsJSON;
+                }
                 nodesJSON.push_back(nodeJSON);
-                ++nodeIndex;
             }
             out["Nodes"] = nodesJSON;
             return out;
@@ -106,10 +153,9 @@ namespace ibis
 
         void Graph::add(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
         {
-            FTK_P();
-            p.nodes.push_back(node);
-            p.pos[node] = pos;
-            p.changed->setAlways(true);
+            add(
+                std::vector<std::shared_ptr<INode> >({ node }),
+                std::vector<ftk::V2I>({ pos }));
         }
 
         void Graph::add(
@@ -130,34 +176,7 @@ namespace ibis
 
         void Graph::remove(const std::shared_ptr<INode>& node)
         {
-            FTK_P();
-            bool changed = false;
-            const auto i = std::find(p.nodes.begin(), p.nodes.end(), node);
-            if (i != p.nodes.end())
-            {
-                p.nodes.erase(i);
-                for (const auto& node2 : p.nodes)
-                {
-                    for (const auto& input : node2->getInputs())
-                    {
-                        if (input.node == node)
-                        {
-                            node2->setInput(input.index, NodeConnection());
-                        }
-                    }
-                }
-                changed = true;
-            }
-            const auto j = p.pos.find(node);
-            if (j != p.pos.end())
-            {
-                p.pos.erase(j);
-                changed = true;
-            }
-            if (changed)
-            {
-                p.changed->setAlways(true);
-            }
+            remove(std::vector<std::shared_ptr<INode> >({ node }));
         }
 
         void Graph::remove(const std::vector<std::shared_ptr<INode> >& nodes)
@@ -169,7 +188,16 @@ namespace ibis
                 const auto i = std::find(p.nodes.begin(), p.nodes.end(), node);
                 if (i != p.nodes.end())
                 {
+                    // Remove the node.
                     p.nodes.erase(i);
+
+                    // Remove node connections.
+                    for (int j = 0; j < node->getInputs().size(); ++j)
+                    {
+                        node->setInput(j, NodeConnection());
+                    }
+
+                    // Remove connections to the node.
                     for (const auto& node2 : p.nodes)
                     {
                         for (const auto& input : node2->getInputs())
@@ -180,8 +208,11 @@ namespace ibis
                             }
                         }
                     }
+
                     changed = true;
                 }
+
+                // Remove the position.
                 const auto j = p.pos.find(node);
                 if (j != p.pos.end())
                 {
@@ -202,16 +233,41 @@ namespace ibis
 
         void Graph::move(const std::shared_ptr<INode>& node, const ftk::V2I& pos)
         {
+            move(
+                std::vector<std::shared_ptr<INode> >({ node }),
+                std::vector<ftk::V2I>({ pos }));
+        }
+
+        void Graph::move(
+            const std::vector<std::shared_ptr<INode> >& nodes,
+            const std::vector<ftk::V2I>& pos)
+        {
             FTK_P();
-            const auto i = p.pos.find(node);
-            if (i != p.pos.end() && pos != i->second)
+            bool changed = false;
+            for (size_t i = 0; i < nodes.size() && i < pos.size(); ++i)
             {
-                i->second = pos;
+                const auto j = p.pos.find(nodes[i]);
+                if (j != p.pos.end())
+                {
+                    if (pos[i] != j->second)
+                    {
+                        j->second = pos[i];
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    p.pos[nodes[i]] = pos[i];
+                    changed = true;
+                }
+            }
+            if (changed)
+            {
                 p.changed->setAlways(true);
             }
         }
 
-        ftk::V2I Graph::getPos(const std::shared_ptr<INode>& node)
+        ftk::V2I Graph::getPos(const std::shared_ptr<INode>& node) const
         {
             FTK_P();
             ftk::V2I out;
@@ -219,6 +275,22 @@ namespace ibis
             if (i != p.pos.end())
             {
                 out = i->second;
+            }
+            return out;
+        }
+
+        std::vector<ftk::V2I> Graph::getPos(
+            const std::vector<std::shared_ptr<INode> >& nodes) const
+        {
+            FTK_P();
+            std::vector<ftk::V2I> out;
+            for (const auto& node : nodes)
+            {
+                const auto i = p.pos.find(node);
+                if (i != p.pos.end())
+                {
+                    out.push_back(i->second);
+                }
             }
             return out;
         }
@@ -274,19 +346,35 @@ namespace ibis
             const std::shared_ptr<INode>& outputNode,
             int output)
         {
+            connect({ { inputNode, input, outputNode, output } });
+        }
+
+        void Graph::connect(const std::vector<GraphConnect>& connections)
+        {
             FTK_P();
-            inputNode->setInput(input, NodeConnection(outputNode, output));
+            for (const auto& connection : connections)
+            {
+                connection.inputNode->setInput(
+                    connection.input,
+                    NodeConnection(connection.outputNode, connection.output));
+            }
             p.changed->setAlways(true);
         }
 
         void Graph::disconnect(
             const std::shared_ptr<INode>& inputNode,
-            int input,
-            const std::shared_ptr<INode>& outputNode,
-            int output)
+            int input)
+        {
+            disconnect({ { inputNode, input } });
+        }
+
+        void Graph::disconnect(const std::vector<GraphDisconnect>& disconnections)
         {
             FTK_P();
-            inputNode->setInput(input, NodeConnection());
+            for (const auto& disconnection : disconnections)
+            {
+                disconnection.inputNode->setInput(disconnection.input, NodeConnection());
+            }
             p.changed->setAlways(true);
         }
 

@@ -7,34 +7,34 @@ namespace ibis
 {
     namespace render
     {
-        void AddNodeCmd::_init(
+        void AddNodesCmd::_init(
             const std::shared_ptr<Graph>& graph,
-            const std::shared_ptr<INode>& node,
-            const ftk::V2I& pos)
+            const std::vector<std::shared_ptr<INode> >& nodes,
+            const std::vector<ftk::V2I>& pos)
         {
             _graph = graph;
-            _node = node;
+            _nodes = nodes;
             _pos = pos;
         }
 
-        std::shared_ptr<AddNodeCmd> AddNodeCmd::create(
+        std::shared_ptr<AddNodesCmd> AddNodesCmd::create(
             const std::shared_ptr<Graph>& graph,
-            const std::shared_ptr<INode>& node,
-            const ftk::V2I& pos)
+            const std::vector<std::shared_ptr<INode> >& node,
+            const std::vector<ftk::V2I >& pos)
         {
-            std::shared_ptr<AddNodeCmd> out(new AddNodeCmd);
+            std::shared_ptr<AddNodesCmd> out(new AddNodesCmd);
             out->_init(graph, node, pos);
             return out;
         }
 
-        void AddNodeCmd::exec()
+        void AddNodesCmd::exec()
         {
-            _graph->add(_node, _pos);
+            _graph->add(_nodes, _pos);
         }
 
-        void AddNodeCmd::undo()
+        void AddNodesCmd::undo()
         {
-            _graph->remove(_node);
+            _graph->remove(_nodes);
         }
 
         void RemoveNodesCmd::_init(
@@ -56,57 +56,80 @@ namespace ibis
 
         void RemoveNodesCmd::exec()
         {
+            // Save node positions.
+            _posPrev = _graph->getPos(_nodes);
+
+            // Save node connections.
+            _connectPrev.clear();
+            for (const auto& node : _nodes)
+            {
+                const auto& inputs = node->getInputs();
+                for (int i = 0; i < inputs.size(); ++i)
+                {
+                    _connectPrev.push_back({ node, i, inputs[i].node, inputs[i].index });
+                }
+            }
+
+            // Save connections to the nodes.
+            for (const auto& node : _graph->getNodes())
+            {
+                const auto& inputs = node->getInputs();
+                for (int i = 0; i < inputs.size(); ++i)
+                {
+                    const auto j = std::find(_nodes.begin(), _nodes.end(), inputs[i].node);
+                    if (j != _nodes.end())
+                    {
+                        _connectPrev.push_back({ node, i, inputs[i].node, inputs[i].index });
+                    }
+                }
+            }
+
             _graph->remove(_nodes);
         }
 
         void RemoveNodesCmd::undo()
         {
-            _graph->add(_nodes);
+            _graph->add(_nodes, _posPrev);
+            _graph->connect(_connectPrev);
         }
 
-        void MoveNodeCmd::_init(
+        void MoveNodesCmd::_init(
             const std::shared_ptr<Graph>& graph,
-            const std::shared_ptr<INode>& node,
-            const ftk::V2I& pos)
+            const std::vector<std::shared_ptr<INode> >& nodes,
+            const std::vector<ftk::V2I >& pos)
         {
             _graph = graph;
-            _node = node;
+            _nodes = nodes;
             _pos = pos;
         }
 
-        std::shared_ptr<MoveNodeCmd> MoveNodeCmd::create(
+        std::shared_ptr<MoveNodesCmd> MoveNodesCmd::create(
             const std::shared_ptr<Graph>& graph,
-            const std::shared_ptr<INode>& node,
-            const ftk::V2I& pos)
+            const std::vector<std::shared_ptr<INode> >& nodes,
+            const std::vector<ftk::V2I>& pos)
         {
-            std::shared_ptr<MoveNodeCmd> out(new MoveNodeCmd);
-            out->_init(graph, node, pos);
+            std::shared_ptr<MoveNodesCmd> out(new MoveNodesCmd);
+            out->_init(graph, nodes, pos);
             return out;
         }
 
-        void MoveNodeCmd::exec()
+        void MoveNodesCmd::exec()
         {
-            _posPrev = _graph->getPos(_node);
-            _graph->move(_node, _pos);
+            _posPrev = _graph->getPos(_nodes);
+            _graph->move(_nodes, _pos);
         }
 
-        void MoveNodeCmd::undo()
+        void MoveNodesCmd::undo()
         {
-            _graph->move(_node, _posPrev);
+            _graph->move(_nodes, _posPrev);
         }
 
         void ConnectNodesCmd::_init(
             const std::shared_ptr<Graph>& graph,
-            const std::shared_ptr<INode>& inputNode,
-            int input,
-            const std::shared_ptr<INode>& outputNode,
-            int output)
+            const GraphConnect& connect)
         {
             _graph = graph;
-            _inputNode = inputNode;
-            _input = input;
-            _outputNode = outputNode;
-            _output = output;
+            _connect = connect;
         }
 
         std::shared_ptr<ConnectNodesCmd> ConnectNodesCmd::create(
@@ -117,20 +140,20 @@ namespace ibis
             int output)
         {
             std::shared_ptr<ConnectNodesCmd> out(new ConnectNodesCmd);
-            out->_init(graph, inputNode, input, outputNode, output);
+            out->_init(graph, { inputNode, input, outputNode, output });
             return out;
         }
 
         void ConnectNodesCmd::exec()
         {
-            _prev = _inputNode->getInputs()[_input];
-            _graph->connect(_inputNode, _input, _outputNode, _output);
+            _prev = _connect.inputNode->getInputs()[_connect.input];
+            _graph->connect({ _connect });
         }
 
         void ConnectNodesCmd::undo()
         {
-            _graph->disconnect(_inputNode, _input, _outputNode, _output);
-            _graph->connect(_inputNode, _input, _prev.node, _prev.index);
+            _graph->disconnect(_connect.inputNode, _connect.input);
+            _graph->connect(_connect.inputNode, _connect.input, _prev.node, _prev.index);
         }
     }
 }

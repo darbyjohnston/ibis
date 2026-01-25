@@ -278,10 +278,10 @@ namespace ibis
                     if (j != p.nodeToPos.end())
                     {
                         p.document->getCommandStack()->push(
-                            render::MoveNodeCmd::create(
+                            render::MoveNodesCmd::create(
                                 graph,
-                                i.first,
-                                i.second + offset));
+                                { i.first },
+                                { i.second + offset }));
                     }
                 }
                 p.move.reset();
@@ -359,10 +359,10 @@ namespace ibis
                 {
                     const ftk::Box2I& g = getGeometry();
                     p.document->getCommandStack()->push(
-                        render::AddNodeCmd::create(
+                        render::AddNodesCmd::create(
                             p.document->getGraph(),
-                            node,
-                            event.pos - g.min));
+                            { node },
+                            { event.pos - g.min }));
                 }
                 setDrawUpdate();
             }
