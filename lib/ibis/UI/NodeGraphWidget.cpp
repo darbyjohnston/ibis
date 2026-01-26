@@ -136,23 +136,19 @@ namespace ibis
 
             auto vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            vLayout->addSpacer();
             for (const auto& i : node->getInputs())
             {
                 p.inputs.push_back(NodeGraphInput::create(context, node, vLayout));
             }
-            vLayout->addSpacer();
 
             label->setParent(p.layout);
 
             vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            vLayout->addSpacer();
             for (int i = 0; i < node->getOutputs().size(); ++i)
             {
                 p.outputs.push_back(NodeGraphOutput::create(context, node, vLayout));
             }
-            vLayout->addSpacer();
         }
 
         NodeGraphWidget::NodeGraphWidget() :

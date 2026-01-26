@@ -62,7 +62,7 @@ namespace ibis
                         if (!p.cmd)
                         {
                             p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value");
+                                _document->getGraph(), _node, "Value", value);
                         }
                         _document->getGraph()->setAttr(_node, "Value", value);
                     }
@@ -71,6 +71,11 @@ namespace ibis
                         p.cmd->set(value);
                         _document->command(p.cmd);
                         p.cmd.reset();
+                    }
+                    else
+                    {
+                        _document->command(render::NodeAttrCmd::create(
+                            _document->getGraph(), _node, "Value", value));
                     }
                 });
 

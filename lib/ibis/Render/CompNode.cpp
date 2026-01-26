@@ -3,12 +3,19 @@
 
 #include "CompNode.h"
 
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Mesh.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Shader.h>
+#include <ftk/Core/IRender.h>
+
 namespace ibis
 {
     namespace render
     {
         struct OverNode::Private
         {
+            std::shared_ptr<ftk::gl::Shader> shader;
         };
 
         void OverNode::_init(const std::shared_ptr<ftk::Context>& context)
@@ -35,6 +42,135 @@ namespace ibis
             std::shared_ptr<OverNode> out(new OverNode);
             out->_init(context);
             return out;
+        }
+
+        namespace
+        {
+            const std::string vertexSource =
+                "#version 410\n"
+                "\n"
+                "in vec3 vPos;\n"
+                "in vec2 vTexture;\n"
+                "out vec2 fTexture;\n"
+                "\n"
+                "struct Transform\n"
+                "{\n"
+                "    mat4 mvp;\n"
+                "};\n"
+                "\n"
+                "uniform Transform transform;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                "    fTexture = vTexture;\n"
+                "}\n";
+
+            const std::string fragmentSource =
+                "#version 410\n"
+                "\n"
+                "in vec2 fTexture;\n"
+                "out vec4 outColor;\n"
+                "\n"
+                "uniform sampler2D textureSampler;\n"
+                //"uniform vec4 textureSamplerUV;\n"
+                "uniform sampler2D textureSampler2;\n"
+                //"uniform vec4 textureSampler2UV;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    vec4 bg = texture(textureSampler, fTexture);\n"
+                "    vec4 fg = texture(textureSampler2, fTexture);\n"
+                "    outColor.r = bg.r + fg.r;\n"
+                "    outColor.g = bg.g + fg.g;\n"
+                "    outColor.b = bg.b + fg.b;\n"
+                //"    outColor.a = bg.a + fg.a;\n"
+                //"    outColor.r = bg.r;\n"
+                //"    outColor.g = bg.g;\n"
+                //"    outColor.b = bg.b;\n"
+                //"    outColor.r = fg.r;\n"
+                //"    outColor.g = fg.g;\n"
+                //"    outColor.b = fg.b;\n"
+                "    outColor.a = 1.0;\n"
+                "}\n";
+        }
+
+        void OverNode::exec(const std::shared_ptr<ftk::IRender>& render)
+        {
+            INode::exec(render);
+            FTK_P();
+            ftk::Size2I size;
+            if (_inputs[0].node)
+            {
+                const auto& input0 = _inputs[0].node->getOutputs();
+                if (!input0.empty() && input0.front())
+                {
+                    size = input0.front()->getSize();
+                }
+                try
+                {
+                    if (size.isValid())
+                    {
+                        ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                        offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                        if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                        {
+                            _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        }
+                    }
+                    p.shader = ftk::gl::Shader::create(vertexSource, fragmentSource);
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo
+                }
+
+                if (_outputs[0])
+                {
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    render->setRenderSize(size);
+                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                }
+                if (_outputs[0] && !input0.empty() && input0.front() && p.shader)
+                {
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+
+                    p.shader->bind();
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("textureSampler", 0);
+                    p.shader->setUniform("textureSampler2", 1);
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                    glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
+                    if (_inputs[1].node)
+                    {
+                        const auto& input1 = _inputs[1].node->getOutputs();
+                        if (!input1.empty() && input1.front())
+                        {
+                            glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
+                            glBindTexture(GL_TEXTURE_2D, input1.front()->getColorID());
+                        }
+                    }
+
+                    auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
+                    vbo->copy(convert(mesh(ftk::Box2I(0, 0, size.w, size.h), true), vbo->getType()));
+                    auto vao = ftk::gl::VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+                }
+            }
+            if (!size.isValid())
+            {
+                _outputs[0].reset();
+            }
         }
     }
 }

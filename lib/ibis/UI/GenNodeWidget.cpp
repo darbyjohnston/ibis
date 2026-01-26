@@ -112,6 +112,11 @@ namespace ibis
                         _document->command(p.cmd);
                         p.cmd.reset();
                     }
+                    else
+                    {
+                        _document->command(render::NodeAttrCmd::create(
+                            _document->getGraph(), _node, "Color", value));
+                    }
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(

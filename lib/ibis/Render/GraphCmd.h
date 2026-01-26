@@ -149,7 +149,7 @@ namespace ibis
                 const std::shared_ptr<Graph>&,
                 const std::shared_ptr<INode>&,
                 const std::string&,
-                const nlohmann::json& = {});
+                const nlohmann::json&);
 
             void set(const nlohmann::json&);
 

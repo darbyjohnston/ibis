@@ -93,10 +93,10 @@ namespace ibis
             ftk::Size2I size;
             if (_inputs[0].node)
             {
-                const auto& outputs = _inputs[0].node->getOutputs();
-                if (!outputs.empty() && outputs.front())
+                const auto& input0 = _inputs[0].node->getOutputs();
+                if (!input0.empty() && input0.front())
                 {
-                    size = outputs.front()->getSize();
+                    size = input0.front()->getSize();
                 }
                 try
                 {
@@ -120,8 +120,10 @@ namespace ibis
                 {
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    render->setRenderSize(size);
+                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                 }
-                if (_outputs[0] && outputs.front() && p.shader)
+                if (_outputs[0] && !input0.empty() && input0.front() && p.shader)
                 {
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
 
@@ -138,7 +140,7 @@ namespace ibis
                     p.shader->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-                    glBindTexture(GL_TEXTURE_2D, outputs.front()->getColorID());
+                    glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
 
                     auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
                     vbo->copy(convert(mesh(ftk::Box2I(0, 0, size.w, size.h), true), vbo->getType()));

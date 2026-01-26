@@ -25,6 +25,8 @@ namespace ibis
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
 
+            void exec(const std::shared_ptr<ftk::IRender>&) override;
+
         private:
             FTK_PRIVATE();
         };
