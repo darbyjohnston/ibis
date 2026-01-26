@@ -98,6 +98,10 @@ namespace ibis
             bool isSelected() const;
             void setSelected(bool);
 
+            bool isView() const;
+            void setView(bool);
+            void setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>&);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
 

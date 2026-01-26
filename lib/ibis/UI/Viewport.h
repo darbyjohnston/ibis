@@ -40,8 +40,6 @@ namespace ibis
             void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
 
         private:
-            void _nodeUpdate();
-
             FTK_PRIVATE();
         };
     }

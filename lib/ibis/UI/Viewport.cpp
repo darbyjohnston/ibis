@@ -29,7 +29,7 @@ namespace ibis
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
-            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
+            std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
         };
 
         void Viewport::_init(
@@ -42,8 +42,6 @@ namespace ibis
 
             p.document = document;
 
-            _nodeUpdate();
-
             p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
                 document->getGraph()->observeNodes(),
                 [this](const std::vector<std::shared_ptr<render::INode> >& nodes)
@@ -53,7 +51,6 @@ namespace ibis
                     if (i == nodes.end())
                     {
                         p.node.reset();
-                        _nodeUpdate();
                         p.doRender = true;
                         setDrawUpdate();
                     }
@@ -71,17 +68,14 @@ namespace ibis
                     }
                 });
 
-            p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
-                document->observeSelection(),
-                [this](const std::vector<std::shared_ptr<render::INode> >& selection)
+            p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(
+                document->observeViewNode(),
+                [this](const std::shared_ptr<render::INode>& node)
                 {
                     FTK_P();
-                    if (!selection.empty() && selection.front() != p.node)
-                    {
-                        p.node = selection.front();
-                        p.doRender = true;
-                        setDrawUpdate();
-                    }
+                    p.node = node;
+                    p.doRender = true;
+                    setDrawUpdate();
                 });
         }
 
@@ -194,32 +188,6 @@ namespace ibis
             if (p.buffer)
             {
                 event.render->drawTexture(p.buffer->getColorID(), g, true);
-            }
-        }
-
-        void Viewport::_nodeUpdate()
-        {
-            FTK_P();
-            if (!p.node)
-            {
-                const auto& selection = p.document->getSelection();
-                if (!selection.empty())
-                {
-                    p.node = selection.front();
-                }
-                else
-                {
-                    const auto leafNodes = p.document->getGraph()->getLeafNodes();
-                    if (!leafNodes.empty())
-                    {
-                        p.node = leafNodes.front();
-                    }
-                }
-                if (p.node)
-                {
-                    p.doRender = true;
-                    setDrawUpdate();
-                }
             }
         }
     }

@@ -34,6 +34,7 @@ namespace ibis
 
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
+            std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
         };
 
         void NodeGraphCanvas::_init(
@@ -83,6 +84,17 @@ namespace ibis
                         {
                             p.moveNodes[node] = i->second;
                         }
+                    }
+                });
+
+            p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(
+                document->observeViewNode(),
+                [this](const std::shared_ptr<render::INode>& node)
+                {
+                    FTK_P();
+                    for (const auto& i : p.nodeToWidget)
+                    {
+                        i.second->setView(node == i.first);
                     }
                 });
         }
@@ -507,6 +519,12 @@ namespace ibis
                 if (j == p.nodeToWidget.end())
                 {
                     widget = NodeGraphWidget::create(getContext(), node, shared_from_this());
+                    widget->setView(node == p.document->getViewNode());
+                    widget->setViewCallback(
+                        [this](const std::shared_ptr<render::INode>& node)
+                        {
+                            _p->document->setViewNode(node);
+                        });
                 }
                 else
                 {

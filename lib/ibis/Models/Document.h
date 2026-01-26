@@ -98,6 +98,15 @@ namespace ibis
 
             ///@}
 
+            //! \name View
+            ///@{
+
+            const std::shared_ptr<render::INode> getViewNode() const;
+            std::shared_ptr<ftk::IObservable<std::shared_ptr<render::INode> > > observeViewNode() const;
+            void setViewNode(const std::shared_ptr<render::INode>&);
+
+            ///@}
+
         private:
             FTK_PRIVATE();
         };

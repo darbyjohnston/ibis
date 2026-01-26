@@ -8,6 +8,7 @@
 #include <ftk/UI/Label.h>
 #include <ftk/UI/Icon.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/ToolButton.h>
 
 namespace ibis
 {
@@ -109,10 +110,14 @@ namespace ibis
         struct NodeGraphWidget::Private
         {
             std::shared_ptr<render::INode> node;
+            bool selected = false;
+
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
-            bool selected = false;
+            std::shared_ptr<ftk::ToolButton> viewButton;
             std::shared_ptr<ftk::HorizontalLayout> layout;
+
+            std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
         };
 
         void NodeGraphWidget::_init(
@@ -127,6 +132,20 @@ namespace ibis
 
             p.node = node;
 
+            for (const auto& i : node->getInputs())
+            {
+                p.inputs.push_back(NodeGraphInput::create(context, node));
+            }
+
+            for (const auto& i : node->getOutputs())
+            {
+                p.outputs.push_back(NodeGraphOutput::create(context, node));
+            }
+
+            p.viewButton = ftk::ToolButton::create(context);
+            p.viewButton->setIcon("ViewFrame");
+            p.viewButton->setAcceptsKeyFocus(false);
+
             auto label = ftk::Label::create(context, node->getID());
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginSmall);
@@ -136,19 +155,28 @@ namespace ibis
 
             auto vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            for (const auto& i : node->getInputs())
+            for (const auto& i : p.inputs)
             {
-                p.inputs.push_back(NodeGraphInput::create(context, node, vLayout));
+                i->setParent(vLayout);
             }
-
             label->setParent(p.layout);
-
+            p.viewButton->setParent(p.layout);
             vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            for (int i = 0; i < node->getOutputs().size(); ++i)
+            for (const auto& i : p.outputs)
             {
-                p.outputs.push_back(NodeGraphOutput::create(context, node, vLayout));
+                i->setParent(vLayout);
             }
+
+            p.viewButton->setClickedCallback(
+                [this]
+                {
+                    FTK_P();
+                    if (p.viewCallback)
+                    {
+                        p.viewCallback(p.node);
+                    }
+                });
         }
 
         NodeGraphWidget::NodeGraphWidget() :
@@ -198,6 +226,24 @@ namespace ibis
                 p.selected ?
                 ftk::ColorRole::Checked :
                 ftk::ColorRole::Button);
+        }
+
+        bool NodeGraphWidget::isView() const
+        {
+            return _p->viewButton->getBackgroundRole() == ftk::ColorRole::Checked;
+        }
+
+        void NodeGraphWidget::setView(bool value)
+        {
+            _p->viewButton->setBackgroundRole(
+                value ?
+                ftk::ColorRole::Checked :
+                ftk::ColorRole::None);
+        }
+
+        void NodeGraphWidget::setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>& value)
+        {
+            _p->viewCallback = value;
         }
 
         ftk::Size2I NodeGraphWidget::getSizeHint() const

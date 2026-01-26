@@ -19,6 +19,7 @@ namespace ibis
             std::shared_ptr<NodeSelectionModel> selectionModel;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
+            std::shared_ptr<ftk::Observable<std::shared_ptr<render::INode> > > viewNode;
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
         };
@@ -42,6 +43,7 @@ namespace ibis
             p.selectionModel = NodeSelectionModel::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
+            p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create(nullptr);
 
             p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
                 p.graph->observeNodes(),
@@ -64,6 +66,26 @@ namespace ibis
                         }
                     }
                     p.selectionModel->set(selection);
+
+                    // Update the view node.
+                    auto viewNode = p.viewNode->get();
+                    if (viewNode)
+                    {
+                        const auto j = std::find(nodes.begin(), nodes.end(), viewNode);
+                        if (j == nodes.end())
+                        {
+                            viewNode.reset();
+                        }
+                    }
+                    if (!viewNode)
+                    {
+                        const auto leafNodes = p.graph->getLeafNodes();
+                        if (!leafNodes.empty())
+                        {
+                            viewNode = leafNodes.front();
+                        }
+                    }
+                    p.viewNode->setIfChanged(viewNode);
                 });
         }
 
@@ -190,6 +212,21 @@ namespace ibis
                 }
             }
             p.selectionModel->set(invert);
+        }
+
+        const std::shared_ptr<render::INode> Document::getViewNode() const
+        {
+            return _p->viewNode->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<std::shared_ptr<render::INode> > > Document::observeViewNode() const
+        {
+            return _p->viewNode;
+        }
+
+        void Document::setViewNode(const std::shared_ptr<render::INode>& value)
+        {
+            _p->viewNode->setIfChanged(value);
         }
 
         const std::vector<std::shared_ptr<render::INode> > Document::getSelection() const
