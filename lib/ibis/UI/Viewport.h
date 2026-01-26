@@ -7,9 +7,9 @@
 
 namespace ibis
 {
-    namespace render
+    namespace models
     {
-        class Graph;
+        class Document;
     }
 
     namespace ui
@@ -20,7 +20,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<render::Graph>&,
+                const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             Viewport();
@@ -31,7 +31,7 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<Viewport> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<render::Graph>&,
+                const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;
@@ -40,6 +40,8 @@ namespace ibis
             void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
 
         private:
+            void _nodeUpdate();
+
             FTK_PRIVATE();
         };
     }

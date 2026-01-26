@@ -19,6 +19,8 @@ namespace ibis
             std::shared_ptr<NodeSelectionModel> selectionModel;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
+
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
         };
 
         void Document::_init(
@@ -40,6 +42,29 @@ namespace ibis
             p.selectionModel = NodeSelectionModel::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
+
+            p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
+                p.graph->observeNodes(),
+                [this](const std::vector<std::shared_ptr<render::INode> >& nodes)
+                {
+                    // Update the slection when the nodes change.
+                    FTK_P();
+                    auto selection = p.selectionModel->get();
+                    auto i = selection.begin();
+                    while (i != selection.end())
+                    {
+                        const auto j = std::find(nodes.begin(), nodes.end(), *i);
+                        if (j == nodes.end())
+                        {
+                            i = selection.erase(i);
+                        }
+                        else
+                        {
+                            ++i;
+                        }
+                    }
+                    p.selectionModel->set(selection);
+                });
         }
 
         Document::Document() :

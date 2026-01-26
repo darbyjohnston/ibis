@@ -69,6 +69,9 @@ namespace ibis
             //! Get the nodes in the graph.
             const std::vector<std::shared_ptr<INode> >& getNodes() const;
 
+            //! Observe the nodes in the graph.
+            std::shared_ptr<ftk::IObservableList<std::shared_ptr<INode> > > observeNodes() const;
+
             //! Move a node.
             void move(const std::shared_ptr<INode>&, const ftk::V2I&);
 

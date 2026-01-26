@@ -12,7 +12,7 @@ namespace ibis
     {
         struct Graph::Private
         {
-            std::vector<std::shared_ptr<INode> > nodes;
+            std::shared_ptr<ftk::ObservableList<std::shared_ptr<INode> > > nodes;
             std::map<std::shared_ptr<INode>, ftk::V2I> pos;
             std::shared_ptr<ftk::Observable<bool> > changed;
         };
@@ -35,6 +35,7 @@ namespace ibis
         {
             FTK_P();
 
+            std::vector<std::shared_ptr<INode> > nodes;
             if (!json.empty() && nodeFactory)
             {
                 if (json.contains("Nodes"))
@@ -69,22 +70,23 @@ namespace ibis
                                         int(inputs[j]["Output"]) });
                                 }
                             }
-                            p.nodes.push_back(node);
+                            nodes.push_back(node);
                             p.pos[node] = pos;
                         }
                     }
                     for (const auto& connection : connections)
                     {
-                        if (connection.outputNode >= 0 && connection.outputNode < p.nodes.size())
+                        if (connection.outputNode >= 0 && connection.outputNode < nodes.size())
                         {
                             connection.inputNode->setInput(
                                 connection.input,
-                                NodeConnection(p.nodes[connection.outputNode], connection.output));
+                                NodeConnection(nodes[connection.outputNode], connection.output));
                         }
                     }
                 }
             }
 
+            p.nodes = ftk::ObservableList<std::shared_ptr<INode> >::create(nodes);
             p.changed = ftk::Observable<bool>::create(false);
         }
 
@@ -110,9 +112,10 @@ namespace ibis
             FTK_P();
             nlohmann::json out;
             nlohmann::json nodesJSON;
-            for (size_t i = 0; i < p.nodes.size(); ++i)
+            const auto& nodes = p.nodes->get();
+            for (size_t i = 0; i < nodes.size(); ++i)
             {
-                const auto& node = p.nodes[i];
+                const auto& node = nodes[i];
                 nlohmann::json nodeJSON;
                 nodeJSON["ID"] = node->getID();
                 nodeJSON["Pos"] = getPos(node);
@@ -134,10 +137,10 @@ namespace ibis
                     {
                         nlohmann::json inputJSON;
                         int index = -1;
-                        const auto j = std::find(p.nodes.begin(), p.nodes.end(), input.node);
-                        if (j != p.nodes.end())
+                        const auto j = std::find(nodes.begin(), nodes.end(), input.node);
+                        if (j != nodes.end())
                         {
-                            index = j - p.nodes.begin();
+                            index = j - nodes.begin();
                         }
                         inputJSON["Index"] = index;
                         inputJSON["Output"] = input.index;
@@ -163,14 +166,16 @@ namespace ibis
             const std::vector<ftk::V2I>& pos)
         {
             FTK_P();
+            auto tmp = p.nodes->get();
             for (size_t i = 0; i < nodes.size(); ++i)
             {
-                p.nodes.push_back(nodes[i]);
+                tmp.push_back(nodes[i]);
                 if (i < pos.size())
                 {
                     p.pos[nodes[i]] = pos[i];
                 }
             }
+            p.nodes->setAlways(tmp);
             p.changed->setAlways(true);
         }
 
@@ -183,13 +188,14 @@ namespace ibis
         {
             FTK_P();
             bool changed = false;
+            auto tmp = p.nodes->get();
             for (const auto& node : nodes)
             {
-                const auto i = std::find(p.nodes.begin(), p.nodes.end(), node);
-                if (i != p.nodes.end())
+                const auto i = std::find(tmp.begin(), tmp.end(), node);
+                if (i != tmp.end())
                 {
                     // Remove the node.
-                    p.nodes.erase(i);
+                    tmp.erase(i);
 
                     // Remove node connections.
                     for (int j = 0; j < node->getInputs().size(); ++j)
@@ -198,7 +204,7 @@ namespace ibis
                     }
 
                     // Remove connections to the node.
-                    for (const auto& node2 : p.nodes)
+                    for (const auto& node2 : tmp)
                     {
                         for (const auto& input : node2->getInputs())
                         {
@@ -220,6 +226,7 @@ namespace ibis
                     changed = true;
                 }
             }
+            p.nodes->setIfChanged(tmp);
             if (changed)
             {
                 p.changed->setAlways(true);
@@ -227,6 +234,11 @@ namespace ibis
         }
 
         const std::vector<std::shared_ptr<INode> >& Graph::getNodes() const
+        {
+            return _p->nodes->get();
+        }
+
+        std::shared_ptr<ftk::IObservableList<std::shared_ptr<INode> > > Graph::observeNodes() const
         {
             return _p->nodes;
         }
@@ -301,13 +313,9 @@ namespace ibis
             const nlohmann::json& value)
         {
             FTK_P();
-            const auto i =std::find(p.nodes.begin(), p.nodes.end(), node);
-            if (i != p.nodes.end())
+            if (node->setAttr(key, value))
             {
-                if ((*i)->setAttr(key, value))
-                {
-                    p.changed->setAlways(true);
-                }
+                p.changed->setAlways(true);
             }
         }
 
@@ -316,11 +324,11 @@ namespace ibis
             FTK_P();
             std::vector<std::shared_ptr<INode> > out;
             std::map<std::shared_ptr<INode>, int> connections;
-            for (const auto& node : p.nodes)
+            for (const auto& node : p.nodes->get())
             {
                 connections[node] = 0;
             }
-            for (const auto& node : p.nodes)
+            for (const auto& node : p.nodes->get())
             {
                 for (const auto& input : node->getInputs())
                 {

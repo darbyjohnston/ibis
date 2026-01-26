@@ -27,5 +27,10 @@ namespace ibis
         {
             return _node->getID();
         }
+
+        const std::shared_ptr<ibis::render::INode>& INodeWidget::getNode() const
+        {
+            return _node;
+        }
     }
 }

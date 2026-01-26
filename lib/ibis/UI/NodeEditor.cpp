@@ -8,6 +8,8 @@
 #include <ibis/Models/Document.h>
 #include <ibis/Models/NodeSelectionModel.h>
 
+#include <ibis/Render/Graph.h>
+
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
 
@@ -17,6 +19,7 @@ namespace ibis
     {
         struct NodeEditor::Private
         {
+            std::vector<std::shared_ptr<INodeWidget> > widgets;
             std::shared_ptr<ftk::VerticalLayout> layout;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
 
@@ -43,11 +46,13 @@ namespace ibis
                 [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
                 {
                     FTK_P();
+                    p.widgets.clear();
                     p.layout->clear();
                     for (const auto& node : selection)
                     {
                         auto widget = factory->createWidget(document, node);
                         widget->setParent(p.layout);
+                        p.widgets.push_back(widget);
                     }
                 });
         }

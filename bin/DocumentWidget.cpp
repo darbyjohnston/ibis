@@ -16,7 +16,7 @@ namespace ibis
     {
         ftk::IWidget::_init(context, "DocumentWidget", nullptr);
 
-        _viewport = ui::Viewport::create(context, document->getGraph());
+        _viewport = ui::Viewport::create(context, document);
 
         _nodeGraphCanvas = ui::NodeGraphCanvas::create(context, document, app->getNodeFactory());
 

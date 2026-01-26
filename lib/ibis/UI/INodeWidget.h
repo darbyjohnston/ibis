@@ -37,6 +37,9 @@ namespace ibis
             //! Get the ID.
             const std::string& getID() const;
 
+            //! Get the node.
+            const std::shared_ptr<ibis::render::INode>& getNode() const;
+
         protected:
             std::shared_ptr<ibis::models::Document> _document;
             std::shared_ptr<ibis::render::INode> _node;
