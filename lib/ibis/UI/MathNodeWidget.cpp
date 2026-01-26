@@ -21,8 +21,6 @@ namespace ibis
     {
         struct AddValueNodeWidget::Private
         {
-            double value = 0.0;
-            bool pressed = false;
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
             std::shared_ptr<ftk::Label> label;
@@ -55,29 +53,22 @@ namespace ibis
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
 
-            p.valueSlider->setCallback(
-                [this](double value)
+            p.valueSlider->setPressedCallback(
+                [this](double value, bool pressed)
                 {
                     FTK_P();
-                    p.value = value;
-                    if (p.pressed)
+                    if (pressed)
                     {
+                        if (!p.cmd)
+                        {
+                            p.cmd = render::NodeAttrCmd::create(
+                                _document->getGraph(), _node, "Value");
+                        }
                         _document->getGraph()->setAttr(_node, "Value", value);
                     }
-                });
-            p.valueSlider->setPressedCallback(
-                [this](bool value)
-                {
-                    FTK_P();
-                    p.pressed = value;
-                    if (value)
+                    else if (p.cmd)
                     {
-                        p.cmd = render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value");
-                    }
-                    else
-                    {
-                        p.cmd->set(p.value);
+                        p.cmd->set(value);
                         _document->command(p.cmd);
                         p.cmd.reset();
                     }

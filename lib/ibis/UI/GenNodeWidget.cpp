@@ -22,6 +22,8 @@ namespace ibis
     {
         struct SolidColorNodeWidget::Private
         {
+            std::shared_ptr<render::NodeAttrCmd> cmd;
+
             std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::IntEdit> widthEdit;
             std::shared_ptr<ftk::IntEdit> heightEdit;
@@ -91,11 +93,25 @@ namespace ibis
                     }
                 });
 
-            p.colorSwatch->setFinishedCallback(
-                [this](const ftk::Color4F& value)
+            p.colorSwatch->setPressedCallback(
+                [this](const ftk::Color4F& value, bool pressed)
                 {
-                    _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Color", value));
+                    FTK_P();
+                    if (pressed)
+                    {
+                        if (!p.cmd)
+                        {
+                            p.cmd = render::NodeAttrCmd::create(
+                                _document->getGraph(), _node, "Color", value);
+                        }
+                        _document->getGraph()->setAttr(_node, "Color", value);
+                    }
+                    else if (p.cmd)
+                    {
+                        p.cmd->set(value);
+                        _document->command(p.cmd);
+                        p.cmd.reset();
+                    }
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
