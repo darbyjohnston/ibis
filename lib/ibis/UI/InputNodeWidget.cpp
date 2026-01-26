@@ -3,7 +3,10 @@
 
 #include "InputNodeWidget.h"
 
+#include <ibis/Models/Document.h>
+
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/InputNode.h>
 
 #include <ftk/UI/Divider.h>
@@ -27,11 +30,11 @@ namespace ibis
 
         void InputNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, graph, node, parent);
+            INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.label = ftk::Label::create(context, getID());
@@ -51,7 +54,8 @@ namespace ibis
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
                 {
-                    _graph->setAttr(_node, "Path", path.get());
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Path", path.get()));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -78,12 +82,12 @@ namespace ibis
 
         std::shared_ptr<InputNodeWidget> InputNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<InputNodeWidget> out(new InputNodeWidget);
-            out->_init(context, graph, node, parent);
+            out->_init(context, document, node, parent);
             return out;
         }
 

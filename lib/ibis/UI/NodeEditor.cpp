@@ -46,7 +46,7 @@ namespace ibis
                     p.layout->clear();
                     for (const auto& node : selection)
                     {
-                        auto widget = factory->createWidget(document->getGraph(), node);
+                        auto widget = factory->createWidget(document, node);
                         widget->setParent(p.layout);
                     }
                 });

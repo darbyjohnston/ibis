@@ -155,5 +155,44 @@ namespace ibis
             _graph->disconnect(_connect.inputNode, _connect.input);
             _graph->connect(_connect.inputNode, _connect.input, _prev.node, _prev.index);
         }
+
+        void NodeAttrCmd::_init(
+            const std::shared_ptr<Graph>& graph,
+            const std::shared_ptr<INode>& node,
+            const std::string& key,
+            const nlohmann::json& value)
+        {
+            _graph = graph;
+            _node = node;
+            _key = key;
+            _value = value;
+            _prev = _node->getAttr(_key);
+        }
+
+        std::shared_ptr<NodeAttrCmd> NodeAttrCmd::create(
+            const std::shared_ptr<Graph>& graph,
+            const std::shared_ptr<INode>& node,
+            const std::string& key,
+            const nlohmann::json& value)
+        {
+            std::shared_ptr<NodeAttrCmd> out(new NodeAttrCmd);
+            out->_init(graph, node, key, value);
+            return out;
+        }
+
+        void NodeAttrCmd::set(const nlohmann::json& value)
+        {
+            _value = value;
+        }
+
+        void NodeAttrCmd::exec()
+        {
+            _graph->setAttr(_node, _key, _value);
+        }
+
+        void NodeAttrCmd::undo()
+        {
+            _graph->setAttr(_node, _key, _prev);
+        }
     }
 }

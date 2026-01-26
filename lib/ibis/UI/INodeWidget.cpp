@@ -11,12 +11,12 @@ namespace ibis
     {
         void INodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::INodeWidget", parent);
-            _graph = graph;
+            _document = document;
             _node = node;
         }
 

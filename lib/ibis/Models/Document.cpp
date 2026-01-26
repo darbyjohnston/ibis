@@ -106,7 +106,6 @@ namespace ibis
         void Document::undo()
         {
             FTK_P();
-            p.selectionModel->clear();
             p.commandStack->undo();
         }
 

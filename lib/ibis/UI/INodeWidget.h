@@ -9,8 +9,12 @@ namespace ibis
 {
     namespace render
     {
-        class Graph;
         class INode;
+    }
+
+    namespace models
+    {
+        class Document;
     }
 
     namespace ui
@@ -21,7 +25,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
@@ -34,7 +38,7 @@ namespace ibis
             const std::string& getID() const;
 
         protected:
-            std::shared_ptr<ibis::render::Graph> _graph;
+            std::shared_ptr<ibis::models::Document> _document;
             std::shared_ptr<ibis::render::INode> _node;
         };
     }

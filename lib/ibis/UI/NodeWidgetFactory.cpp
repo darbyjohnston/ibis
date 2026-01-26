@@ -22,7 +22,7 @@ namespace ibis
                 std::string,
                 std::function<std::shared_ptr<INodeWidget>(
                     const std::shared_ptr<ftk::Context>&,
-                    const std::shared_ptr<ibis::render::Graph>&,
+                    const std::shared_ptr<ibis::models::Document>&,
                     const std::shared_ptr<ibis::render::INode>&,
                     const std::shared_ptr<ftk::IWidget>&)> >
                 nodes;
@@ -66,7 +66,7 @@ namespace ibis
         }
 
         std::shared_ptr<INodeWidget> NodeWidgetFactory::createWidget(
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node)
         {
             FTK_P();
@@ -74,7 +74,7 @@ namespace ibis
             const auto i = p.nodes.find(node->getID());
             if (i != p.nodes.end())
             {
-                out = i->second(p.context.lock(), graph, node, nullptr);
+                out = i->second(p.context.lock(), document, node, nullptr);
             }
             return out;
         }

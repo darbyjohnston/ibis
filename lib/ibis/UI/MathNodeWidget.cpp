@@ -3,7 +3,10 @@
 
 #include "MathNodeWidget.h"
 
+#include <ibis/Models/Document.h>
+
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/MathNode.h>
 
 #include <ftk/UI/Divider.h>
@@ -18,6 +21,10 @@ namespace ibis
     {
         struct AddValueNodeWidget::Private
         {
+            double value = 0.0;
+            bool pressed = false;
+            std::shared_ptr<render::NodeAttrCmd> cmd;
+
             std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::VerticalLayout> layout;
@@ -27,11 +34,11 @@ namespace ibis
 
         void AddValueNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, graph, node, parent);
+            INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.label = ftk::Label::create(context, getID());
@@ -51,7 +58,29 @@ namespace ibis
             p.valueSlider->setCallback(
                 [this](double value)
                 {
-                    _graph->setAttr(_node, "Value", value);
+                    FTK_P();
+                    p.value = value;
+                    if (p.pressed)
+                    {
+                        _document->getGraph()->setAttr(_node, "Value", value);
+                    }
+                });
+            p.valueSlider->setPressedCallback(
+                [this](bool value)
+                {
+                    FTK_P();
+                    p.pressed = value;
+                    if (value)
+                    {
+                        p.cmd = render::NodeAttrCmd::create(
+                            _document->getGraph(), _node, "Value");
+                    }
+                    else
+                    {
+                        p.cmd->set(p.value);
+                        _document->command(p.cmd);
+                        p.cmd.reset();
+                    }
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -78,12 +107,12 @@ namespace ibis
 
         std::shared_ptr<AddValueNodeWidget> AddValueNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<AddValueNodeWidget> out(new AddValueNodeWidget);
-            out->_init(context, graph, node, parent);
+            out->_init(context, document, node, parent);
             return out;
         }
 

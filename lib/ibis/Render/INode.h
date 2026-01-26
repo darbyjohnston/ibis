@@ -77,6 +77,9 @@ namespace ibis
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
 
+            //! Get whether the attribute exists.
+            bool hasAttr(const std::string&) const;
+
             //! Get an attribute.
             nlohmann::json getAttr(const std::string&) const;
 

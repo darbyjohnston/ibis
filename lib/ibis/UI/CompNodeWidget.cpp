@@ -21,11 +21,11 @@ namespace ibis
 
         void OverNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, graph, node, parent);
+            INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.label = ftk::Label::create(context, getID());
@@ -47,12 +47,12 @@ namespace ibis
 
         std::shared_ptr<OverNodeWidget> OverNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<OverNodeWidget> out(new OverNodeWidget);
-            out->_init(context, graph, node, parent);
+            out->_init(context, document, node, parent);
             return out;
         }
 

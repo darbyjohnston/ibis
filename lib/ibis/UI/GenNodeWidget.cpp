@@ -3,8 +3,11 @@
 
 #include "GenNodeWidget.h"
 
+#include <ibis/Models/Document.h>
+
 #include <ibis/Render/GenNode.h>
 #include <ibis/Render/Graph.h>
+#include <ibis/Render/GraphCmd.h>
 
 #include <ftk/UI/ColorSwatch.h>
 #include <ftk/UI/Divider.h>
@@ -30,11 +33,11 @@ namespace ibis
 
         void SolidColorNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, graph, node, parent);
+            INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.label = ftk::Label::create(context, getID());
@@ -68,22 +71,31 @@ namespace ibis
                 [this](int value)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
-                    size.w = value;
-                    _graph->setAttr(_node, "Size", size);
+                    if (value != size.w)
+                    {
+                        size.w = value;
+                        _document->command(render::NodeAttrCmd::create(
+                            _document->getGraph(), _node, "Size", size));
+                    }
                 });
 
             p.heightEdit->setCallback(
                 [this](int value)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
-                    size.h = value;
-                    _graph->setAttr(_node, "Size", size);
+                    if (value != size.h)
+                    {
+                        size.h = value;
+                        _document->command(render::NodeAttrCmd::create(
+                            _document->getGraph(), _node, "Size", size));
+                    }
                 });
 
-            p.colorSwatch->setColorCallback(
+            p.colorSwatch->setFinishedCallback(
                 [this](const ftk::Color4F& value)
                 {
-                    _graph->setAttr(_node, "Color", value);
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Color", value));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -119,12 +131,12 @@ namespace ibis
 
         std::shared_ptr<SolidColorNodeWidget> SolidColorNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::render::Graph>& graph,
+            const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<SolidColorNodeWidget> out(new SolidColorNodeWidget);
-            out->_init(context, graph, node, parent);
+            out->_init(context, document, node, parent);
             return out;
         }
 

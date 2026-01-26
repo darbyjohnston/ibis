@@ -128,5 +128,40 @@ namespace ibis
             GraphConnect _connect;
             NodeConnection _prev;
         };
+
+        //! Set node attributes.
+        class NodeAttrCmd : public ftk::ICommand
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<Graph>&,
+                const std::shared_ptr<INode>&,
+                const std::string&,
+                const nlohmann::json&);
+
+            NodeAttrCmd() = default;
+
+        public:
+            virtual ~NodeAttrCmd() = default;
+
+            //! Create a new command.
+            static std::shared_ptr<NodeAttrCmd> create(
+                const std::shared_ptr<Graph>&,
+                const std::shared_ptr<INode>&,
+                const std::string&,
+                const nlohmann::json& = {});
+
+            void set(const nlohmann::json&);
+
+            void exec() override;
+            void undo() override;
+
+        private:
+            std::shared_ptr<Graph> _graph;
+            std::shared_ptr<INode> _node;
+            std::string _key;
+            nlohmann::json _value;
+            nlohmann::json _prev;
+        };
     }
 }

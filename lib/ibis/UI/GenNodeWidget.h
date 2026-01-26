@@ -15,7 +15,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
@@ -27,7 +27,7 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<SolidColorNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 

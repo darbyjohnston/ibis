@@ -29,7 +29,7 @@ namespace ibis
 
             //! Create a new widget.
             std::shared_ptr<INodeWidget> createWidget(
-                const std::shared_ptr<ibis::render::Graph>&,
+                const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::INode>&);
 
         private:
