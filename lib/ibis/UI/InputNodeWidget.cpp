@@ -19,7 +19,7 @@ namespace ibis
 {
     namespace ui
     {
-        struct InputNodeWidget::Private
+        struct ImageFileNodeWidget::Private
         {
             std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::FileEdit> fileEdit;
@@ -28,7 +28,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void InputNodeWidget::_init(
+        void ImageFileNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
@@ -73,35 +73,35 @@ namespace ibis
                 });
         }
 
-        InputNodeWidget::InputNodeWidget() :
+        ImageFileNodeWidget::ImageFileNodeWidget() :
             _p(new Private)
         {}
 
-        InputNodeWidget::~InputNodeWidget()
+        ImageFileNodeWidget::~ImageFileNodeWidget()
         {}
 
-        std::shared_ptr<InputNodeWidget> InputNodeWidget::create(
+        std::shared_ptr<ImageFileNodeWidget> ImageFileNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<InputNodeWidget> out(new InputNodeWidget);
+            std::shared_ptr<ImageFileNodeWidget> out(new ImageFileNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        std::string InputNodeWidget::getNodeID()
+        std::string ImageFileNodeWidget::getNodeID()
         {
-            return render::InputNode::getNodeID();
+            return render::ImageFileNode::getNodeID();
         }
 
-        ftk::Size2I InputNodeWidget::getSizeHint() const
+        ftk::Size2I ImageFileNodeWidget::getSizeHint() const
         {
             return _p->layout->getSizeHint();
         }
 
-        void InputNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ImageFileNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -24,9 +24,11 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[AddValueNode::getNodeID()] = &AddValueNode::create;
-            p.nodes[InputNode::getNodeID()] = &InputNode::create;
+            p.nodes[ImageFileNode::getNodeID()] = &ImageFileNode::create;
+            p.nodes[ImageFileSequenceNode::getNodeID()] = &ImageFileSequenceNode::create;
+            p.nodes[MathNode::getNodeID()] = &MathNode::create;
             p.nodes[OverNode::getNodeID()] = &OverNode::create;
+            p.nodes[SVGFileNode::getNodeID()] = &SVGFileNode::create;
             p.nodes[SolidColorNode::getNodeID()] = &SolidColorNode::create;
         }
 

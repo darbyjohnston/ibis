@@ -9,23 +9,25 @@ namespace ibis
 {
     namespace render
     {
-        //! Add value node.
-        class AddValueNode : public INode
+        //! Math node.
+        class MathNode : public INode
         {
         protected:
             void _init(const std::shared_ptr<ftk::Context>&);
 
-            AddValueNode();
+            MathNode();
 
         public:
-            virtual ~AddValueNode();
+            virtual ~MathNode();
 
             static std::string getNodeID();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
 
-            void exec(const std::shared_ptr<ftk::IRender>&) override;
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
 
         private:
             FTK_PRIVATE();

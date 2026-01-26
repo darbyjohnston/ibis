@@ -9,8 +9,8 @@ namespace ibis
 {
     namespace ui
     {
-        //! Add value node widget.
-        class AddValueNodeWidget : public INodeWidget
+        //! Math node widget.
+        class MathNodeWidget : public INodeWidget
         {
         protected:
             void _init(
@@ -19,13 +19,13 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            AddValueNodeWidget();
+            MathNodeWidget();
 
         public:
-            virtual ~AddValueNodeWidget();
+            virtual ~MathNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<AddValueNodeWidget> create(
+            static std::shared_ptr<MathNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,

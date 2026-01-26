@@ -9,23 +9,73 @@ namespace ibis
 {
     namespace render
     {
-        //! Input node.
-        class InputNode : public INode
+        //! Image file node.
+        class ImageFileNode : public INode
         {
         protected:
             void _init(const std::shared_ptr<ftk::Context>&);
 
-            InputNode();
+            ImageFileNode();
 
         public:
-            virtual ~InputNode();
+            virtual ~ImageFileNode();
 
             static std::string getNodeID();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
 
-            void exec(const std::shared_ptr<ftk::IRender>&) override;
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+
+        //! Image file sequence node.
+        class ImageFileSequenceNode : public INode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            ImageFileSequenceNode();
+
+        public:
+            virtual ~ImageFileSequenceNode();
+
+            static std::string getNodeID();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+
+        //! SVG file node.
+        class SVGFileNode : public INode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            SVGFileNode();
+
+        public:
+            virtual ~SVGFileNode();
+
+            static std::string getNodeID();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
 
         private:
             FTK_PRIVATE();

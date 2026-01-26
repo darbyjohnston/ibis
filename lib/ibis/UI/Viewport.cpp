@@ -21,6 +21,7 @@ namespace ibis
         {
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::INode> node;
+            OTIO_NS::RationalTime currentTime;
 
             int sizeHint = 0;
 
@@ -148,7 +149,7 @@ namespace ibis
                         const ftk::RenderSizeState renderSizeState(event.render);
                         event.render->setClipRectEnabled(false);
 
-                        p.node->exec(event.render);
+                        p.node->exec(event.render, p.currentTime);
                         const auto& outputs = p.node->getOutputs();
                         if (!outputs.empty() && outputs.front())
                         {

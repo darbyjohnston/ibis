@@ -19,7 +19,7 @@ namespace ibis
 {
     namespace ui
     {
-        struct AddValueNodeWidget::Private
+        struct MathNodeWidget::Private
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
@@ -30,7 +30,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void AddValueNodeWidget::_init(
+        void MathNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
@@ -94,35 +94,35 @@ namespace ibis
                 });
         }
 
-        AddValueNodeWidget::AddValueNodeWidget() :
+        MathNodeWidget::MathNodeWidget() :
             _p(new Private)
         {}
 
-        AddValueNodeWidget::~AddValueNodeWidget()
+        MathNodeWidget::~MathNodeWidget()
         {}
 
-        std::shared_ptr<AddValueNodeWidget> AddValueNodeWidget::create(
+        std::shared_ptr<MathNodeWidget> MathNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<AddValueNodeWidget> out(new AddValueNodeWidget);
+            std::shared_ptr<MathNodeWidget> out(new MathNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        std::string AddValueNodeWidget::getNodeID()
+        std::string MathNodeWidget::getNodeID()
         {
-            return render::AddValueNode::getNodeID();
+            return render::MathNode::getNodeID();
         }
 
-        ftk::Size2I AddValueNodeWidget::getSizeHint() const
+        ftk::Size2I MathNodeWidget::getSizeHint() const
         {
             return _p->layout->getSizeHint();
         }
 
-        void AddValueNodeWidget::setGeometry(const ftk::Box2I& value)
+        void MathNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->layout->setGeometry(value);

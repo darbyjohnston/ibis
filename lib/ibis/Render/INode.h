@@ -90,7 +90,9 @@ namespace ibis
             virtual bool setAttr(const std::string&, const nlohmann::json&);
 
             //! Execute the node.
-            virtual void exec(const std::shared_ptr<ftk::IRender>&);
+            virtual void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&);
 
         protected:
             std::string _id;

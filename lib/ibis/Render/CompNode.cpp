@@ -95,9 +95,11 @@ namespace ibis
                 "}\n";
         }
 
-        void OverNode::exec(const std::shared_ptr<ftk::IRender>& render)
+        void OverNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
         {
-            INode::exec(render);
+            INode::exec(render, time);
             FTK_P();
             ftk::Size2I size;
             if (_inputs[0].node)

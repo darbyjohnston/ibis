@@ -9,8 +9,8 @@ namespace ibis
 {
     namespace ui
     {
-        //! Input node widget.
-        class InputNodeWidget : public INodeWidget
+        //! Image file node widget.
+        class ImageFileNodeWidget : public INodeWidget
         {
         protected:
             void _init(
@@ -19,13 +19,13 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            InputNodeWidget();
+            ImageFileNodeWidget();
 
         public:
-            virtual ~InputNodeWidget();
+            virtual ~ImageFileNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<InputNodeWidget> create(
+            static std::shared_ptr<ImageFileNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,

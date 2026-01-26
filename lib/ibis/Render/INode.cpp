@@ -99,13 +99,15 @@ namespace ibis
             return out;
         }
 
-        void INode::exec(const std::shared_ptr<ftk::IRender>& render)
+        void INode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
         {
             for (const auto& input : _inputs)
             {
                 if (input.node)
                 {
-                    input.node->exec(render);
+                    input.node->exec(render, time);
                 }
             }
         }

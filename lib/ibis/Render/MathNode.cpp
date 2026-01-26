@@ -13,12 +13,12 @@ namespace ibis
 {
     namespace render
     {
-        struct AddValueNode::Private
+        struct MathNode::Private
         {
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void AddValueNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void MathNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
             NodeAttr attr;
             attr["Value"] = 0.5;
@@ -26,22 +26,22 @@ namespace ibis
             FTK_P();
         }
 
-        AddValueNode::AddValueNode() :
+        MathNode::MathNode() :
             _p(new Private)
         {}
 
-        AddValueNode::~AddValueNode()
+        MathNode::~MathNode()
         {}
 
-        std::string AddValueNode::getNodeID()
+        std::string MathNode::getNodeID()
         {
-            return "Add Value";
+            return "Math";
         }
 
-        std::shared_ptr<INode> AddValueNode::create(
+        std::shared_ptr<INode> MathNode::create(
             const std::shared_ptr<ftk::Context>& context)
         {
-            std::shared_ptr<AddValueNode> out(new AddValueNode);
+            std::shared_ptr<MathNode> out(new MathNode);
             out->_init(context);
             return out;
         }
@@ -86,9 +86,11 @@ namespace ibis
                 "}\n";
         }
 
-        void AddValueNode::exec(const std::shared_ptr<ftk::IRender>& render)
+        void MathNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
         {
-            INode::exec(render);
+            INode::exec(render, time);
             FTK_P();
             ftk::Size2I size;
             if (_inputs[0].node)

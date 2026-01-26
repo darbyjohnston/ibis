@@ -45,8 +45,11 @@ namespace ibis
             return out;
         }
 
-        void SolidColorNode::exec(const std::shared_ptr<ftk::IRender>& render)
+        void SolidColorNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
         {
+            INode::exec(render, time);
             FTK_P();
             ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;

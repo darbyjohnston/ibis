@@ -14,13 +14,13 @@ namespace ibis
 {
     namespace render
     {
-        struct InputNode::Private
+        struct ImageFileNode::Private
         {
             std::string path;
             std::shared_ptr<ftk::Image> image;
         };
 
-        void InputNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void ImageFileNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
             NodeAttr attr;
             attr["Path"] = "";
@@ -28,22 +28,22 @@ namespace ibis
             FTK_P();
         }
 
-        InputNode::InputNode() :
+        ImageFileNode::ImageFileNode() :
             _p(new Private)
         {}
 
-        InputNode::~InputNode()
+        ImageFileNode::~ImageFileNode()
         {}
 
-        std::string InputNode::getNodeID()
+        std::string ImageFileNode::getNodeID()
         {
-            return "Input";
+            return "Image File";
         }
 
-        std::shared_ptr<INode> InputNode::create(
+        std::shared_ptr<INode> ImageFileNode::create(
             const std::shared_ptr<ftk::Context>& context)
         {
-            std::shared_ptr<InputNode> out(new InputNode);
+            std::shared_ptr<ImageFileNode> out(new ImageFileNode);
             out->_init(context);
             return out;
         }
@@ -105,8 +105,11 @@ namespace ibis
             }
         }
 
-        void InputNode::exec(const std::shared_ptr<ftk::IRender>& render)
+        void ImageFileNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
         {
+            INode::exec(render, time);
             FTK_P();
             const std::string path = _attr->getItem("Path");
             if (!path.empty() && (!p.image || path != p.path))
@@ -184,6 +187,84 @@ namespace ibis
                 render->setTransform(pm);
                 render->drawImage(p.image, g);
             }
+        }
+
+        struct ImageFileSequenceNode::Private
+        {
+        };
+
+        void ImageFileSequenceNode::_init(const std::shared_ptr<ftk::Context>& context)
+        {
+            NodeAttr attr;
+            INode::_init(context, getNodeID(), 0, 1, attr);
+            FTK_P();
+        }
+
+        ImageFileSequenceNode::ImageFileSequenceNode() :
+            _p(new Private)
+        {}
+
+        ImageFileSequenceNode::~ImageFileSequenceNode()
+        {}
+
+        std::string ImageFileSequenceNode::getNodeID()
+        {
+            return "Image File Sequence";
+        }
+
+        std::shared_ptr<INode> ImageFileSequenceNode::create(
+            const std::shared_ptr<ftk::Context>& context)
+        {
+            std::shared_ptr<ImageFileSequenceNode> out(new ImageFileSequenceNode);
+            out->_init(context);
+            return out;
+        }
+
+        void ImageFileSequenceNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
+        {
+            INode::exec(render, time);
+            FTK_P();
+        }
+
+        struct SVGFileNode::Private
+        {
+        };
+
+        void SVGFileNode::_init(const std::shared_ptr<ftk::Context>& context)
+        {
+            NodeAttr attr;
+            INode::_init(context, getNodeID(), 0, 1, attr);
+            FTK_P();
+        }
+
+        SVGFileNode::SVGFileNode() :
+            _p(new Private)
+        {}
+
+        SVGFileNode::~SVGFileNode()
+        {}
+
+        std::string SVGFileNode::getNodeID()
+        {
+            return "Image File Sequence";
+        }
+
+        std::shared_ptr<INode> SVGFileNode::create(
+            const std::shared_ptr<ftk::Context>& context)
+        {
+            std::shared_ptr<SVGFileNode> out(new SVGFileNode);
+            out->_init(context);
+            return out;
+        }
+
+        void SVGFileNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
+        {
+            INode::exec(render, time);
+            FTK_P();
         }
     }
 }
