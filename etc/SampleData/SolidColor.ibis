@@ -3,21 +3,28 @@
         "Nodes": [
             {
                 "Attr": {
-                    "Color": [
-                        1.0,
-                        0.699999988079071,
-                        0.0,
-                        1.0
-                    ],
-                    "Size": [
-                        256,
-                        256
-                    ]
+                    "Value": 0.5
                 },
-                "ID": "SolidColor",
+                "ID": "Add Value",
+                "Inputs": [
+                    {
+                        "Index": 1,
+                        "Output": 0
+                    }
+                ],
                 "Pos": [
-                    391,
-                    130
+                    668,
+                    424
+                ]
+            },
+            {
+                "Attr": {
+                    "Path": "C:\\Users\\darby\\Desktop\\Charlie.png"
+                },
+                "ID": "Input",
+                "Pos": [
+                    572,
+                    168
                 ]
             }
         ]

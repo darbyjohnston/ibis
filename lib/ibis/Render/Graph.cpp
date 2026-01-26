@@ -45,33 +45,35 @@ namespace ibis
                     {
                         if (i.contains("ID"))
                         {
-                            auto node = nodeFactory->createNode(i["ID"]);
-                            if (i.contains("Attr"))
+                            if (auto node = nodeFactory->createNode(i["ID"]))
                             {
-                                for (const auto& j : i["Attr"].items())
+                                if (i.contains("Attr"))
                                 {
-                                    node->setAttr(j.key(), j.value());
+                                    for (const auto& j : i["Attr"].items())
+                                    {
+                                        node->setAttr(j.key(), j.value());
+                                    }
                                 }
-                            }
-                            ftk::V2I pos;
-                            if (i.contains("Pos"))
-                            {
-                                pos = i["Pos"];
-                            }
-                            if (i.contains("Inputs"))
-                            {
-                                const auto& inputs = i["Inputs"];
-                                for (int j = 0; j < inputs.size(); ++j)
+                                ftk::V2I pos;
+                                if (i.contains("Pos"))
                                 {
-                                    connections.push_back({
-                                        node,
-                                        j,
-                                        int(inputs[j]["Index"]),
-                                        int(inputs[j]["Output"]) });
+                                    pos = i["Pos"];
                                 }
+                                if (i.contains("Inputs"))
+                                {
+                                    const auto& inputs = i["Inputs"];
+                                    for (int j = 0; j < inputs.size(); ++j)
+                                    {
+                                        connections.push_back({
+                                            node,
+                                            j,
+                                            int(inputs[j]["Index"]),
+                                            int(inputs[j]["Output"]) });
+                                    }
+                                }
+                                nodes.push_back(node);
+                                p.pos[node] = pos;
                             }
-                            nodes.push_back(node);
-                            p.pos[node] = pos;
                         }
                     }
                     for (const auto& connection : connections)

@@ -35,7 +35,7 @@ namespace ibis
 
         std::string AddValueNode::getNodeID()
         {
-            return "AddValue";
+            return "Add Value";
         }
 
         std::shared_ptr<INode> AddValueNode::create(

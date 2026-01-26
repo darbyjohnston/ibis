@@ -6,6 +6,7 @@
 #include <ibis/Render/INode.h>
 
 #include <ftk/UI/Label.h>
+#include <ftk/UI/Icon.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -14,7 +15,7 @@ namespace ibis
     {
         struct NodeGraphInput::Private
         {
-            int sizeHint = 0;
+            std::shared_ptr<ftk::Icon> icon;
         };
 
         void NodeGraphInput::_init(
@@ -24,8 +25,7 @@ namespace ibis
         {
             IWidget::_init(context, "ibis::NodeGraphInput", parent);
             FTK_P();
-
-            setBackgroundRole(ftk::ColorRole::Blue);
+            p.icon = ftk::Icon::create(context, "MenuChecked", shared_from_this());
         }
 
         NodeGraphInput::NodeGraphInput() :
@@ -48,23 +48,21 @@ namespace ibis
         ftk::Size2I NodeGraphInput::getSizeHint() const
         {
             FTK_P();
-            return ftk::Size2I(p.sizeHint, p.sizeHint);
+            return _p->icon->getSizeHint();
         }
 
         void NodeGraphInput::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
+            _p->icon->setGeometry(value);
         }
 
         void NodeGraphInput::sizeHintEvent(const ftk::SizeHintEvent& event)
-        {
-            FTK_P();
-            p.sizeHint = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale) * 1.5;
-        }
+        {}
 
         struct NodeGraphOutput::Private
         {
-            int sizeHint = 0;
+            std::shared_ptr<ftk::Icon> icon;
         };
 
         void NodeGraphOutput::_init(
@@ -74,8 +72,7 @@ namespace ibis
         {
             IWidget::_init(context, "ibis::NodeGraphOutput", parent);
             FTK_P();
-
-            setBackgroundRole(ftk::ColorRole::Green);
+            p.icon = ftk::Icon::create(context, "MenuChecked", shared_from_this());
         }
 
         NodeGraphOutput::NodeGraphOutput() :
@@ -97,20 +94,17 @@ namespace ibis
 
         ftk::Size2I NodeGraphOutput::getSizeHint() const
         {
-            FTK_P();
-            return ftk::Size2I(p.sizeHint, p.sizeHint);
+            return _p->icon->getSizeHint();
         }
 
         void NodeGraphOutput::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
+            _p->icon->setGeometry(value);
         }
 
         void NodeGraphOutput::sizeHintEvent(const ftk::SizeHintEvent& event)
-        {
-            FTK_P();
-            p.sizeHint = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale) * 1.5;
-        }
+        {}
 
         struct NodeGraphWidget::Private
         {
@@ -118,7 +112,7 @@ namespace ibis
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
             bool selected = false;
-            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::HorizontalLayout> layout;
         };
 
         void NodeGraphWidget::_init(
@@ -137,21 +131,28 @@ namespace ibis
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginSmall);
 
-            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
+            p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
-            auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
-            p.layout->setSpacingRole(ftk::SizeRole::SpacingTool);
+
+            auto vLayout = ftk::VerticalLayout::create(context, p.layout);
+            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            vLayout->addSpacer();
             for (const auto& i : node->getInputs())
             {
-                p.inputs.push_back(NodeGraphInput::create(context, node, hLayout));
+                p.inputs.push_back(NodeGraphInput::create(context, node, vLayout));
             }
+            vLayout->addSpacer();
+
             label->setParent(p.layout);
-            hLayout = ftk::HorizontalLayout::create(context, p.layout);
-            p.layout->setSpacingRole(ftk::SizeRole::SpacingTool);
+
+            vLayout = ftk::VerticalLayout::create(context, p.layout);
+            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            vLayout->addSpacer();
             for (int i = 0; i < node->getOutputs().size(); ++i)
             {
-                p.outputs.push_back(NodeGraphOutput::create(context, node, hLayout));
+                p.outputs.push_back(NodeGraphOutput::create(context, node, vLayout));
             }
+            vLayout->addSpacer();
         }
 
         NodeGraphWidget::NodeGraphWidget() :
