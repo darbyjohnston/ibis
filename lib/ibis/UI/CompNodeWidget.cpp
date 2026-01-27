@@ -5,8 +5,7 @@
 
 #include <ibis/Render/CompNode.h>
 
-#include <ftk/UI/Divider.h>
-#include <ftk/UI/Label.h>
+#include <ftk/UI/Bellows.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -15,8 +14,7 @@ namespace ibis
     {
         struct OverNodeWidget::Private
         {
-            std::shared_ptr<ftk::Label> label;
-            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::Bellows> bellows;
         };
 
         void OverNodeWidget::_init(
@@ -28,14 +26,11 @@ namespace ibis
             INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.label = ftk::Label::create(context, getID());
-            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
-            p.label->setBackgroundRole(ftk::ColorRole::Button);
-
-            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ftk::SizeRole::None);
-            p.label->setParent(p.layout);
-            ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
+            auto layout = ftk::VerticalLayout::create(context);
+            layout->setMarginRole(ftk::SizeRole::Margin);
+            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(layout);
         }
 
         OverNodeWidget::OverNodeWidget() :
@@ -63,13 +58,13 @@ namespace ibis
 
         ftk::Size2I OverNodeWidget::getSizeHint() const
         {
-            return _p->layout->getSizeHint();
+            return _p->bellows->getSizeHint();
         }
 
         void OverNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            _p->bellows->setGeometry(value);
         }
     }
 }

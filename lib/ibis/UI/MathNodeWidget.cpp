@@ -9,9 +9,8 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/MathNode.h>
 
-#include <ftk/UI/Divider.h>
+#include <ftk/UI/Bellows.h>
 #include <ftk/UI/DoubleEditSlider.h>
-#include <ftk/UI/Label.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -23,9 +22,8 @@ namespace ibis
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
-            std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -39,19 +37,14 @@ namespace ibis
             INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.label = ftk::Label::create(context, getID());
-            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
-            p.label->setBackgroundRole(ftk::ColorRole::Button);
-
             p.valueSlider = ftk::DoubleEditSlider::create(context);
 
-            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ftk::SizeRole::None);
-            p.label->setParent(p.layout);
-            ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
-            auto formLayout = ftk::FormLayout::create(context, p.layout);
+            auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
+            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(formLayout);
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -119,13 +112,13 @@ namespace ibis
 
         ftk::Size2I MathNodeWidget::getSizeHint() const
         {
-            return _p->layout->getSizeHint();
+            return _p->bellows->getSizeHint();
         }
 
         void MathNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            _p->bellows->setGeometry(value);
         }
     }
 }

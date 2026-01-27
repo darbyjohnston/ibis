@@ -36,6 +36,7 @@ namespace ibis
             FTK_P();
 
             p.layout = ftk::VerticalLayout::create(context);
+            p.layout->setSpacingRole(ftk::SizeRole::None);
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
             p.scrollWidget->setBorder(false);
@@ -50,9 +51,11 @@ namespace ibis
                     p.layout->clear();
                     for (const auto& node : selection)
                     {
-                        auto widget = factory->createWidget(document, node);
-                        widget->setParent(p.layout);
-                        p.widgets.push_back(widget);
+                        if (auto widget = factory->createWidget(document, node))
+                        {
+                            widget->setParent(p.layout);
+                            p.widgets.push_back(widget);
+                        }
                     }
                 });
         }

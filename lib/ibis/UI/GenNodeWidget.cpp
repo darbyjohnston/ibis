@@ -9,11 +9,10 @@
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
 
+#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ColorSwatch.h>
-#include <ftk/UI/Divider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/IntEdit.h>
-#include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -23,12 +22,10 @@ namespace ibis
         struct SolidColorNodeWidget::Private
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
-
-            std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::IntEdit> widthEdit;
             std::shared_ptr<ftk::IntEdit> heightEdit;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
-            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -41,10 +38,6 @@ namespace ibis
         {
             INodeWidget::_init(context, document, node, parent);
             FTK_P();
-
-            p.label = ftk::Label::create(context, getID());
-            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
-            p.label->setBackgroundRole(ftk::ColorRole::Button);
 
             p.widthEdit = ftk::IntEdit::create(context);
             p.widthEdit->setRange(1, 4096);
@@ -59,15 +52,14 @@ namespace ibis
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
-            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ftk::SizeRole::None);
-            p.label->setParent(p.layout);
-            ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
-            auto formLayout = ftk::FormLayout::create(context, p.layout);
+            auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Width:", p.widthEdit);
             formLayout->addRow("Height:", p.heightEdit);
             formLayout->addRow("Color:", p.colorSwatch);
+            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(formLayout);
 
             p.widthEdit->setCallback(
                 [this](int value)
@@ -168,13 +160,13 @@ namespace ibis
 
         ftk::Size2I SolidColorNodeWidget::getSizeHint() const
         {
-            return _p->layout->getSizeHint();
+            return _p->bellows->getSizeHint();
         }
 
         void SolidColorNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            _p->bellows->setGeometry(value);
         }
     }
 }
