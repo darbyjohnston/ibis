@@ -126,51 +126,30 @@ namespace ibis
         {
             FTK_P();
             const ftk::Box2I& g = getGeometry();
-            const ftk::Size2I size = g.size();
             if (p.doRender)
             {
                 p.doRender = false;
+
+                const ftk::Size2I size = g.size();
+                ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                if (ftk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
+                {
+                    p.buffer = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                }
+
+                const ftk::ViewportState viewportState(event.render);
+                const ftk::ClipRectEnabledState clipRectEnabledState(event.render);
+                const ftk::ClipRectState clipRectState(event.render);
+                const ftk::TransformState transformState(event.render);
+                const ftk::RenderSizeState renderSizeState(event.render);
+                event.render->setClipRectEnabled(false);
+
                 if (p.node)
                 {
                     try
                     {
-                        ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                        if (ftk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
-                        {
-                            p.buffer = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                        }
-                        ftk::gl::OffscreenBufferBinding binding(p.buffer);
-
-                        const ftk::ViewportState viewportState(event.render);
-                        const ftk::ClipRectEnabledState clipRectEnabledState(event.render);
-                        const ftk::ClipRectState clipRectState(event.render);
-                        const ftk::TransformState transformState(event.render);
-                        const ftk::RenderSizeState renderSizeState(event.render);
-                        event.render->setClipRectEnabled(false);
-
                         p.node->exec(event.render, p.currentTime);
-                        const auto& outputs = p.node->getOutputs();
-                        if (!outputs.empty() && outputs.front())
-                        {
-                            event.render->setRenderSize(size);
-                            event.render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
-                            event.render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                            const auto pm = ftk::ortho(
-                                0.F,
-                                static_cast<float>(size.w),
-                                static_cast<float>(size.h),
-                                0.F,
-                                -1.F,
-                                1.F);
-                            const ftk::M44F vm;
-                            event.render->setTransform(pm * vm);
-
-                            const auto& output = outputs.front();
-                            event.render->drawTexture(
-                                output->getColorID(),
-                                ftk::Box2I(ftk::V2I(0, 0), output->getSize()));
-                        }
                     }
                     catch (const std::exception& e)
                     {
@@ -183,6 +162,32 @@ namespace ibis
                 else
                 {
                     p.buffer.reset();
+                }
+
+                if (p.buffer && p.node)
+                {
+                    ftk::gl::OffscreenBufferBinding binding(p.buffer);
+                    event.render->setRenderSize(size);
+                    event.render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    event.render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    const ftk::M44F vm;
+                    event.render->setTransform(pm * vm);
+
+                    const auto& outputs = p.node->getOutputs();
+                    if (!outputs.empty() && outputs.front())
+                    {
+                        const auto& output = outputs.front();
+                        event.render->drawTexture(
+                            output->getColorID(),
+                            ftk::Box2I(ftk::V2I(0, 0), output->getSize()));
+                    }
                 }
             }
             event.render->drawRect(g, ftk::Color4F(0.F, 0.F, 0.F));

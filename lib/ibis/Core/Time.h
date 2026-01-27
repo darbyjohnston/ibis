@@ -5,6 +5,12 @@
 
 #include <nlohmann/json.hpp>
 
+namespace ibis
+{
+    constexpr OTIO_NS::RationalTime invalidTime(0.0, -1.0);
+    constexpr OTIO_NS::TimeRange invalidTimeRange(invalidTime, invalidTime);
+}
+
 namespace opentime
 {
     namespace OPENTIME_VERSION

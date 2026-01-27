@@ -10,6 +10,9 @@ set(HEADERS
     NodeGraphCanvas.h
     NodeGraphWidget.h
     NodeWidgetFactory.h
+    TimeEdit.h
+    TimeLabel.h
+    TimeUnitsWidget.h
     TimelineWidget.h
     Viewport.h)
 
@@ -25,6 +28,9 @@ set(SOURCE
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
     NodeWidgetFactory.cpp
+    TimeEdit.cpp
+    TimeLabel.cpp
+    TimeUnitsWidget.cpp
     TimelineWidget.cpp
     Viewport.cpp)
 

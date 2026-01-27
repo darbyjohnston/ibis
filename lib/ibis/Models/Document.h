@@ -62,12 +62,16 @@ namespace ibis
 
             ///@}
 
-            //! \name Time Range
+            //! \name Time
             ///@{
 
             const OTIO_NS::TimeRange& getTimeRange();
             std::shared_ptr<ftk::IObservable<OTIO_NS::TimeRange> > observeTimeRange() const;
             void setTimeRange(const OTIO_NS::TimeRange&);
+
+            const OTIO_NS::RationalTime& getCurrentTime();
+            std::shared_ptr<ftk::IObservable<OTIO_NS::RationalTime> > observeCurrentTime() const;
+            void setCurrentTime(const OTIO_NS::RationalTime&);
 
             ///@}
 

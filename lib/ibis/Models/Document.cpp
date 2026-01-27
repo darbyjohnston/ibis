@@ -19,6 +19,7 @@ namespace ibis
             std::shared_ptr<NodeSelectionModel> selectionModel;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
+            std::shared_ptr<ftk::Observable<OTIO_NS::RationalTime> > currentTime;
             std::shared_ptr<ftk::Observable<std::shared_ptr<render::INode> > > viewNode;
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
@@ -43,6 +44,7 @@ namespace ibis
             p.selectionModel = NodeSelectionModel::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
+            p.currentTime = ftk::Observable<OTIO_NS::RationalTime>::create(OTIO_NS::RationalTime(0.0, 24.0));
             p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create(nullptr);
 
             p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
@@ -143,6 +145,21 @@ namespace ibis
         void Document::setTimeRange(const OTIO_NS::TimeRange& value)
         {
             _p->timeRange->setIfChanged(value);
+        }
+
+        const OTIO_NS::RationalTime& Document::getCurrentTime()
+        {
+            return _p->currentTime->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<OTIO_NS::RationalTime> > Document::observeCurrentTime() const
+        {
+            return _p->currentTime;
+        }
+
+        void Document::setCurrentTime(const OTIO_NS::RationalTime& value)
+        {
+            _p->currentTime->setIfChanged(value);
         }
 
         void Document::command(const std::shared_ptr<ftk::ICommand>& command)

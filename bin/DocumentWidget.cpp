@@ -20,7 +20,7 @@ namespace ibis
 
         _nodeGraphCanvas = ui::NodeGraphCanvas::create(context, document, app->getNodeFactory());
 
-        _timelineWidget = ui::TimelineWidget::create(context);
+        _timelineWidget = ui::TimelineWidget::create(context, app->getTimeUnitsModel());
 
         _nodeBrowser = ui::NodeBrowser::create(context, app->getNodeFactory());
 

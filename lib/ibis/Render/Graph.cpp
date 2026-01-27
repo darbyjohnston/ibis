@@ -208,11 +208,12 @@ namespace ibis
                     // Remove connections to the node.
                     for (const auto& node2 : tmp)
                     {
-                        for (const auto& input : node2->getInputs())
+                        const auto& inputs = node2->getInputs();
+                        for (int i = 0; i < inputs.size(); ++i)
                         {
-                            if (input.node == node)
+                            if (inputs[i].node == node)
                             {
-                                node2->setInput(input.index, NodeConnection());
+                                node2->setInput(i, NodeConnection());
                             }
                         }
                     }

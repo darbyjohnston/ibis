@@ -1,12 +1,14 @@
 set(HEADERS
     Document.h
     DocumentModel.h
-    NodeSelectionModel.h)
+    NodeSelectionModel.h
+    TimeUnitsModel.h)
 
 set(SOURCE
     Document.cpp
     DocumentModel.cpp
-    NodeSelectionModel.cpp)
+    NodeSelectionModel.cpp
+    TimeUnitsModel.cpp)
 
 set(LIBRARIES ibisRender)
 

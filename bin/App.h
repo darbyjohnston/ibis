@@ -6,6 +6,7 @@
 #include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ibis/Models/DocumentModel.h>
+#include <ibis/Models/TimeUnitsModel.h>
 
 #include <ibis/Render/NodeFactory.h>
 
@@ -39,6 +40,8 @@ namespace ibis
 
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
 
+        const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;
+
         const std::shared_ptr<render::NodeFactory>& getNodeFactory() const;
 
         const std::shared_ptr<ui::NodeWidgetFactory>& getNodeWidgetFactory() const;
@@ -60,6 +63,7 @@ namespace ibis
         CmdLine _cmdLine;
 
         std::shared_ptr<ftk::RecentFilesModel> _recentFilesModel;
+        std::shared_ptr<models::TimeUnitsModel> _timeUnitsModel;
         std::shared_ptr<render::NodeFactory> _nodeFactory;
         std::shared_ptr<ui::NodeWidgetFactory> _nodeWidgetFactory;
         std::shared_ptr<models::DocumentModel> _documentModel;

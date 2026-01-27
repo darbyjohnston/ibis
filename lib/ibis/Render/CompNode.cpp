@@ -101,43 +101,34 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+
+            if (!p.shader)
+            {
+                p.shader = ftk::gl::Shader::create(vertexSource, fragmentSource);
+            }
+
             ftk::Size2I size;
-            if (_inputs[0].node)
+            if (_inputs[0].node && _inputs[1].node)
             {
                 const auto& input0 = _inputs[0].node->getOutputs();
-                if (!input0.empty() && input0.front())
+                const auto& input1 = _inputs[1].node->getOutputs();
+                if (!input0.empty() && input0.front() &&
+                    !input1.empty() && input1.front())
                 {
                     size = input0.front()->getSize();
                 }
-                try
+                if (size.isValid())
                 {
-                    if (size.isValid())
+                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
                     {
-                        ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                        if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
-                        {
-                            _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                        }
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
-                    p.shader = ftk::gl::Shader::create(vertexSource, fragmentSource);
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo
-                }
-
-                if (_outputs[0])
-                {
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                }
-                if (_outputs[0] && !input0.empty() && input0.front() && p.shader)
-                {
-                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-
                     p.shader->bind();
                     const auto pm = ftk::ortho(
                         0.F,
@@ -152,15 +143,8 @@ namespace ibis
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                     glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
-                    if (_inputs[1].node)
-                    {
-                        const auto& input1 = _inputs[1].node->getOutputs();
-                        if (!input1.empty() && input1.front())
-                        {
-                            glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
-                            glBindTexture(GL_TEXTURE_2D, input1.front()->getColorID());
-                        }
-                    }
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
+                    glBindTexture(GL_TEXTURE_2D, input1.front()->getColorID());
 
                     auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
                     vbo->copy(convert(mesh(ftk::Box2I(0, 0, size.w, size.h), true), vbo->getType()));
@@ -169,7 +153,40 @@ namespace ibis
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());
                 }
             }
-            if (!size.isValid())
+            else if (_inputs[0].node)
+            {
+                const auto& input0 = _inputs[0].node->getOutputs();
+                if (!input0.empty() && input0.front())
+                {
+                    size = input0.front()->getSize();
+                }
+                if (size.isValid())
+                {
+                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    render->setRenderSize(size);
+                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    render->setTransform(pm);
+                    render->drawTexture(
+                        input0.front()->getColorID(),
+                        ftk::Box2I(0, 0, size.w, size.h),
+                        true);
+                }
+            }
+            if (!_inputs[0].node || !size.isValid())
             {
                 _outputs[0].reset();
             }

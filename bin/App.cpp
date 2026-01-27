@@ -47,6 +47,11 @@ namespace ibis
         return _recentFilesModel;
     }
 
+    const std::shared_ptr<models::TimeUnitsModel>& App::getTimeUnitsModel() const
+    {
+        return _timeUnitsModel;
+    }
+
     const std::shared_ptr<render::NodeFactory>& App::getNodeFactory() const
     {
         return _nodeFactory;
@@ -122,6 +127,8 @@ namespace ibis
     void App::run()
     {
         _recentFilesModel = ftk::RecentFilesModel::create(_context);
+
+        _timeUnitsModel = models::TimeUnitsModel::create(_context);
 
         _nodeFactory = render::NodeFactory::create(_context);
 

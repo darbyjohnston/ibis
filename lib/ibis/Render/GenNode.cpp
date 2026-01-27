@@ -56,14 +56,7 @@ namespace ibis
             const ftk::Size2I size = _attr->getItem("Size");
             if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
             {
-                try
-                {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo
-                }
+                _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
             }
 
             if (_outputs[0])

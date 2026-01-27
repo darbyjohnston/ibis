@@ -158,14 +158,7 @@ namespace ibis
                     offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
                     if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
                     {
-                        try
-                        {
-                            _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                        }
-                        catch (const std::exception&)
-                        {
-                            //! \todo
-                        }
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
                 }
             }
