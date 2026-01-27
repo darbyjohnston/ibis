@@ -8,6 +8,7 @@
 #include <ibis/UI/TimeUnitsWidget.h>
 
 #include <ibis/Models/Document.h>
+#include <ibis/Models/TimeModel.h>
 
 #include <ftk/UI/RowLayout.h>
 
@@ -53,25 +54,28 @@ namespace ibis
             p.currentTimeEdit->setCallback(
                 [document](const OTIO_NS::RationalTime& value)
                 {
-                    document->setCurrentTime(value);
+                    document->getTimeModel()->setCurrentTime(value);
                 });
 
             p.startTimeEdit->setCallback(
                 [document](const OTIO_NS::RationalTime& value)
                 {
-                    const OTIO_NS::TimeRange timeRange = document->getTimeRange();
-                    document->setTimeRange(OTIO_NS::TimeRange(value, timeRange.duration()));
+                    auto timeModel = document->getTimeModel();
+                    const OTIO_NS::TimeRange timeRange = timeModel->getTimeRange();
+                    timeModel->setTimeRange(OTIO_NS::TimeRange(value, timeRange.duration()));
                 });
 
             p.durationEdit->setCallback(
                 [document](const OTIO_NS::RationalTime& value)
                 {
-                    const OTIO_NS::TimeRange timeRange = document->getTimeRange();
-                    document->setTimeRange(OTIO_NS::TimeRange(timeRange.start_time(), value));
+                    auto timeModel = document->getTimeModel();
+                    const OTIO_NS::TimeRange timeRange = timeModel->getTimeRange();
+                    timeModel->setTimeRange(OTIO_NS::TimeRange(timeRange.start_time(), value));
                 });
 
+            auto timeModel = document->getTimeModel();
             p.timeRangeObserver = ftk::Observer<OTIO_NS::TimeRange>::create(
-                document->observeTimeRange(),
+                timeModel->observeTimeRange(),
                 [this](const OTIO_NS::TimeRange& value)
                 {
                     FTK_P();
@@ -80,7 +84,7 @@ namespace ibis
                 });
 
             p.currentTimeObserver = ftk::Observer<OTIO_NS::RationalTime>::create(
-                document->observeCurrentTime(),
+                timeModel->observeCurrentTime(),
                 [this](const OTIO_NS::RationalTime& value)
                 {
                     FTK_P();

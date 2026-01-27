@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
+#pragma once
+
 #include <opentimelineio/version.h>
 
 #include <nlohmann/json.hpp>

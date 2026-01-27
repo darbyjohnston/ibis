@@ -4,6 +4,7 @@
 #include "Viewport.h"
 
 #include <ibis/Models/Document.h>
+#include <ibis/Models/TimeModel.h>
 
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/INode.h>
@@ -71,7 +72,7 @@ namespace ibis
                 });
 
             p.currentTimeObserver = ftk::Observer<OTIO_NS::RationalTime>::create(
-                document->observeCurrentTime(),
+                document->getTimeModel()->observeCurrentTime(),
                 [this](const OTIO_NS::RationalTime& value)
                 {
                     FTK_P();
