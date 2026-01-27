@@ -6,7 +6,8 @@ set(HEADERS
     INode.h
     InputNode.h
     MathNode.h
-    NodeFactory.h)
+    NodeFactory.h
+    RenderUtil.h)
 
 set(SOURCE
     CompNode.cpp
@@ -16,7 +17,8 @@ set(SOURCE
     INode.cpp
     InputNode.cpp
     MathNode.cpp
-    NodeFactory.cpp)
+    NodeFactory.cpp
+    RenderUtil.cpp)
 
 set(LIBRARIES ibisCore ftk::ftkGL)
 set(LIBRARIES_PRIVATE)

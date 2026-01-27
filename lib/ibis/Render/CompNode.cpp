@@ -73,27 +73,31 @@ namespace ibis
                 "out vec4 outColor;\n"
                 "\n"
                 "uniform sampler2D textureSampler;\n"
-                //"uniform vec4 textureSamplerUV;\n"
+                "uniform vec2 textureSamplerU;\n"
+                "uniform vec2 textureSamplerV;\n"
                 "uniform sampler2D textureSampler2;\n"
-                //"uniform vec4 textureSampler2UV;\n"
+                "uniform vec2 textureSampler2U;\n"
+                "uniform vec2 textureSampler2V;\n"
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    vec4 bg = texture(textureSampler, fTexture);\n"
-                "    vec4 fg = texture(textureSampler2, fTexture);\n"
+                "    vec2 bgUV = fTexture;\n"
+                "    bgUV.x = bgUV.x * (textureSamplerU.y - textureSamplerU.x) - textureSamplerU.x;\n"
+                "    bgUV.y = bgUV.y * (textureSamplerV.y - textureSamplerV.x) - textureSamplerV.x;\n"
+                "    vec4 bg = vec4(0.0, 0.0, 0.0, 0.0);\n"
+                "    if (bgUV.x >= 0.0 && bgUV.x <= 1.0 && bgUV.y >= 0.0 && bgUV.y <= 1.0)\n"
+                "        bg = texture(textureSampler, bgUV);\n"
+                "    vec2 fgUV = fTexture;\n"
+                "    fgUV.x = fgUV.x * (textureSampler2U.y - textureSampler2U.x) - textureSampler2U.x;\n"
+                "    fgUV.y = fgUV.y * (textureSampler2V.y - textureSampler2V.x) - textureSampler2V.x;\n"
+                "    vec4 fg = vec4(0.0, 0.0, 0.0, 0.0);\n"
+                "    if (fgUV.x >= 0.0 && fgUV.x <= 1.0 && fgUV.y >= 0.0 && fgUV.y <= 1.0)\n"
+                "        fg = texture(textureSampler2, fgUV);\n"
                 "    float ia = 1.0 - fg.a;\n"
                 "    outColor.r = fg.r * fg.a + bg.r * ia;\n"
                 "    outColor.g = fg.g * fg.a + bg.g * ia;\n"
                 "    outColor.b = fg.b * fg.a + bg.b * ia;\n"
                 "    outColor.a = min(fg.a + ia, 1.0);\n"
-                //"    outColor.a = bg.a + fg.a;\n"
-                //"    outColor.r = bg.r;\n"
-                //"    outColor.g = bg.g;\n"
-                //"    outColor.b = bg.b;\n"
-                //"    outColor.r = fg.r;\n"
-                //"    outColor.g = fg.g;\n"
-                //"    outColor.b = fg.b;\n"
-                //"    outColor.a = 1.0;\n"
                 "}\n";
         }
 
@@ -145,7 +149,11 @@ namespace ibis
                         1.F);
                     p.shader->setUniform("transform.mvp", pm);
                     p.shader->setUniform("textureSampler", 0);
+                    p.shader->setUniform("textureSamplerU", ftk::V2F(0.0, size.w / static_cast<float>(size0.w)));
+                    p.shader->setUniform("textureSamplerV", ftk::V2F(0.0, size.h / static_cast<float>(size0.h)));
                     p.shader->setUniform("textureSampler2", 1);
+                    p.shader->setUniform("textureSampler2U", ftk::V2F(0.0, size.w / static_cast<float>(size1.w)));
+                    p.shader->setUniform("textureSampler2V", ftk::V2F(0.0, size.h / static_cast<float>(size1.h)));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                     glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
@@ -163,8 +171,8 @@ namespace ibis
                 !_inputs->getItem(0).node->getOutputs().empty() &&
                 _inputs->getItem(0).node->getOutputs().front())
             {
-                const auto& input0 = _inputs->getItem(0).node->getOutputs();
-                size = input0.front()->getSize();
+                const auto& input = _inputs->getItem(0).node->getOutputs();
+                size = input.front()->getSize();
                 if (size.isValid())
                 {
                     ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -186,12 +194,48 @@ namespace ibis
                         1.F);
                     render->setTransform(pm);
                     render->drawTexture(
-                        input0.front()->getColorID(),
+                        input.front()->getColorID(),
                         ftk::Box2I(0, 0, size.w, size.h),
                         true);
                 }
             }
-            if (!_inputs->getItem(0).node || !size.isValid())
+            else if (_inputs->getItem(1).node &&
+                !_inputs->getItem(1).node->getOutputs().empty() &&
+                _inputs->getItem(1).node->getOutputs().front())
+            {
+                const auto& input = _inputs->getItem(1).node->getOutputs();
+                size = input.front()->getSize();
+                if (size.isValid())
+                {
+                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    render->setRenderSize(size);
+                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    render->setTransform(pm);
+                    render->drawTexture(
+                        input.front()->getColorID(),
+                        ftk::Box2I(0, 0, size.w, size.h),
+                        true);
+                }
+            }
+            else
+            {
+                _outputs[0].reset();
+            }
+            if (!size.isValid())
             {
                 _outputs[0].reset();
             }

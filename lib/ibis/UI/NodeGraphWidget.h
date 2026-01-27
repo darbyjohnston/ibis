@@ -73,6 +73,35 @@ namespace ibis
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
         };
 
+        //! Node graph thumbnail widget.
+        class NodeGraphThumbnail : public ftk::IWidget
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent);
+
+            NodeGraphThumbnail();
+
+        public:
+            virtual ~NodeGraphThumbnail();
+
+            //! Create a new widget.
+            static std::shared_ptr<NodeGraphThumbnail> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+            ftk::Size2I getSizeHint() const override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+
         //! Node graph widget.
         class NodeGraphWidget : public ftk::IWidget
         {

@@ -4,12 +4,15 @@
 #include "NodeGraphWidget.h"
 
 #include <ibis/Render/INode.h>
+#include <ibis/Render/RenderUtil.h>
 
 #include <ftk/UI/DrawUtil.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/Icon.h>
 #include <ftk/UI/Menu.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/OffscreenBuffer.h>
 
 namespace ibis
 {
@@ -117,6 +120,72 @@ namespace ibis
             return out;
         }
 
+        struct NodeGraphThumbnail::Private
+        {
+            std::shared_ptr<render::INode> node;
+            int thumbnailSize = 0;
+        };
+
+        void NodeGraphThumbnail::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            IWidget::_init(context, "ibis::render::NodeGraphThumbnail", parent);
+            FTK_P();
+
+            p.node = node;
+        }
+
+        NodeGraphThumbnail::NodeGraphThumbnail() :
+            _p(new Private)
+        {}
+
+        NodeGraphThumbnail::~NodeGraphThumbnail()
+        {}
+
+        std::shared_ptr<NodeGraphThumbnail> NodeGraphThumbnail::create(
+            const std::shared_ptr<ftk::Context>&context,
+            const std::shared_ptr<render::INode>&node,
+            const std::shared_ptr<ftk::IWidget>&parent)
+        {
+            std::shared_ptr<NodeGraphThumbnail> out(new NodeGraphThumbnail);
+            out->_init(context, node, parent);
+            return out;
+        }
+
+        ftk::Size2I NodeGraphThumbnail::getSizeHint() const
+        {
+            FTK_P();
+            return ftk::Size2I(p.thumbnailSize, p.thumbnailSize);
+        }
+
+        void NodeGraphThumbnail::setGeometry(const ftk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+        }
+
+        void NodeGraphThumbnail::sizeHintEvent(const ftk::SizeHintEvent& event)
+        {
+            FTK_P();
+            p.thumbnailSize = 100 * event.displayScale;
+        }
+        
+        void NodeGraphThumbnail::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
+        {
+            FTK_P();
+            const ftk::Box2I& g = getGeometry();
+            event.render->drawRect(g, ftk::Color4F(0.F, 0.F, 0.F));
+            if (!p.node->getOutputs().empty() &&
+                p.node->getOutputs().front())
+            {
+                const auto& output = p.node->getOutputs().front();
+                const float aspect = ftk::aspectRatio(output->getSize());
+                const ftk::Box2I g2 = render::getBox(aspect, g);
+                event.render->drawTexture(output->getColorID(), g2);
+            }
+        }
+
         struct NodeGraphWidget::Private
         {
             std::shared_ptr<render::INode> node;
@@ -125,9 +194,11 @@ namespace ibis
 
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
+            std::shared_ptr<NodeGraphThumbnail> thumbnail;
             std::shared_ptr<ftk::HorizontalLayout> layout;
             std::shared_ptr<ftk::Menu> menu;
 
+            int thumbnailSize = 0;
             int borderSize = 0;
             int keyFocusSize = 0;
 
@@ -158,6 +229,8 @@ namespace ibis
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginSmall);
 
+            p.thumbnail = NodeGraphThumbnail::create(context, node);
+
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
 
@@ -167,7 +240,12 @@ namespace ibis
             {
                 i->setParent(vLayout);
             }
-            label->setParent(p.layout);
+
+            vLayout = ftk::VerticalLayout::create(context, p.layout);
+            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            label->setParent(vLayout);
+            p.thumbnail->setParent(vLayout);
+            
             vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             for (const auto& i : p.outputs)
@@ -247,6 +325,7 @@ namespace ibis
         void NodeGraphWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             FTK_P();
+            p.thumbnailSize = 100 * event.displayScale;
             p.borderSize = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
             p.keyFocusSize = event.style->getSizeRole(ftk::SizeRole::KeyFocus, event.displayScale);
         }
@@ -255,15 +334,19 @@ namespace ibis
         {
             FTK_P();
 
+            // Draw the border.
             const ftk::Box2I& g = getGeometry();
             event.render->drawMesh(
                 ftk::border(g, p.selected ? p.keyFocusSize : p.borderSize),
                 event.style->getColorRole(p.selected ? ftk::ColorRole::Checked : ftk::ColorRole::Border));
 
+            // Draw the background.
             const ftk::Box2I g2 = ftk::margin(g, -(p.selected ? p.keyFocusSize : p.borderSize));
             event.render->drawRect(
                 g2,
                 event.style->getColorRole(p.view ? ftk::ColorRole::Green : ftk::ColorRole::Button));
+
+            // Draw the thumbnail.
         }
 
         void NodeGraphWidget::mousePressEvent(ftk::MouseClickEvent& event)
