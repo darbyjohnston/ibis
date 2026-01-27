@@ -30,6 +30,7 @@ namespace ibis
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
+            std::shared_ptr<ftk::Observer<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
         };
 
@@ -67,6 +68,16 @@ namespace ibis
                         p.doRender = true;
                         setDrawUpdate();
                     }
+                });
+
+            p.currentTimeObserver = ftk::Observer<OTIO_NS::RationalTime>::create(
+                document->observeCurrentTime(),
+                [this](const OTIO_NS::RationalTime& value)
+                {
+                    FTK_P();
+                    p.currentTime = value;
+                    p.doRender = true;
+                    setDrawUpdate();
                 });
 
             p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(

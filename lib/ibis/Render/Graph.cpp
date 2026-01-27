@@ -6,6 +6,8 @@
 #include "INode.h"
 #include "NodeFactory.h"
 
+#include <set>
+
 namespace ibis
 {
     namespace render
@@ -322,30 +324,49 @@ namespace ibis
             }
         }
 
-        std::vector<std::shared_ptr<INode> > Graph::getLeafNodes() const
+        std::vector<std::shared_ptr<INode> > Graph::getRootNodes() const
         {
             FTK_P();
             std::vector<std::shared_ptr<INode> > out;
-            std::map<std::shared_ptr<INode>, int> connections;
             for (const auto& node : p.nodes->get())
             {
-                connections[node] = 0;
+                int inputs = 0;
+                for (const auto& input : node->getInputs())
+                {
+                    if (input.node)
+                    {
+                        ++inputs;
+                    }
+                }
+                if (!inputs)
+                {
+                    out.push_back(node);
+                }
             }
+            return out;
+        }
+
+        std::vector<std::shared_ptr<INode> > Graph::getLeafNodes() const
+        {
+            FTK_P();
+            std::set<std::shared_ptr<INode> > outputs;
             for (const auto& node : p.nodes->get())
             {
                 for (const auto& input : node->getInputs())
                 {
                     if (input.node)
                     {
-                        connections[input.node]++;
+                        outputs.insert(input.node);
                     }
                 }
             }
-            for (const auto i : connections)
+            std::vector<std::shared_ptr<INode> > out;
+            for (const auto& node : p.nodes->get())
             {
-                if (0 == i.second)
+                const auto i = outputs.find(node);
+                if (i == outputs.end())
                 {
-                    out.push_back(i.first);
+                    out.push_back(node);
                 }
             }
             return out;

@@ -3,9 +3,12 @@
 
 #include "InputNode.h"
 
+#include <ibis/Core/Time.h>
+
 #include <ftk/GL/GL.h>
 #include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/Core/IRender.h>
+#include <ftk/Core/Path.h>
 
 #include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imagebufalgo.h>
@@ -115,6 +118,7 @@ namespace ibis
             if (!path.empty() && (!p.image || path != p.path))
             {
                 p.path = path;
+                p.image.reset();
                 _outputs[0].reset();
                 try
                 {
@@ -160,35 +164,36 @@ namespace ibis
                     {
                         _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    const ftk::Size2I size = p.image->getSize();
+                    const ftk::Box2I g(0, 0, size.w, size.h);
+                    render->setRenderSize(size);
+                    render->setViewport(g);
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    render->setTransform(pm);
+                    render->drawImage(p.image, g);
                 }
-            }
-            if (_outputs[0] && p.image)
-            {
-                const ftk::Size2I size = p.image->getSize();
-                const ftk::Box2I g(0, 0, size.w, size.h);
-                ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                render->setRenderSize(size);
-                render->setViewport(g);
-                render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                const auto pm = ftk::ortho(
-                    0.F,
-                    static_cast<float>(size.w),
-                    static_cast<float>(size.h),
-                    0.F,
-                    -1.F,
-                    1.F);
-                render->setTransform(pm);
-                render->drawImage(p.image, g);
             }
         }
 
         struct ImageFileSequenceNode::Private
         {
+            ftk::Path path;
+            OTIO_NS::RationalTime time = invalidTime;
+            std::shared_ptr<ftk::Image> image;
         };
 
         void ImageFileSequenceNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
             NodeAttr attr;
+            attr["Path"] = "";
             INode::_init(context, getNodeID(), 0, 1, attr);
             FTK_P();
         }
@@ -219,6 +224,75 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+            const ftk::Path path(_attr->getItem("Path"));
+            if (!path.isEmpty() && (!p.image || path != p.path || time != p.time))
+            {
+                p.path = path;
+                p.time = time;
+                p.image.reset();
+                _outputs[0].reset();
+                try
+                {
+                    const std::string fileName = path.getFrame(time.value(), true);
+                    const auto oiioInput = OIIO::ImageInput::open(fileName);
+                    if (!oiioInput)
+                    {
+                        throw std::runtime_error(OIIO::geterror());
+                    }
+                    const auto oiioSpec = oiioInput->spec();
+                    const ftk::ImageType imageType = fromOIIO(oiioSpec);
+                    if (ftk::ImageType::None == imageType)
+                    {
+                        std::stringstream ss;
+                        ss << "Unsupported file: " << fileName;
+                        throw std::runtime_error(ss.str());
+                    }
+                    ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                    p.image = ftk::Image::create(imageInfo);
+                    if (!oiioInput->read_image(
+                        0,
+                        0,
+                        0,
+                        ftk::getChannelCount(imageType),
+                        oiioSpec.format,
+                        p.image->getData()))
+                    {
+                        throw std::runtime_error(OIIO::geterror());
+                    }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo
+                }
+            }
+            if (p.image)
+            {
+                const ftk::Size2I size = p.image->getSize();
+                if (size.isValid())
+                {
+                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    const ftk::Size2I size = p.image->getSize();
+                    const ftk::Box2I g(0, 0, size.w, size.h);
+                    render->setRenderSize(size);
+                    render->setViewport(g);
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    render->setTransform(pm);
+                    render->drawImage(p.image, g);
+                }
+            }
         }
 
         struct SVGFileNode::Private
@@ -241,7 +315,7 @@ namespace ibis
 
         std::string SVGFileNode::getNodeID()
         {
-            return "Image File Sequence";
+            return "SVG File";
         }
 
         std::shared_ptr<INode> SVGFileNode::create(

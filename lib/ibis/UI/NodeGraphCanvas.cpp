@@ -569,6 +569,7 @@ namespace ibis
             // Update widgets.
             for (const auto i : nodeToWidget)
             {
+                i.second->setView(i.first == p.document->getViewNode());
                 for (const auto& j : i.second->getOutputs())
                 {
                     j->setConnect(false);

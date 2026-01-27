@@ -79,14 +79,6 @@ namespace ibis
                             viewNode.reset();
                         }
                     }
-                    if (!viewNode)
-                    {
-                        const auto leafNodes = p.graph->getLeafNodes();
-                        if (!leafNodes.empty())
-                        {
-                            viewNode = leafNodes.front();
-                        }
-                    }
                     p.viewNode->setIfChanged(viewNode);
                 });
         }

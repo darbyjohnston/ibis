@@ -111,6 +111,9 @@ namespace ibis
             //! Disconnect nodes.
             void disconnect(const std::vector<GraphDisconnect>&);
 
+            //! Get root nodes.
+            std::vector<std::shared_ptr<INode> > getRootNodes() const;
+
             //! Get leaf nodes.
             std::vector<std::shared_ptr<INode> > getLeafNodes() const;
 

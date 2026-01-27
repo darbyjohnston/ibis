@@ -81,9 +81,11 @@ namespace ibis
                 "{\n"
                 "    vec4 bg = texture(textureSampler, fTexture);\n"
                 "    vec4 fg = texture(textureSampler2, fTexture);\n"
-                "    outColor.r = bg.r + fg.r;\n"
-                "    outColor.g = bg.g + fg.g;\n"
-                "    outColor.b = bg.b + fg.b;\n"
+                "    float ia = 1.0 - fg.a;\n"
+                "    outColor.r = fg.r * fg.a + bg.r * ia;\n"
+                "    outColor.g = fg.g * fg.a + bg.g * ia;\n"
+                "    outColor.b = fg.b * fg.a + bg.b * ia;\n"
+                "    outColor.a = min(fg.a + ia, 1.0);\n"
                 //"    outColor.a = bg.a + fg.a;\n"
                 //"    outColor.r = bg.r;\n"
                 //"    outColor.g = bg.g;\n"
@@ -91,7 +93,7 @@ namespace ibis
                 //"    outColor.r = fg.r;\n"
                 //"    outColor.g = fg.g;\n"
                 //"    outColor.b = fg.b;\n"
-                "    outColor.a = 1.0;\n"
+                //"    outColor.a = 1.0;\n"
                 "}\n";
         }
 
@@ -108,15 +110,19 @@ namespace ibis
             }
 
             ftk::Size2I size;
-            if (_inputs->getItem(0).node && _inputs->getItem(1).node)
+            if (_inputs->getItem(0).node &&
+                !_inputs->getItem(0).node->getOutputs().empty() &&
+                _inputs->getItem(0).node->getOutputs().front() &&
+                _inputs->getItem(1).node &&
+                !_inputs->getItem(1).node->getOutputs().empty() &&
+                _inputs->getItem(1).node->getOutputs().front())
             {
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 const auto& input1 = _inputs->getItem(1).node->getOutputs();
-                if (!input0.empty() && input0.front() &&
-                    !input1.empty() && input1.front())
-                {
-                    size = input0.front()->getSize();
-                }
+                const ftk::Size2I& size0 = input0.front()->getSize();
+                const ftk::Size2I& size1 = input1.front()->getSize();
+                size.w = std::max(size0.w, size1.w);
+                size.h = std::max(size0.h, size1.h);
                 if (size.isValid())
                 {
                     ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -153,13 +159,12 @@ namespace ibis
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());
                 }
             }
-            else if (_inputs->getItem(0).node)
+            else if (_inputs->getItem(0).node &&
+                !_inputs->getItem(0).node->getOutputs().empty() &&
+                _inputs->getItem(0).node->getOutputs().front())
             {
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
-                if (!input0.empty() && input0.front())
-                {
-                    size = input0.front()->getSize();
-                }
+                size = input0.front()->getSize();
                 if (size.isValid())
                 {
                     ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
