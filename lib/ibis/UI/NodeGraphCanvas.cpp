@@ -153,7 +153,7 @@ namespace ibis
             }
             if (!p.viewNodeImage)
             {
-                p.viewNodeImage = event.iconSystem->get("ViewFrame", event.displayScale);
+                p.viewNodeImage = event.iconSystem->get("View", event.displayScale);
             }
         }
 
@@ -183,12 +183,6 @@ namespace ibis
                     _getMousePos(),
                     ftk::Color4F(1.F, 1.F, 1.F),
                     lineOptions);
-            }
-            else if (p.dropTarget)
-            {
-                event.render->drawRect(
-                    g,
-                    event.style->getColorRole(ftk::ColorRole::Overlay));
             }
         }
 
@@ -234,7 +228,7 @@ namespace ibis
                         p.viewNodeImage,
                         ftk::Box2I(
                             g2.min.x + g2.w() / 2 - size.w / 2,
-                            g2.min.y - size.h,
+                            g2.min.y + g2.h(),
                             size.w,
                             size.h),
                         event.style->getColorRole(ftk::ColorRole::Text));
@@ -590,6 +584,32 @@ namespace ibis
                 if (j == nodeToWidget.end())
                 {
                     i.second->setParent(nullptr);
+                }
+            }
+
+            // Update widgets.
+            for (const auto i : nodeToWidget)
+            {
+                for (const auto& j : i.second->getOutputs())
+                {
+                    j->setConnect(false);
+                }
+            }
+            for (const auto i : nodeToWidget)
+            {
+                const auto& inputs = i.first->getInputs();
+                for (int j = 0; j < inputs.size(); ++j)
+                {
+                    const auto& input = inputs[j];
+                    i.second->getInputs()[j]->setConnect(input.node.get());
+                    if (input.node)
+                    {
+                        const auto k = nodeToWidget.find(input.node);
+                        if (k != nodeToWidget.end())
+                        {
+                            k->second->getOutputs()[input.index]->setConnect(true);
+                        }
+                    }
                 }
             }
 

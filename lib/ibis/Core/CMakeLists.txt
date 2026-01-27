@@ -4,7 +4,7 @@ set(HEADERS
 set(SOURCE
     Time.cpp)
 
-set(LIBRARIES OTIO::opentime ftk::ftkCore)
+set(LIBRARIES ibisResource OTIO::opentime ftk::ftkCore)
 
 add_library(ibisCore ${HEADERS} ${SOURCE})
 target_link_libraries(ibisCore ${LIBRARIES})

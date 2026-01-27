@@ -5,6 +5,7 @@
 
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Observable.h>
+#include <ftk/Core/ObservableList.h>
 #include <ftk/Core/ObservableMap.h>
 
 #include <opentimelineio/version.h>
@@ -68,6 +69,9 @@ namespace ibis
             //! Get the inputs.
             const std::vector<NodeConnection>& getInputs() const;
 
+            //! Observe inputs.
+            std::shared_ptr<ftk::IObservableList<NodeConnection> > observeInputs() const;
+
             //! Set an input.
             void setInput(int, const NodeConnection&);
 
@@ -83,7 +87,7 @@ namespace ibis
             //! Get an attribute.
             nlohmann::json getAttr(const std::string&) const;
 
-            //! Observe the attributes.
+            //! Observe attributes.
             std::shared_ptr<ftk::IObservableMap<std::string, nlohmann::json> > observeAttr() const;
 
             //! Set an attribute.
@@ -96,7 +100,7 @@ namespace ibis
 
         protected:
             std::string _id;
-            std::vector<NodeConnection> _inputs;
+            std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;
         };

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ftk/UI/IWidget.h>
+#include <ftk/UI/IMouseWidget.h>
 
 namespace ibis
 {
@@ -15,7 +15,7 @@ namespace ibis
     namespace ui
     {
         //! Node graph input.
-        class NodeGraphInput : public ftk::IWidget
+        class NodeGraphInput : public ftk::IMouseWidget
         {
         protected:
             void _init(
@@ -34,16 +34,21 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
+            void setConnect(bool);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseEnterEvent(ftk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
 
         private:
             FTK_PRIVATE();
         };
 
         //! Node graph output.
-        class NodeGraphOutput : public ftk::IWidget
+        class NodeGraphOutput : public ftk::IMouseWidget
         {
         protected:
             void _init(
@@ -62,9 +67,14 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
+            void setConnect(bool);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseEnterEvent(ftk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
 
         private:
             FTK_PRIVATE();

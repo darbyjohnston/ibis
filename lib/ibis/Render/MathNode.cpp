@@ -99,9 +99,9 @@ namespace ibis
             }
 
             ftk::Size2I size;
-            if (_inputs[0].node)
+            if (_inputs->getItem(0).node)
             {
-                const auto& input0 = _inputs[0].node->getOutputs();
+                const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 if (!input0.empty() && input0.front())
                 {
                     size = input0.front()->getSize();
@@ -140,7 +140,7 @@ namespace ibis
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());
                 }
             }
-            if (!_inputs[0].node || !size.isValid())
+            if (!_inputs->getItem(0).node || !size.isValid())
             {
                 _outputs[0].reset();
             }

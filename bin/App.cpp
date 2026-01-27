@@ -5,6 +5,7 @@
 
 #include "MainWindow.h"
 
+#include <ibis/UI/Init.h>
 #include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ftk/UI/DialogSystem.h>
@@ -126,6 +127,8 @@ namespace ibis
 
     void App::run()
     {
+        ui::init(_context);
+
         _recentFilesModel = ftk::RecentFilesModel::create(_context);
 
         _timeUnitsModel = models::TimeUnitsModel::create(_context);

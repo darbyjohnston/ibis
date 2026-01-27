@@ -15,7 +15,10 @@ namespace ibis
         {
             std::string node;
             std::shared_ptr<ftk::Label> label;
+
             int dragLength = 0;
+            float iconScale = 1.F;
+            std::shared_ptr<ftk::Image> dragImage;
         };
 
         void NodeBrowserItem::_init(
@@ -68,6 +71,15 @@ namespace ibis
             IMouseWidget::sizeHintEvent(event);
             FTK_P();
             p.dragLength = event.style->getSizeRole(ftk::SizeRole::DragLength, event.displayScale);
+            if (event.displayScale != p.iconScale)
+            {
+                p.iconScale = event.displayScale;
+                p.dragImage.reset();
+            }
+            if (!p.dragImage)
+            {
+                p.dragImage = event.iconSystem->get("NodeDragDrop", event.displayScale);
+            }
         }
 
         void NodeBrowserItem::drawEvent(
@@ -76,9 +88,6 @@ namespace ibis
         {
             IMouseWidget::drawEvent(drawRect, event);
             const ftk::Box2I& g = getGeometry();
-            event.render->drawRect(
-                g,
-                event.style->getColorRole(ftk::ColorRole::Button));
             if (_isMouseInside())
             {
                 event.render->drawRect(
@@ -103,29 +112,16 @@ namespace ibis
         {
             IMouseWidget::mouseMoveEvent(event);
             FTK_P();
-            if (_isMousePressed())
+            if (_isMousePressed() && p.dragImage)
             {
                 const float length = ftk::length(event.pos - _getMousePressPos());
                 if (length > p.dragLength)
                 {
                     event.dragDropData = std::make_shared<NodeDragDropData>(p.node);
+                    event.dragDropCursor = p.dragImage;
                     const ftk::Box2I& g = getGeometry();
-                    const int w = g.w();
-                    const int h = g.h();
-                    event.dragDropCursor = ftk::Image::create(w, h, ftk::ImageType::RGBA_U8);
-                    uint8_t* p = event.dragDropCursor->getData();
-                    for (int y = 0; y < h; ++y)
-                    {
-                        for (int x = 0; x < w; ++x)
-                        {
-                            p[0] = 255;
-                            p[1] = 255;
-                            p[2] = 255;
-                            p[3] = 63;
-                            p += 4;
-                        }
-                    }
-                    event.dragDropCursorHotspot = _getMousePos() - g.min;
+                    event.dragDropCursorHotspot.x = p.dragImage->getWidth() / 2;
+                    event.dragDropCursorHotspot.y = p.dragImage->getHeight() / 2;
                 }
             }
         }

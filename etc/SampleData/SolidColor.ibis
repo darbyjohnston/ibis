@@ -3,49 +3,6 @@
         "Nodes": [
             {
                 "Attr": {
-                    "Value": 0.5
-                },
-                "ID": "Add Value",
-                "Inputs": [
-                    {
-                        "Index": 1,
-                        "Output": 0
-                    }
-                ],
-                "Pos": [
-                    293,
-                    73
-                ]
-            },
-            {
-                "Attr": {
-                    "Path": "C:\\Users\\darby\\Desktop\\Charlie.png"
-                },
-                "ID": "Input",
-                "Pos": [
-                    112,
-                    156
-                ]
-            },
-            {
-                "ID": "Over",
-                "Inputs": [
-                    {
-                        "Index": 1,
-                        "Output": 0
-                    },
-                    {
-                        "Index": 3,
-                        "Output": 0
-                    }
-                ],
-                "Pos": [
-                    316,
-                    218
-                ]
-            },
-            {
-                "Attr": {
                     "Color": [
                         -0.8307086825370789,
                         -0.34645670652389526,
@@ -61,6 +18,33 @@
                 "Pos": [
                     102,
                     308
+                ]
+            },
+            {
+                "Attr": {
+                    "Path": "C:\\Users\\darby\\Desktop\\Charlie.png"
+                },
+                "ID": "Image File",
+                "Pos": [
+                    216,
+                    191
+                ]
+            },
+            {
+                "ID": "Over",
+                "Inputs": [
+                    {
+                        "Index": 1,
+                        "Output": 0
+                    },
+                    {
+                        "Index": 0,
+                        "Output": 0
+                    }
+                ],
+                "Pos": [
+                    521,
+                    226
                 ]
             }
         ]

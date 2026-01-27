@@ -18,6 +18,7 @@ namespace ibis
         struct NodeGraphInput::Private
         {
             std::shared_ptr<ftk::Icon> icon;
+            std::shared_ptr<ftk::Icon> connectIcon;
         };
 
         void NodeGraphInput::_init(
@@ -25,9 +26,15 @@ namespace ibis
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            IWidget::_init(context, "ibis::NodeGraphInput", parent);
+            IMouseWidget::_init(context, "ibis::NodeGraphInput", parent);
             FTK_P();
-            p.icon = ftk::Icon::create(context, "MenuChecked", shared_from_this());
+
+            _setMouseHoverEnabled(true);
+
+            p.icon = ftk::Icon::create(context, "NodeInput", shared_from_this());
+
+            p.connectIcon = ftk::Icon::create(context, "NodeInputConnect", shared_from_this());
+            p.connectIcon->hide();
         }
 
         NodeGraphInput::NodeGraphInput() :
@@ -47,6 +54,13 @@ namespace ibis
             return out;
         }
 
+        void NodeGraphInput::setConnect(bool value)
+        {
+            FTK_P();
+            p.icon->setVisible(!value);
+            p.connectIcon->setVisible(value);
+        }
+
         ftk::Size2I NodeGraphInput::getSizeHint() const
         {
             FTK_P();
@@ -55,16 +69,42 @@ namespace ibis
 
         void NodeGraphInput::setGeometry(const ftk::Box2I& value)
         {
-            IWidget::setGeometry(value);
-            _p->icon->setGeometry(value);
+            IMouseWidget::setGeometry(value);
+            FTK_P();
+            p.icon->setGeometry(value);
+            p.connectIcon->setGeometry(value);
         }
 
         void NodeGraphInput::sizeHintEvent(const ftk::SizeHintEvent& event)
         {}
 
+        void NodeGraphInput::mouseEnterEvent(ftk::MouseEnterEvent & event)
+        {
+            IMouseWidget::mouseEnterEvent(event);
+            setDrawUpdate();
+        }
+
+        void NodeGraphInput::mouseLeaveEvent()
+        {
+            IMouseWidget::mouseLeaveEvent();
+            setDrawUpdate();
+        }
+        
+        void NodeGraphInput::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
+        {
+            FTK_P();
+            if (_isMouseInside())
+            {
+                event.render->drawRect(
+                    getGeometry(),
+                    event.style->getColorRole(ftk::ColorRole::Hover));
+            }
+        }
+
         struct NodeGraphOutput::Private
         {
             std::shared_ptr<ftk::Icon> icon;
+            std::shared_ptr<ftk::Icon> connectIcon;
         };
 
         void NodeGraphOutput::_init(
@@ -72,9 +112,15 @@ namespace ibis
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            IWidget::_init(context, "ibis::NodeGraphOutput", parent);
+            IMouseWidget::_init(context, "ibis::NodeGraphOutput", parent);
             FTK_P();
-            p.icon = ftk::Icon::create(context, "MenuChecked", shared_from_this());
+
+            _setMouseHoverEnabled(true);
+
+            p.icon = ftk::Icon::create(context, "NodeOutput", shared_from_this());
+
+            p.connectIcon = ftk::Icon::create(context, "NodeOutputConnect", shared_from_this());
+            p.connectIcon->hide();
         }
 
         NodeGraphOutput::NodeGraphOutput() :
@@ -94,6 +140,13 @@ namespace ibis
             return out;
         }
 
+        void NodeGraphOutput::setConnect(bool value)
+        {
+            FTK_P();
+            p.icon->setVisible(!value);
+            p.connectIcon->setVisible(value);
+        }
+
         ftk::Size2I NodeGraphOutput::getSizeHint() const
         {
             return _p->icon->getSizeHint();
@@ -101,12 +154,36 @@ namespace ibis
 
         void NodeGraphOutput::setGeometry(const ftk::Box2I& value)
         {
-            IWidget::setGeometry(value);
+            IMouseWidget::setGeometry(value);
             _p->icon->setGeometry(value);
+            _p->connectIcon->setGeometry(value);
         }
 
         void NodeGraphOutput::sizeHintEvent(const ftk::SizeHintEvent& event)
         {}
+
+        void NodeGraphOutput::mouseEnterEvent(ftk::MouseEnterEvent & event)
+        {
+            IMouseWidget::mouseEnterEvent(event);
+            setDrawUpdate();
+        }
+
+        void NodeGraphOutput::mouseLeaveEvent()
+        {
+            IMouseWidget::mouseLeaveEvent();
+            setDrawUpdate();
+        }
+
+        void NodeGraphOutput::drawEvent(const ftk::Box2I & drawRect, const ftk::DrawEvent & event)
+        {
+            FTK_P();
+            if (_isMouseInside())
+            {
+                event.render->drawRect(
+                    getGeometry(),
+                    event.style->getColorRole(ftk::ColorRole::Hover));
+            }
+        }
 
         struct NodeGraphWidget::Private
         {

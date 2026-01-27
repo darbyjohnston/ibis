@@ -2,6 +2,7 @@ set(HEADERS
     CompNodeWidget.h
     GenNodeWidget.h
     INodeWidget.h
+    Init.h
     InputNodeWidget.h
     MathNodeWidget.h
     NodeBrowser.h
@@ -20,6 +21,7 @@ set(SOURCE
     CompNodeWidget.cpp
     GenNodeWidget.cpp
     INodeWidget.cpp
+    Init.cpp
     InputNodeWidget.cpp
     MathNodeWidget.cpp
     NodeBrowser.cpp

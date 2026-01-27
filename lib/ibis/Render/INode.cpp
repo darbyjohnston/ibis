@@ -30,7 +30,8 @@ namespace ibis
             const NodeAttr& attr)
         {
             _id = id;
-            _inputs.resize(inputCount);
+            _inputs = ftk::ObservableList<NodeConnection>::create(
+                std::vector<NodeConnection>(inputCount));
             _outputs.resize(outputCount);
             _attr = ftk::ObservableMap<std::string, nlohmann::json>::create(attr);
         }
@@ -48,14 +49,19 @@ namespace ibis
 
         const std::vector<NodeConnection>& INode::getInputs() const
         {
+            return _inputs->get();
+        }
+
+        std::shared_ptr<ftk::IObservableList<NodeConnection> > INode::observeInputs() const
+        {
             return _inputs;
         }
 
         void INode::setInput(int index, const NodeConnection& connection)
         {
-            if (index >= 0 && index < _inputs.size())
+            if (index >= 0 && index < _inputs->getSize())
             {
-                _inputs[index] = connection;
+                _inputs->setItemOnlyIfChanged(index, connection);
             }
         }
 
@@ -103,7 +109,7 @@ namespace ibis
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {
-            for (const auto& input : _inputs)
+            for (const auto& input : _inputs->get())
             {
                 if (input.node)
                 {
