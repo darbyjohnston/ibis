@@ -44,7 +44,9 @@ namespace ibis
             p.selectionModel = NodeSelectionModel::create(context);
             p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeModel = TimeModel::create(context);
-            p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create(nullptr);
+            const auto leafNodes = p.graph->getLeafNodes();
+            p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create(
+                !leafNodes.empty() ? leafNodes.front() : nullptr);
 
             p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
                 p.graph->observeNodes(),

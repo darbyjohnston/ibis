@@ -1,5 +1,6 @@
 set(HEADERS
     CompNodeWidget.h
+    FrameToolBar.h
     GenNodeWidget.h
     INodeWidget.h
     Init.h
@@ -11,6 +12,8 @@ set(HEADERS
     NodeGraphCanvas.h
     NodeGraphWidget.h
     NodeWidgetFactory.h
+    PlaybackLoopWidget.h
+    PlaybackToolBar.h
     TimeEdit.h
     TimeLabel.h
     TimeUnitsWidget.h
@@ -19,6 +22,7 @@ set(HEADERS
 
 set(SOURCE
     CompNodeWidget.cpp
+    FrameToolBar.cpp
     GenNodeWidget.cpp
     INodeWidget.cpp
     Init.cpp
@@ -30,6 +34,8 @@ set(SOURCE
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
     NodeWidgetFactory.cpp
+    PlaybackLoopWidget.cpp
+    PlaybackToolBar.cpp
     TimeEdit.cpp
     TimeLabel.cpp
     TimeUnitsWidget.cpp

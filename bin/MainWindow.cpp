@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #include "MainWindow.h"
 
@@ -9,6 +9,8 @@
 #include "EditMenu.h"
 #include "FileActions.h"
 #include "FileMenu.h"
+#include "TimeActions.h"
+#include "TimeMenu.h"
 
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/IconSystem.h>
@@ -29,10 +31,12 @@ namespace ibis
         auto mainWindow = std::dynamic_pointer_cast<MainWindow>(shared_from_this());
         _fileActions = FileActions::create(context, app, mainWindow);
         _editActions = EditActions::create(context, app, mainWindow);
+        _timeActions = TimeActions::create(context, app);
 
         _menuBar = ftk::MenuBar::create(context);
         _menuBar->addMenu("File", FileMenu::create(context, app, _fileActions));
         _menuBar->addMenu("Edit", EditMenu::create(context, app, _editActions));
+        _menuBar->addMenu("Time", TimeMenu::create(context, app, _timeActions));
         setMenuBar(_menuBar);
 
         _tabBar = ftk::TabBar::create(context);

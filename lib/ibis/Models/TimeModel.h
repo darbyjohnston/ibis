@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #pragma once
 
@@ -68,6 +68,11 @@ namespace ibis
             std::shared_ptr<ftk::IObservable<OTIO_NS::RationalTime> > observeCurrentTime() const;
             void setCurrentTime(const OTIO_NS::RationalTime&);
 
+            void gotoStart();
+            void gotoEnd();
+            void framePrev();
+            void frameNext();
+
             ///@}
 
             //! \name Playback
@@ -76,6 +81,15 @@ namespace ibis
             Playback getPlayback() const;
             std::shared_ptr<ftk::IObservable<Playback> > observePlayback() const;
             void setPlayback(Playback);
+
+            void stop();
+            void forward();
+            void reverse();
+            void togglePlayback();
+
+            PlaybackLoop getLoop() const;
+            std::shared_ptr<ftk::IObservable<PlaybackLoop> > observeLoop() const;
+            void setLoop(PlaybackLoop);
 
             ///@}
 

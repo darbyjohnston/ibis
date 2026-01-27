@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #include <ibis/Models/TimeModel.h>
 
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
+#include <ftk/Core/Timer.h>
 
 #include <cstdlib>
 
@@ -30,14 +31,23 @@ namespace ibis
             std::shared_ptr<ftk::Observable<OTIO_NS::TimeRange> > timeRange;
             std::shared_ptr<ftk::Observable<OTIO_NS::RationalTime> > currentTime;
             std::shared_ptr<ftk::Observable<Playback> > playback;
+            Playback togglePlayback = Playback::Forward;
+            std::shared_ptr<ftk::Observable<PlaybackLoop> > loop;
+
+            std::shared_ptr<ftk::Timer> playbackTimer;
         };
 
         void TimeModel::_init(const std::shared_ptr<ftk::Context>& context)
         {
             FTK_P();
-            p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 100.0, 24.0));
+
+            p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 60.0 * 24.0, 24.0));
             p.currentTime = ftk::Observable<OTIO_NS::RationalTime>::create(OTIO_NS::RationalTime(0.0, 24.0));
             p.playback = ftk::Observable<Playback>::create(Playback::Stop);
+            p.loop = ftk::Observable<PlaybackLoop>::create(PlaybackLoop::Loop);
+
+            p.playbackTimer = ftk::Timer::create(context);
+            p.playbackTimer->setRepeating(true);
         }
 
         TimeModel::TimeModel() :
@@ -82,7 +92,54 @@ namespace ibis
 
         void TimeModel::setCurrentTime(const OTIO_NS::RationalTime& value)
         {
-            _p->currentTime->setIfChanged(value);
+            FTK_P();
+            OTIO_NS::RationalTime tmp = value;
+            const OTIO_NS::TimeRange& timeRange = p.timeRange->get();
+            if (tmp > timeRange.end_time_inclusive())
+            {
+                tmp = timeRange.start_time();
+            }
+            else if (tmp < timeRange.start_time())
+            {
+                tmp = timeRange.end_time_inclusive();
+            }
+            p.currentTime->setIfChanged(tmp);
+        }
+
+        void TimeModel::gotoStart()
+        {
+            _p->currentTime->setIfChanged(_p->timeRange->get().start_time());
+        }
+
+        void TimeModel::gotoEnd()
+        {
+            _p->currentTime->setIfChanged(_p->timeRange->get().end_time_inclusive());
+        }
+
+        void TimeModel::framePrev()
+        {
+            FTK_P();
+            OTIO_NS::RationalTime time = p.currentTime->get();
+            time -= OTIO_NS::RationalTime(1.0, time.rate());
+            const OTIO_NS::TimeRange& timeRange = p.timeRange->get();
+            if (time < timeRange.start_time())
+            {
+                time = timeRange.end_time_inclusive();
+            }
+            p.currentTime->setIfChanged(time);
+        }
+
+        void TimeModel::frameNext()
+        {
+            FTK_P();
+            OTIO_NS::RationalTime time = p.currentTime->get();
+            time += OTIO_NS::RationalTime(1.0, time.rate());
+            const OTIO_NS::TimeRange& timeRange = p.timeRange->get();
+            if (time > timeRange.end_time_inclusive())
+            {
+                time = timeRange.start_time();
+            }
+            p.currentTime->setIfChanged(time);
         }
 
         Playback TimeModel::getPlayback() const
@@ -97,7 +154,71 @@ namespace ibis
 
         void TimeModel::setPlayback(Playback value)
         {
-            _p->playback->setIfChanged(value);
+            FTK_P();
+            if (p.playback->setIfChanged(value))
+            {
+                switch (value)
+                {
+                case Playback::Stop:
+                    p.playbackTimer->stop();
+                    break;
+                case Playback::Forward:
+                    p.togglePlayback = value;
+                    p.playbackTimer->start(
+                        std::chrono::milliseconds(static_cast<int>(1.0 / 24.0 * 1000)),
+                        [this]
+                        {
+                            frameNext();
+                        });
+                    break;
+                case Playback::Reverse:
+                    p.togglePlayback = value;
+                    p.playbackTimer->start(
+                        std::chrono::milliseconds(static_cast<int>(1.0 / 24.0 * 1000)),
+                        [this]
+                        {
+                            framePrev();
+                        });
+                    break;
+                default: break;
+                }
+            }
+        }
+
+        void TimeModel::stop()
+        {
+            setPlayback(Playback::Stop);
+        }
+
+        void TimeModel::forward()
+        {
+            setPlayback(Playback::Forward);
+        }
+
+        void TimeModel::reverse()
+        {
+            setPlayback(Playback::Reverse);
+        }
+
+        void TimeModel::togglePlayback()
+        {
+            FTK_P();
+            setPlayback(Playback::Stop == p.playback->get() ? p.togglePlayback : Playback::Stop);
+        }
+
+        PlaybackLoop TimeModel::getLoop() const
+        {
+            return _p->loop->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<PlaybackLoop> > TimeModel::observeLoop() const
+        {
+            return _p->loop;
+        }
+
+        void TimeModel::setLoop(PlaybackLoop value)
+        {
+            _p->loop->setIfChanged(value);
         }
     }
 }

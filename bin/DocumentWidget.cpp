@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #include "DocumentWidget.h"
 
@@ -18,22 +18,33 @@ namespace ibis
 
         _viewport = ui::Viewport::create(context, document);
 
-        _nodeGraphCanvas = ui::NodeGraphCanvas::create(context, document, app->getNodeFactory());
+        _nodeGraphCanvas = ui::NodeGraphCanvas::create(
+            context,
+            document,
+            app->getNodeFactory());
 
-        _timelineWidget = ui::TimelineWidget::create(context, app->getTimeUnitsModel(), document);
+        _timelineWidget = ui::TimelineWidget::create(
+            context,
+            app->getTimeUnitsModel(),
+            document->getTimeModel());
 
-        _nodeBrowser = ui::NodeBrowser::create(context, app->getNodeFactory());
+        _nodeBrowser = ui::NodeBrowser::create(
+            context,
+            app->getNodeFactory());
 
-        _nodeEditor = ui::NodeEditor::create(context, app->getNodeWidgetFactory(), document);
+        _nodeEditor = ui::NodeEditor::create(
+            context,
+            app->getNodeWidgetFactory(),
+            document);
 
         _layout = ftk::VerticalLayout::create(context, shared_from_this());
         _layout->setSpacingRole(ftk::SizeRole::None);
         _splitterH = ftk::Splitter::create(context, ftk::Orientation::Horizontal, _layout);
-        _splitterH->setSplit(.7F);
+        _splitterH->setSplit(.8F);
         auto vLayout = ftk::VerticalLayout::create(context, _splitterH);
         vLayout->setSpacingRole(ftk::SizeRole::None);
         _splitterV = ftk::Splitter::create(context, ftk::Orientation::Vertical, vLayout);
-        _splitterV->setSplit(.7F);
+        _splitterV->setSplit(.6F);
         _viewport->setParent(_splitterV);
         _nodeGraphCanvas->setParent(_splitterV);
         ftk::Divider::create(context, ftk::Orientation::Vertical, vLayout);

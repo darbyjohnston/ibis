@@ -5,6 +5,9 @@ set(RESOURCES
     etc/Icons/NodeDragDrop.svg
     etc/Icons/NodePort.svg
     etc/Icons/NodePortConnected.svg
+    etc/Icons/PlaybackLoop.svg
+    etc/Icons/PlaybackOnce.svg
+    etc/Icons/PlaybackPingPong.svg
     etc/Icons/ibis.svg)
 foreach(RESOURCE ${RESOURCES})
     get_filename_component(RESOURCE_BASE ${RESOURCE} NAME_WE)

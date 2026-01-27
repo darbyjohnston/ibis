@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #include <sstream>
 

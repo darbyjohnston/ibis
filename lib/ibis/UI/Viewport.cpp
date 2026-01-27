@@ -157,11 +157,11 @@ namespace ibis
                 const ftk::RenderSizeState renderSizeState(event.render);
                 event.render->setClipRectEnabled(false);
 
-                if (p.node)
+                for (const auto& node : p.document->getGraph()->getLeafNodes())
                 {
                     try
                     {
-                        p.node->exec(event.render, p.currentTime);
+                        node->exec(event.render, p.currentTime);
                     }
                     catch (const std::exception& e)
                     {
@@ -170,10 +170,6 @@ namespace ibis
                             context->log("ibis::ui::Viewport", e.what(), ftk::LogType::Error);
                         }
                     }
-                }
-                else
-                {
-                    p.buffer.reset();
                 }
 
                 if (p.buffer && p.node)
@@ -200,6 +196,10 @@ namespace ibis
                             output->getColorID(),
                             ftk::Box2I(ftk::V2I(0, 0), output->getSize()));
                     }
+                }
+                else if (!p.node)
+                {
+                    p.buffer.reset();
                 }
             }
             event.render->drawRect(g, ftk::Color4F(0.F, 0.F, 0.F));

@@ -5,7 +5,9 @@ set(HEADERS
     EditMenu.h
     FileActions.h
     FileMenu.h
-    MainWindow.h)
+    MainWindow.h
+    TimeActions.h
+    TimeMenu.h)
 
 set(SOURCE
     App.cpp
@@ -15,6 +17,8 @@ set(SOURCE
     FileActions.cpp
     FileMenu.cpp
     MainWindow.cpp
+    TimeMenu.cpp
+    TimeActions.cpp
     main.cpp)
 
 add_executable(ibis ${HEADERS} ${SOURCE})

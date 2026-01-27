@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
-// Copyright Contributors to the tlRender project.
+// Copyright Contributors to the ibis project.
 
 #pragma once
 
@@ -18,6 +18,7 @@ namespace ibis
     class DocumentWidget;
     class EditActions;
     class FileActions;
+    class TimeActions;
 
     //! Main window.
     class MainWindow : public ftk::MainWindow
@@ -45,6 +46,7 @@ namespace ibis
     private:
         std::shared_ptr<FileActions> _fileActions;
         std::shared_ptr<EditActions> _editActions;
+        std::shared_ptr<TimeActions> _timeActions;
         std::map<std::shared_ptr<models::Document>, std::shared_ptr<DocumentWidget> > _widgets;
         std::shared_ptr<ftk::MenuBar> _menuBar;
         std::shared_ptr<ftk::TabBar> _tabBar;

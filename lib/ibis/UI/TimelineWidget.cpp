@@ -3,11 +3,12 @@
 
 #include "TimelineWidget.h"
 
+#include <ibis/UI/FrameToolBar.h>
+#include <ibis/UI/PlaybackToolBar.h>
 #include <ibis/UI/TimeEdit.h>
 #include <ibis/UI/TimeLabel.h>
 #include <ibis/UI/TimeUnitsWidget.h>
 
-#include <ibis/Models/Document.h>
 #include <ibis/Models/TimeModel.h>
 
 #include <ftk/UI/RowLayout.h>
@@ -18,6 +19,8 @@ namespace ibis
     {
         struct TimelineWidget::Private
         {
+            std::shared_ptr<ui::PlaybackToolBar> playbackToolBar;
+            std::shared_ptr<ui::FrameToolBar> frameToolBar;
             std::shared_ptr<ui::TimeEdit> currentTimeEdit;
             std::shared_ptr<ui::TimeEdit> startTimeEdit;
             std::shared_ptr<ui::TimeEdit> durationEdit;
@@ -31,12 +34,14 @@ namespace ibis
         void TimelineWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::TimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<models::TimeModel>& timeModel,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::TimelineWidget", parent);
             FTK_P();
 
+            p.playbackToolBar = ui::PlaybackToolBar::create(context, timeModel);
+            p.frameToolBar = ui::FrameToolBar::create(context, timeModel);
             p.currentTimeEdit = ui::TimeEdit::create(context, timeUnitsModel);
             p.startTimeEdit = ui::TimeEdit::create(context, timeUnitsModel);
             p.durationEdit = ui::TimeEdit::create(context, timeUnitsModel);
@@ -45,6 +50,8 @@ namespace ibis
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(ftk::SizeRole::MarginSmall);
+            p.playbackToolBar->setParent(p.layout);
+            p.frameToolBar->setParent(p.layout);
             p.currentTimeEdit->setParent(p.layout);
             p.startTimeEdit->setParent(p.layout);
             p.layout->addSpacer(ftk::Stretch::Expanding);
@@ -52,28 +59,25 @@ namespace ibis
             p.timeUnitsWidget->setParent(p.layout);
 
             p.currentTimeEdit->setCallback(
-                [document](const OTIO_NS::RationalTime& value)
+                [timeModel](const OTIO_NS::RationalTime& value)
                 {
-                    document->getTimeModel()->setCurrentTime(value);
+                    timeModel->setCurrentTime(value);
                 });
 
             p.startTimeEdit->setCallback(
-                [document](const OTIO_NS::RationalTime& value)
+                [timeModel](const OTIO_NS::RationalTime& value)
                 {
-                    auto timeModel = document->getTimeModel();
                     const OTIO_NS::TimeRange timeRange = timeModel->getTimeRange();
                     timeModel->setTimeRange(OTIO_NS::TimeRange(value, timeRange.duration()));
                 });
 
             p.durationEdit->setCallback(
-                [document](const OTIO_NS::RationalTime& value)
+                [timeModel](const OTIO_NS::RationalTime& value)
                 {
-                    auto timeModel = document->getTimeModel();
                     const OTIO_NS::TimeRange timeRange = timeModel->getTimeRange();
                     timeModel->setTimeRange(OTIO_NS::TimeRange(timeRange.start_time(), value));
                 });
 
-            auto timeModel = document->getTimeModel();
             p.timeRangeObserver = ftk::Observer<OTIO_NS::TimeRange>::create(
                 timeModel->observeTimeRange(),
                 [this](const OTIO_NS::TimeRange& value)
@@ -102,11 +106,11 @@ namespace ibis
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::TimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<models::TimeModel>& timeModel,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<TimelineWidget> out(new TimelineWidget);
-            out->_init(context, timeUnitsModel, document, parent);
+            out->_init(context, timeUnitsModel, timeModel, parent);
             return out;
         }
 
