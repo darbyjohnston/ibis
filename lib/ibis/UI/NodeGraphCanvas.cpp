@@ -12,6 +12,8 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/NodeFactory.h>
 
+#include <ftk/UI/DrawUtil.h>
+
 namespace ibis
 {
     namespace ui
@@ -25,16 +27,20 @@ namespace ibis
             std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
             std::map<std::shared_ptr<render::INode>, ftk::V2I> nodeToPos;
 
+            std::shared_ptr<ftk::Observer<bool> > changedObserver;
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
+            std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
+
             int sizeHint = 0;
-            int handle = 0;
+            int borderSize = 0;
+            int handleSize = 0;
+            int shadowSize = 0;
+            float iconScale = 1.F;
+            std::shared_ptr<ftk::Image> viewNodeImage;
             std::optional<Move> move;
             std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
             std::optional<Connect> connect;
             bool dropTarget = false;
-
-            std::shared_ptr<ftk::Observer<bool> > changedObserver;
-            std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
-            std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
         };
 
         void NodeGraphCanvas::_init(
@@ -69,13 +75,6 @@ namespace ibis
                 [this](const std::vector<std::shared_ptr<render::INode> >& selection)
                 {
                     FTK_P();
-
-                    for (const auto i : p.nodeToWidget)
-                    {
-                        const auto j = std::find(selection.begin(), selection.end(), i.first);
-                        i.second->setSelected(j != selection.end());
-                    }
-
                     p.moveNodes.clear();
                     for (const auto& node : selection)
                     {
@@ -85,17 +84,14 @@ namespace ibis
                             p.moveNodes[node] = i->second;
                         }
                     }
+                    setDrawUpdate();
                 });
 
             p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(
                 document->observeViewNode(),
                 [this](const std::shared_ptr<render::INode>& node)
                 {
-                    FTK_P();
-                    for (const auto& i : p.nodeToWidget)
-                    {
-                        i.second->setView(node == i.first);
-                    }
+                    setDrawUpdate();
                 });
         }
 
@@ -147,7 +143,18 @@ namespace ibis
         {
             FTK_P();
             p.sizeHint = event.style->getSizeRole(ftk::SizeRole::ScrollArea, event.displayScale);
-            p.handle = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
+            p.borderSize = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
+            p.handleSize = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
+            p.shadowSize = event.style->getSizeRole(ftk::SizeRole::Shadow, event.displayScale);
+            if (event.displayScale != p.iconScale)
+            {
+                p.iconScale = event.displayScale;
+                p.viewNodeImage.reset();
+            }
+            if (!p.viewNodeImage)
+            {
+                p.viewNodeImage = event.iconSystem->get("ViewFrame", event.displayScale);
+            }
         }
 
         void NodeGraphCanvas::drawOverlayEvent(
@@ -170,7 +177,7 @@ namespace ibis
                     v0 = ftk::center(p.connect->widget->getOutputs()[p.connect->output]->getGeometry());
                 }
                 ftk::LineOptions lineOptions;
-                lineOptions.width = p.handle / 2;
+                lineOptions.width = p.handleSize / 2;
                 event.render->drawLine(
                     v0,
                     _getMousePos(),
@@ -192,9 +199,51 @@ namespace ibis
             IWidget::drawEvent(drawRect, event);
             FTK_P();
             const ftk::Box2I& g = getGeometry();
+
+            // Draw shadows.
             for (const auto i : p.nodeToWidget)
             {
-                // Draw connections.
+                const ftk::Box2I& g2 = i.second->getGeometry();
+                event.render->drawColorMesh(ftk::shadow(
+                    ftk::margin(g2, p.shadowSize, 0, p.shadowSize, p.shadowSize),
+                    p.shadowSize));
+            }
+            
+            // Draw selection.
+            for (const auto i : p.document->getSelection())
+            {
+                const auto j = p.nodeToWidget.find(i);
+                if (j != p.nodeToWidget.end())
+                {
+                    const ftk::Box2I& g2 = j->second->getGeometry();
+                    event.render->drawMesh(
+                        ftk::border(ftk::margin(g2, p.borderSize), p.borderSize),
+                        event.style->getColorRole(ftk::ColorRole::Checked));
+                }
+            }
+            
+            // Draw the view node.
+            if (auto viewNode = p.document->getViewNode())
+            {
+                const auto i = p.nodeToWidget.find(viewNode);
+                if (i != p.nodeToWidget.end() && p.viewNodeImage)
+                {
+                    const ftk::Box2I& g2 = i->second->getGeometry();
+                    const ftk::Size2I& size = p.viewNodeImage->getSize();
+                    event.render->drawImage(
+                        p.viewNodeImage,
+                        ftk::Box2I(
+                            g2.min.x + g2.w() / 2 - size.w / 2,
+                            g2.min.y - size.h,
+                            size.w,
+                            size.h),
+                        event.style->getColorRole(ftk::ColorRole::Text));
+                }
+            }
+
+            // Draw connections.
+            for (const auto i : p.nodeToWidget)
+            {
                 const auto& inputs = i.first->getInputs();
                 for (int j = 0; j < inputs.size(); ++j)
                 {
@@ -207,7 +256,7 @@ namespace ibis
                             const ftk::V2I v0 = ftk::center(i.second->getInputs()[j]->getGeometry());
                             const ftk::V2I v1 = ftk::center(k->second->getOutputs()[input.index]->getGeometry());
                             ftk::LineOptions lineOptions;
-                            lineOptions.width = p.handle / 2;
+                            lineOptions.width = p.handleSize / 2;
                             event.render->drawLine(
                                 v0,
                                 v1,
@@ -519,7 +568,6 @@ namespace ibis
                 if (j == p.nodeToWidget.end())
                 {
                     widget = NodeGraphWidget::create(getContext(), node, shared_from_this());
-                    widget->setView(node == p.document->getViewNode());
                     widget->setViewCallback(
                         [this](const std::shared_ptr<render::INode>& node)
                         {

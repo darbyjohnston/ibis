@@ -51,16 +51,15 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
-            ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
             const ftk::Size2I size = _attr->getItem("Size");
-            if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+            if (size.isValid())
             {
-                _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-            }
-
-            if (_outputs[0])
-            {
+                ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                {
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                 render->setRenderSize(size);
                 render->setViewport(ftk::Box2I(0, 0, size.w, size.h));

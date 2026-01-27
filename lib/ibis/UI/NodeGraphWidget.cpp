@@ -5,10 +5,11 @@
 
 #include <ibis/Render/INode.h>
 
+#include <ftk/UI/DrawUtil.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/Icon.h>
+#include <ftk/UI/Menu.h>
 #include <ftk/UI/RowLayout.h>
-#include <ftk/UI/ToolButton.h>
 
 namespace ibis
 {
@@ -114,8 +115,10 @@ namespace ibis
 
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
-            std::shared_ptr<ftk::ToolButton> viewButton;
             std::shared_ptr<ftk::HorizontalLayout> layout;
+            std::shared_ptr<ftk::Menu> menu;
+
+            int borderSize = 0;
 
             std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
         };
@@ -128,8 +131,6 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeGraphWidget", parent);
             FTK_P();
 
-            setBackgroundRole(ftk::ColorRole::Button);
-
             p.node = node;
 
             for (const auto& i : node->getInputs())
@@ -141,10 +142,6 @@ namespace ibis
             {
                 p.outputs.push_back(NodeGraphOutput::create(context, node));
             }
-
-            p.viewButton = ftk::ToolButton::create(context);
-            p.viewButton->setIcon("ViewFrame");
-            p.viewButton->setAcceptsKeyFocus(false);
 
             auto label = ftk::Label::create(context, node->getID());
             label->setHAlign(ftk::HAlign::Center);
@@ -160,23 +157,12 @@ namespace ibis
                 i->setParent(vLayout);
             }
             label->setParent(p.layout);
-            p.viewButton->setParent(p.layout);
             vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             for (const auto& i : p.outputs)
             {
                 i->setParent(vLayout);
             }
-
-            p.viewButton->setClickedCallback(
-                [this]
-                {
-                    FTK_P();
-                    if (p.viewCallback)
-                    {
-                        p.viewCallback(p.node);
-                    }
-                });
         }
 
         NodeGraphWidget::NodeGraphWidget() :
@@ -211,36 +197,6 @@ namespace ibis
             return _p->outputs;
         }
 
-        bool NodeGraphWidget::isSelected() const
-        {
-            return _p->selected;
-        }
-
-        void NodeGraphWidget::setSelected(bool value)
-        {
-            FTK_P();
-            if (value == p.selected)
-                return;
-            p.selected = value;
-            setBackgroundRole(
-                p.selected ?
-                ftk::ColorRole::Checked :
-                ftk::ColorRole::Button);
-        }
-
-        bool NodeGraphWidget::isView() const
-        {
-            return _p->viewButton->getBackgroundRole() == ftk::ColorRole::Checked;
-        }
-
-        void NodeGraphWidget::setView(bool value)
-        {
-            _p->viewButton->setBackgroundRole(
-                value ?
-                ftk::ColorRole::Checked :
-                ftk::ColorRole::None);
-        }
-
         void NodeGraphWidget::setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>& value)
         {
             _p->viewCallback = value;
@@ -248,13 +204,73 @@ namespace ibis
 
         ftk::Size2I NodeGraphWidget::getSizeHint() const
         {
-            return _p->layout->getSizeHint();
+            FTK_P();
+            return p.layout->getSizeHint() + p.borderSize * 2;
         }
 
         void NodeGraphWidget::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
+            FTK_P();
+            p.layout->setGeometry(ftk::margin(value, -p.borderSize));
+        }
+
+        void NodeGraphWidget::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
+        {
+            FTK_P();
+            const ftk::Box2I& g = getGeometry();
+            event.render->drawMesh(
+                ftk::border(g, p.borderSize),
+                event.style->getColorRole(ftk::ColorRole::Border));
+            event.render->drawRect(
+                ftk::margin(g, -p.borderSize),
+                event.style->getColorRole(ftk::ColorRole::Button));
+        }
+
+        void NodeGraphWidget::mousePressEvent(ftk::MouseClickEvent& event)
+        {
+            FTK_P();
+            if ((ftk::MouseButton::Right == event.button && 0 == event.modifiers) ||
+                (ftk::MouseButton::Left == event.button && ftk::checkKeyModifier(ftk::KeyModifier::Super, event.modifiers)))
+            {
+                event.accept = true;
+                p.menu = ftk::Menu::create(getContext());
+                auto action = ftk::Action::create(
+                    "Set View",
+                    [this]
+                    {
+                        FTK_P();
+                        if (p.viewCallback)
+                        {
+                            p.viewCallback(p.node);
+                        }
+                    });
+                p.menu->addAction(action);
+
+                std::weak_ptr<NodeGraphWidget> weak(std::dynamic_pointer_cast<NodeGraphWidget>(shared_from_this()));
+                p.menu->setCloseCallback(
+                    [weak]
+                    {
+                        if (auto item = weak.lock())
+                        {
+                            item->_p->menu.reset();
+                        }
+                    });
+                p.menu->open(
+                    getWindow(),
+                    ftk::Box2I(event.pos.x, event.pos.y, 0, 0));
+            }
+        }
+
+        void NodeGraphWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
+        {
+            FTK_P();
+            p.borderSize = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
+        }
+
+        void NodeGraphWidget::mouseReleaseEvent(ftk::MouseClickEvent& event)
+        {
+            event.accept = true;
         }
     }
 }

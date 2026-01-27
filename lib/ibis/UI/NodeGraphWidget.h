@@ -95,15 +95,14 @@ namespace ibis
             const std::vector<std::shared_ptr<NodeGraphInput> >& getInputs() const;
             const std::vector<std::shared_ptr<NodeGraphOutput> >& getOutputs() const;
 
-            bool isSelected() const;
-            void setSelected(bool);
-
-            bool isView() const;
-            void setView(bool);
             void setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>&);
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mousePressEvent(ftk::MouseClickEvent&) override;
+            void mouseReleaseEvent(ftk::MouseClickEvent&) override;
 
         private:
             FTK_PRIVATE();
