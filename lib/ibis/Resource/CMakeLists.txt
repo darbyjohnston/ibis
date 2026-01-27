@@ -3,10 +3,8 @@ set(SOURCE)
 set(RESOURCES
     etc/Icons/View.svg
     etc/Icons/NodeDragDrop.svg
-    etc/Icons/NodeInput.svg
-    etc/Icons/NodeInputConnect.svg
-    etc/Icons/NodeOutput.svg
-    etc/Icons/NodeOutputConnect.svg
+    etc/Icons/NodePort.svg
+    etc/Icons/NodePortConnected.svg
     etc/Icons/ibis.svg)
 foreach(RESOURCE ${RESOURCES})
     get_filename_component(RESOURCE_BASE ${RESOURCE} NAME_WE)

@@ -22,6 +22,7 @@ namespace ibis
 
     namespace ui
     {
+        class INodePort;
         class NodeGraphWidget;
 
         //! Node graph canvas.

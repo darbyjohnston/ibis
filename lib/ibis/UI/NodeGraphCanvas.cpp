@@ -75,6 +75,11 @@ namespace ibis
                 [this](const std::vector<std::shared_ptr<render::INode> >& selection)
                 {
                     FTK_P();
+                    for (const auto& i : p.nodeToWidget)
+                    {
+                        const auto j = std::find(selection.begin(), selection.end(), i.first);
+                        i.second->setSelected(j != selection.end());
+                    }
                     p.moveNodes.clear();
                     for (const auto& node : selection)
                     {
@@ -84,14 +89,17 @@ namespace ibis
                             p.moveNodes[node] = i->second;
                         }
                     }
-                    setDrawUpdate();
                 });
 
             p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(
                 document->observeViewNode(),
                 [this](const std::shared_ptr<render::INode>& node)
                 {
-                    setDrawUpdate();
+                    FTK_P();
+                    for (const auto& i : p.nodeToWidget)
+                    {
+                        i.second->setView(i.first == node);
+                    }
                 });
         }
 
@@ -176,13 +184,16 @@ namespace ibis
                 {
                     v0 = ftk::center(p.connect->widget->getOutputs()[p.connect->output]->getGeometry());
                 }
+                ftk::V2I v1 = _getMousePos();
                 ftk::LineOptions lineOptions;
                 lineOptions.width = p.handleSize / 2;
                 event.render->drawLine(
                     v0,
-                    _getMousePos(),
+                    v1,
                     ftk::Color4F(1.F, 1.F, 1.F),
                     lineOptions);
+                event.render->drawMesh(ftk::circle(v0, p.handleSize / 2));
+                event.render->drawMesh(ftk::circle(v1, p.handleSize / 2));
             }
         }
 
@@ -201,38 +212,6 @@ namespace ibis
                 event.render->drawColorMesh(ftk::shadow(
                     ftk::margin(g2, p.shadowSize, 0, p.shadowSize, p.shadowSize),
                     p.shadowSize));
-            }
-            
-            // Draw selection.
-            for (const auto i : p.document->getSelection())
-            {
-                const auto j = p.nodeToWidget.find(i);
-                if (j != p.nodeToWidget.end())
-                {
-                    const ftk::Box2I& g2 = j->second->getGeometry();
-                    event.render->drawMesh(
-                        ftk::border(ftk::margin(g2, p.borderSize), p.borderSize),
-                        event.style->getColorRole(ftk::ColorRole::Checked));
-                }
-            }
-            
-            // Draw the view node.
-            if (auto viewNode = p.document->getViewNode())
-            {
-                const auto i = p.nodeToWidget.find(viewNode);
-                if (i != p.nodeToWidget.end() && p.viewNodeImage)
-                {
-                    const ftk::Box2I& g2 = i->second->getGeometry();
-                    const ftk::Size2I& size = p.viewNodeImage->getSize();
-                    event.render->drawImage(
-                        p.viewNodeImage,
-                        ftk::Box2I(
-                            g2.min.x + g2.w() / 2 - size.w / 2,
-                            g2.min.y + g2.h(),
-                            size.w,
-                            size.h),
-                        event.style->getColorRole(ftk::ColorRole::Text));
-                }
             }
 
             // Draw connections.

@@ -14,8 +14,8 @@ namespace ibis
 
     namespace ui
     {
-        //! Node graph input.
-        class NodeGraphInput : public ftk::IMouseWidget
+        //! Base class for node graph port widgets.
+        class INodeGraphPort : public ftk::IMouseWidget
         {
         protected:
             void _init(
@@ -23,16 +23,10 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            NodeGraphInput();
+            INodeGraphPort();
 
         public:
-            virtual ~NodeGraphInput();
-
-            //! Create a new widget.
-            static std::shared_ptr<NodeGraphInput> create(
-                const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<render::INode>&,
-                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+            virtual ~INodeGraphPort() = 0;
 
             void setConnect(bool);
 
@@ -47,16 +41,27 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! Node graph output.
-        class NodeGraphOutput : public ftk::IMouseWidget
+        //! Node graph input port widget.
+        class NodeGraphInput : public INodeGraphPort
         {
         protected:
-            void _init(
+            NodeGraphInput() = default;
+
+        public:
+            virtual ~NodeGraphInput();
+
+            //! Create a new widget.
+            static std::shared_ptr<NodeGraphInput> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::INode>&,
-                const std::shared_ptr<ftk::IWidget>& parent);
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+        };
 
-            NodeGraphOutput();
+        //! Node graph output port widget.
+        class NodeGraphOutput : public INodeGraphPort
+        {
+        protected:
+            NodeGraphOutput() = default;
 
         public:
             virtual ~NodeGraphOutput();
@@ -66,18 +71,6 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
-
-            void setConnect(bool);
-
-            ftk::Size2I getSizeHint() const override;
-            void setGeometry(const ftk::Box2I&) override;
-            void sizeHintEvent(const ftk::SizeHintEvent&) override;
-            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
-            void mouseEnterEvent(ftk::MouseEnterEvent&) override;
-            void mouseLeaveEvent() override;
-
-        private:
-            FTK_PRIVATE();
         };
 
         //! Node graph widget.
@@ -104,6 +97,9 @@ namespace ibis
 
             const std::vector<std::shared_ptr<NodeGraphInput> >& getInputs() const;
             const std::vector<std::shared_ptr<NodeGraphOutput> >& getOutputs() const;
+
+            void setSelected(bool);
+            void setView(bool);
 
             void setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>&);
 
