@@ -38,5 +38,6 @@ namespace ibis
 
         std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > _currentObserver;
         std::shared_ptr<ftk::Observer<models::Playback> > _playbackObserver;
+        std::shared_ptr<ftk::Observer<models::PlaybackLoop> > _loopObserver;
     };
 }

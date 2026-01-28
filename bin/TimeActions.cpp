@@ -49,7 +49,7 @@ namespace ibis
             });
 
         _actions["TogglePlayback"] = ftk::Action::create(
-            "TogglePlayback",
+            "Toggle Playback",
             ftk::KeyShortcut(ftk::Key::Space),
             [appWeak]
             {
@@ -58,6 +58,21 @@ namespace ibis
                     document->getTimeModel()->togglePlayback();
                 }
             });
+
+        const auto& loopLabels = models::getPlaybackLoopLabels();
+        for (const auto& loop : models::getPlaybackLoopEnums())
+        {
+            const std::string label = loopLabels[static_cast<size_t>(loop)];
+            _actions["Playback" + label] = ftk::Action::create(
+                label,
+                [appWeak, loop]
+                {
+                    if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
+                    {
+                        document->getTimeModel()->setLoop(loop);
+                    }
+                });
+        }
 
         _actions["StartFrame"] = ftk::Action::create(
             "Start Frame",
@@ -112,15 +127,13 @@ namespace ibis
             [this](const std::shared_ptr<models::Document>& value)
             {
                 _playbackObserver.reset();
+                _loopObserver.reset();
                 if (value)
                 {
-                    _actions["Stop"]->setEnabled(true);
-                    _actions["Forward"]->setEnabled(true);
-                    _actions["Reverse"]->setEnabled(true);
-                    _actions["StartFrame"]->setEnabled(true);
-                    _actions["PrevFrame"]->setEnabled(true);
-                    _actions["NextFrame"]->setEnabled(true);
-                    _actions["EndFrame"]->setEnabled(true);
+                    for (const auto& i : _actions)
+                    {
+                        i.second->setEnabled(true);
+                    }
 
                     _playbackObserver = ftk::Observer<models::Playback>::create(
                         value->getTimeModel()->observePlayback(),
@@ -130,19 +143,30 @@ namespace ibis
                             _actions["Forward"]->setChecked(models::Playback::Forward == value);
                             _actions["Reverse"]->setChecked(models::Playback::Reverse == value);
                         });
+
+                    _loopObserver = ftk::Observer<models::PlaybackLoop>::create(
+                        value->getTimeModel()->observeLoop(),
+                        [this](models::PlaybackLoop value)
+                        {
+                            _actions["PlaybackLoop"]->setChecked(models::PlaybackLoop::Loop == value);
+                            _actions["PlaybackOnce"]->setChecked(models::PlaybackLoop::Once == value);
+                            _actions["PlaybackPingPong"]->setChecked(models::PlaybackLoop::PingPong == value);
+                        });
                 }
                 else
                 {
                     _actions["Stop"]->setChecked(true);
                     _actions["Forward"]->setChecked(false);
                     _actions["Reverse"]->setChecked(false);
-                    _actions["Stop"]->setEnabled(false);
-                    _actions["Forward"]->setEnabled(false);
-                    _actions["Reverse"]->setEnabled(false);
-                    _actions["StartFrame"]->setEnabled(false);
-                    _actions["PrevFrame"]->setEnabled(false);
-                    _actions["NextFrame"]->setEnabled(false);
-                    _actions["EndFrame"]->setEnabled(false);
+
+                    _actions["PlaybackLoop"]->setChecked(true);
+                    _actions["PlaybackOnce"]->setChecked(false);
+                    _actions["PlaybackPingPong"]->setChecked(false);
+
+                    for (const auto& i : _actions)
+                    {
+                        i.second->setEnabled(false);
+                    }
                 }
             });
     }

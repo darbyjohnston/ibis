@@ -3,31 +3,22 @@
         "Nodes": [
             {
                 "Attr": {
-                    "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\Counter.0.png"
+                    "Path": "D:\\Seq\\Audio\\MOE_DOC_V8_FINAL_000000.jpg"
                 },
                 "ID": "Image File Sequence",
                 "Pos": [
-                    194,
-                    321
+                    234,
+                    397
                 ]
             },
             {
                 "Attr": {
-                    "Color": [
-                        1.0,
-                        0.699999988079071,
-                        0.0,
-                        1.0
-                    ],
-                    "Size": [
-                        256,
-                        256
-                    ]
+                    "Path": "C:\\Users\\darby\\Desktop\\1768001288494371.jpg"
                 },
-                "ID": "Solid Color",
+                "ID": "Image File",
                 "Pos": [
-                    202,
-                    144
+                    243,
+                    55
                 ]
             },
             {
@@ -43,8 +34,8 @@
                     }
                 ],
                 "Pos": [
-                    588,
-                    207
+                    707,
+                    211
                 ]
             }
         ]

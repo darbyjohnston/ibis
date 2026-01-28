@@ -36,5 +36,6 @@ namespace ibis
             const std::shared_ptr<IWidget>& parent = nullptr);
 
     private:
+        std::shared_ptr<ftk::Menu> _loopMenu;
     };
 }

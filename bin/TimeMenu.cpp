@@ -21,6 +21,10 @@ namespace ibis
         addAction(actions["Forward"]);
         addAction(actions["Reverse"]);
         addAction(actions["TogglePlayback"]);
+        _loopMenu = addSubMenu("Loop");
+        _loopMenu->addAction(actions["PlaybackLoop"]);
+        _loopMenu->addAction(actions["PlaybackOnce"]);
+        _loopMenu->addAction(actions["PlaybackPingPong"]);
         addDivider();
         addAction(actions["StartFrame"]);
         addAction(actions["PrevFrame"]);
