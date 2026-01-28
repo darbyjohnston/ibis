@@ -5,54 +5,83 @@
 
 #include "App.h"
 
+#include <ibis/UI/NodeBrowser.h>
+#include <ibis/UI/NodeEditor.h>
+#include <ibis/UI/NodeGraphCanvas.h>
+#include <ibis/UI/TimelineWidget.h>
+#include <ibis/UI/Viewport.h>
+
+#include <ibis/Models/Document.h>
+
 #include <ftk/UI/Divider.h>
+#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/Splitter.h>
+#include <ftk/UI/TabWidget.h>
 
 namespace ibis
 {
+    struct DocumentWidget::Private
+    {
+        std::shared_ptr<ui::Viewport> viewport;
+        std::shared_ptr<ui::NodeGraphCanvas> nodeGraphCanvas;
+        std::shared_ptr<ui::TimelineWidget> timelineWidget;
+        std::shared_ptr<ui::NodeBrowser> nodeBrowser;
+        std::shared_ptr<ui::NodeEditor> nodeEditor;
+        std::shared_ptr<ftk::Splitter> splitterH;
+        std::shared_ptr<ftk::Splitter> splitterV;
+        std::shared_ptr<ftk::TabWidget> tabWidget;
+        std::shared_ptr<ftk::VerticalLayout> layout;
+    };
+
     void DocumentWidget::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
         const std::shared_ptr<models::Document>& document)
     {
         ftk::IWidget::_init(context, "DocumentWidget", nullptr);
+        FTK_P();
 
-        _viewport = ui::Viewport::create(context, document);
+        p.viewport = ui::Viewport::create(context, document);
 
-        _nodeGraphCanvas = ui::NodeGraphCanvas::create(
+        p.nodeGraphCanvas = ui::NodeGraphCanvas::create(
             context,
             document,
             app->getNodeFactory());
 
-        _timelineWidget = ui::TimelineWidget::create(
+        p.timelineWidget = ui::TimelineWidget::create(
             context,
             app->getTimeUnitsModel(),
             document->getTimeModel());
 
-        _nodeBrowser = ui::NodeBrowser::create(
+        p.nodeBrowser = ui::NodeBrowser::create(
             context,
             app->getNodeFactory());
 
-        _nodeEditor = ui::NodeEditor::create(
+        p.nodeEditor = ui::NodeEditor::create(
             context,
             app->getNodeWidgetFactory(),
             document);
 
-        _layout = ftk::VerticalLayout::create(context, shared_from_this());
-        _layout->setSpacingRole(ftk::SizeRole::None);
-        _splitterH = ftk::Splitter::create(context, ftk::Orientation::Horizontal, _layout);
-        _splitterH->setSplit(.8F);
-        auto vLayout = ftk::VerticalLayout::create(context, _splitterH);
+        p.layout = ftk::VerticalLayout::create(context, shared_from_this());
+        p.layout->setSpacingRole(ftk::SizeRole::None);
+        p.splitterH = ftk::Splitter::create(context, ftk::Orientation::Horizontal, p.layout);
+        p.splitterH->setSplit(.8F);
+        auto vLayout = ftk::VerticalLayout::create(context, p.splitterH);
         vLayout->setSpacingRole(ftk::SizeRole::None);
-        _splitterV = ftk::Splitter::create(context, ftk::Orientation::Vertical, vLayout);
-        _splitterV->setSplit(.6F);
-        _viewport->setParent(_splitterV);
-        _nodeGraphCanvas->setParent(_splitterV);
+        p.splitterV = ftk::Splitter::create(context, ftk::Orientation::Vertical, vLayout);
+        p.splitterV->setSplit(.6F);
+        p.viewport->setParent(p.splitterV);
+        p.nodeGraphCanvas->setParent(p.splitterV);
         ftk::Divider::create(context, ftk::Orientation::Vertical, vLayout);
-        _timelineWidget->setParent(vLayout);
-        _tabWidget = ftk::TabWidget::create(context, _splitterH);
-        _tabWidget->addTab("Node Browser", _nodeBrowser);
-        _tabWidget->addTab("Node Editor", _nodeEditor);
+        p.timelineWidget->setParent(vLayout);
+        p.tabWidget = ftk::TabWidget::create(context, p.splitterH);
+        p.tabWidget->addTab("Node Browser", p.nodeBrowser);
+        p.tabWidget->addTab("Node Editor", p.nodeEditor);
     }
+
+    DocumentWidget::DocumentWidget() :
+        _p(new Private)
+    {}
 
     DocumentWidget::~DocumentWidget()
     {}
@@ -67,14 +96,19 @@ namespace ibis
         return out;
     }
 
+    std::shared_ptr<ui::Viewport> DocumentWidget::getViewport() const
+    {
+        return _p->viewport;
+    }
+
     ftk::Size2I DocumentWidget::getSizeHint() const
     {
-        return _layout->getSizeHint();
+        return _p->layout->getSizeHint();
     }
 
     void DocumentWidget::setGeometry(const ftk::Box2I& value)
     {
         IWidget::setGeometry(value);
-        _layout->setGeometry(value);
+        _p->layout->setGeometry(value);
     }
 }

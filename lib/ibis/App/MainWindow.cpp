@@ -32,6 +32,8 @@ namespace ibis
 {
     struct MainWindow::Private
     {
+        std::shared_ptr<ftk::Observable<std::shared_ptr<DocumentWidget> > > currentWidget;
+
         std::shared_ptr<FileActions> fileActions;
         std::shared_ptr<EditActions> editActions;
         std::shared_ptr<TimeActions> timeActions;
@@ -44,7 +46,8 @@ namespace ibis
         std::shared_ptr<ftk::VerticalLayout> layout;
 
         std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > documentsObserver;
-        std::shared_ptr<ftk::Observer<int> > currentObserver;
+        std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > currentObserver;
+        std::shared_ptr<ftk::Observer<int> > currentIndexObserver;
     };
 
     void MainWindow::_init(
@@ -56,6 +59,8 @@ namespace ibis
 
         auto iconSystem = context->getSystem<ftk::IconSystem>();
         setIcon(iconSystem->get("ibis", 1.0));
+
+        p.currentWidget = ftk::Observable<std::shared_ptr<DocumentWidget> >::create();
 
         auto mainWindow = std::dynamic_pointer_cast<MainWindow>(shared_from_this());
         p.fileActions = FileActions::create(context, app, mainWindow);
@@ -135,7 +140,17 @@ namespace ibis
                 p.stackLayout->setCurrentWidget(currentWidget);
             });
 
-        p.currentObserver = ftk::Observer<int>::create(
+        p.currentObserver = ftk::Observer<std::shared_ptr<models::Document> >::create(
+            app->getDocumentModel()->observeCurrent(),
+            [this](const std::shared_ptr<models::Document>& value)
+            {
+                FTK_P();
+                std::shared_ptr<DocumentWidget> currentWidget;
+                const auto i = p.widgets.find(value);
+                p.currentWidget->setIfChanged(i != p.widgets.end() ? i->second : nullptr);
+            });
+
+        p.currentIndexObserver = ftk::Observer<int>::create(
             app->getDocumentModel()->observeCurrentIndex(),
             [this](int value)
             {
@@ -164,6 +179,16 @@ namespace ibis
     int MainWindow::getCurrentTab() const
     {
         return _p->tabBar->getCurrentTab();
+    }
+
+    std::shared_ptr<DocumentWidget> MainWindow::getDocumentWidget() const
+    {
+        return _p->currentWidget->get();
+    }
+
+    std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > MainWindow::observeDocumentWidget() const
+    {
+        return _p->currentWidget;
     }
 
     void MainWindow::dropEvent(ftk::DragDropEvent& event)

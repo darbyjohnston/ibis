@@ -7,11 +7,6 @@
 
 namespace ibis
 {
-    namespace models
-    {
-        class Document;
-    }
-
     class App;
     class MainWindow;
 

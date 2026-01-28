@@ -17,6 +17,7 @@ namespace ibis
         ftk::Menu::_init(context, parent);
 
         auto actions = windowActions->getActions();
+        addAction(actions["FullScreen"]);
     }
 
     WindowMenu::~WindowMenu()

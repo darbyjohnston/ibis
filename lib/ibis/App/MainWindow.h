@@ -8,6 +8,7 @@
 namespace ibis
 {
     class App;
+    class DocumentWidget;
 
     //! Main window.
     class MainWindow : public ftk::MainWindow
@@ -29,6 +30,9 @@ namespace ibis
             const std::shared_ptr<App>&);
 
         int getCurrentTab() const;
+
+        std::shared_ptr<DocumentWidget> getDocumentWidget() const;
+        std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > observeDocumentWidget() const;
 
         void dropEvent(ftk::DragDropEvent&) override;
 

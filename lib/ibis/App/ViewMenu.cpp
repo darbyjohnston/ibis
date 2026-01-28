@@ -17,6 +17,10 @@ namespace ibis
         ftk::Menu::_init(context, parent);
 
         auto actions = viewActions->getActions();
+        addAction(actions["Frame"]);
+        addAction(actions["ZoomReset"]);
+        addAction(actions["ZoomIn"]);
+        addAction(actions["ZoomOut"]);
     }
 
     ViewMenu::~ViewMenu()

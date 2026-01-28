@@ -6,15 +6,13 @@
 #include "App.h"
 #include "MainWindow.h"
 
-#include <ibis/Models/DocumentModel.h>
-
 namespace ibis
 {
     struct WindowActions::Private
     {
         std::map<std::string, std::shared_ptr<ftk::Action> > actions;
 
-        std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > currentObserver;
+        std::shared_ptr<ftk::Observer<bool> > fullScreenObserver;
     };
 
     void WindowActions::_init(
@@ -24,12 +22,25 @@ namespace ibis
     {
         FTK_P();
 
-        auto appWeak = std::weak_ptr<App>(app);
-
-        p.currentObserver = ftk::Observer<std::shared_ptr<models::Document> >::create(
-            app->getDocumentModel()->observeCurrent(),
-            [this](const std::shared_ptr<models::Document>& value)
+        auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+        p.actions["FullScreen"] = ftk::Action::create(
+            "Full Screen",
+            "WindowFullScreen",
+            ftk::KeyShortcut(ftk::Key::U, static_cast<int>(ftk::commandKeyModifier)),
+            [mainWindowWeak](bool value)
             {
+                if (auto mainWindow = mainWindowWeak.lock())
+                {
+                    mainWindow->setFullScreen(value);
+                }
+            });
+        p.actions["FullScreen"]->setTooltip("Toggle the window full screen mode.");
+
+        p.fullScreenObserver = ftk::Observer<bool>::create(
+            mainWindow->observeFullScreen(),
+            [this](bool value)
+            {
+                _p->actions["FullScreen"]->setChecked(value);
             });
     }
 
