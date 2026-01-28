@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <ibis/Models/Document.h>
-
 #include <ftk/UI/Action.h>
 
 namespace ibis
@@ -28,7 +26,7 @@ namespace ibis
             const std::shared_ptr<App>&,
             const std::shared_ptr<MainWindow>&);
 
-        EditActions() = default;
+        EditActions();
 
     public:
         ~EditActions();
@@ -41,11 +39,6 @@ namespace ibis
         const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
     private:
-        std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
-
-        std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > _currentObserver;
-        std::shared_ptr<ftk::Observer<bool> > _hasUndoObserver;
-        std::shared_ptr<ftk::Observer<bool> > _hasRedoObserver;
-        std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > _selectionObserver;
+        FTK_PRIVATE();
     };
 }

@@ -8,6 +8,12 @@
 
 namespace ibis
 {
+    struct FileMenu::Private
+    {
+        std::vector<std::shared_ptr<ftk::Action> > recentActions;
+        std::shared_ptr<ftk::Menu> recentMenu;
+    };
+
     void FileMenu::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
@@ -15,6 +21,7 @@ namespace ibis
         const std::shared_ptr<IWidget>& parent)
     {
         ftk::Menu::_init(context, parent);
+        FTK_P();
 
         auto actions = fileActions->getActions();
         addAction(actions["New"]);
@@ -22,10 +29,14 @@ namespace ibis
         addAction(actions["Save"]);
         addAction(actions["Close"]);
         addAction(actions["CloseAll"]);
-        _recentMenu = addSubMenu("Recent");
+        p.recentMenu = addSubMenu("Recent");
         addDivider();
         addAction(actions["Exit"]);
     }
+
+    FileMenu::FileMenu() :
+        _p(new Private)
+    {}
 
     FileMenu::~FileMenu()
     {}

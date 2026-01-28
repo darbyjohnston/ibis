@@ -5,20 +5,47 @@
 
 #include "MainWindow.h"
 
+#include <ibis/UI/NodeWidgetFactory.h>
+
+#include <ibis/Models/DocumentModel.h>
+#include <ibis/Models/TimeUnitsModel.h>
+
+#include <ibis/Render/NodeFactory.h>
+
 #include <ibis/UI/Init.h>
 #include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ftk/UI/DialogSystem.h>
 #include <ftk/UI/FileBrowser.h>
 #include <ftk/Core/FileIO.h>
+#include <ftk/Core/CmdLine.h>
 
 namespace ibis
 {
+    struct App::Private
+    {
+        struct CmdLine
+        {
+            std::shared_ptr<ftk::CmdLineListArg<std::string> > inputs;
+        };
+        CmdLine cmdLine;
+
+        std::shared_ptr<ftk::RecentFilesModel> recentFilesModel;
+        std::shared_ptr<models::TimeUnitsModel> timeUnitsModel;
+        std::shared_ptr<render::NodeFactory> nodeFactory;
+        std::shared_ptr<ui::NodeWidgetFactory> nodeWidgetFactory;
+        std::shared_ptr<models::DocumentModel> documentModel;
+
+        std::shared_ptr<MainWindow> window;
+    };
+
     void App::_init(
         const std::shared_ptr<ftk::Context>& context,
         std::vector<std::string>& argv)
     {
-        _cmdLine.inputs = ftk::CmdLineListArg<std::string>::create(
+        FTK_P();
+        
+        p.cmdLine.inputs = ftk::CmdLineListArg<std::string>::create(
             "input",
             "One or more files to open.",
             true);
@@ -28,8 +55,12 @@ namespace ibis
             argv,
             "ibis",
             "ibis compositor",
-            { _cmdLine.inputs });
+            { p.cmdLine.inputs });
     }
+
+    App::App() :
+        _p(new Private)
+    {}
 
     App::~App()
     {}
@@ -45,36 +76,37 @@ namespace ibis
 
     const std::shared_ptr<ftk::RecentFilesModel>& App::getRecentFilesModel() const
     {
-        return _recentFilesModel;
+        return _p->recentFilesModel;
     }
 
     const std::shared_ptr<models::TimeUnitsModel>& App::getTimeUnitsModel() const
     {
-        return _timeUnitsModel;
+        return _p->timeUnitsModel;
     }
 
     const std::shared_ptr<render::NodeFactory>& App::getNodeFactory() const
     {
-        return _nodeFactory;
+        return _p->nodeFactory;
     }
 
     const std::shared_ptr<ui::NodeWidgetFactory>& App::getNodeWidgetFactory() const
     {
-        return _nodeWidgetFactory;
+        return _p->nodeWidgetFactory;
     }
 
     const std::shared_ptr<models::DocumentModel>& App::getDocumentModel() const
     {
-        return _documentModel;
+        return _p->documentModel;
     }
 
     void App::newDocument()
     {
-        _documentModel->add(models::Document::create(_context));
+        _p->documentModel->add(models::Document::create(_context));
     }
 
     void App::open(const ftk::Path& path)
     {
+        FTK_P();
         try
         {
             const std::string fileName = path.get();
@@ -85,22 +117,23 @@ namespace ibis
                 _context,
                 std::filesystem::u8path(fileName),
                 json,
-                _nodeFactory);
-            _documentModel->add(document);
-            _recentFilesModel->addRecent(fileName);
+                p.nodeFactory);
+            p.documentModel->add(document);
+            p.recentFilesModel->addRecent(fileName);
         }
         catch (const std::exception& e)
         {
             auto dialogSystem = _context->getSystem<ftk::DialogSystem>();
-            dialogSystem->message("ERROR", e.what(), _window);
+            dialogSystem->message("ERROR", e.what(), p.window);
         }
     }
 
     void App::open()
     {
+        FTK_P();
         auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
         fileBrowserSystem->open(
-            _window,
+            p.window,
             [this](const ftk::Path& value)
             {
                 open(value);
@@ -109,7 +142,8 @@ namespace ibis
 
     void App::save()
     {
-        if (auto document = _documentModel->getCurrent())
+        FTK_P();
+        if (auto document = p.documentModel->getCurrent())
         {
             try
             {
@@ -120,33 +154,31 @@ namespace ibis
             catch (const std::exception& e)
             {
                 auto dialogSystem = _context->getSystem<ftk::DialogSystem>();
-                dialogSystem->message("ERROR", e.what(), _window);
+                dialogSystem->message("ERROR", e.what(), p.window);
             }
         }
     }
 
     void App::run()
     {
+        FTK_P();
+
         ui::init(_context);
 
-        _recentFilesModel = ftk::RecentFilesModel::create(_context);
-
-        _timeUnitsModel = models::TimeUnitsModel::create(_context);
-
-        _nodeFactory = render::NodeFactory::create(_context);
-
-        _nodeWidgetFactory = ui::NodeWidgetFactory::create(_context);
-
-        _documentModel = models::DocumentModel::create(_context);
+        p.recentFilesModel = ftk::RecentFilesModel::create(_context);
+        p.timeUnitsModel = models::TimeUnitsModel::create(_context);
+        p.nodeFactory = render::NodeFactory::create(_context);
+        p.nodeWidgetFactory = ui::NodeWidgetFactory::create(_context);
+        p.documentModel = models::DocumentModel::create(_context);
 
         auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
-        fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
+        fileBrowserSystem->setRecentFilesModel(p.recentFilesModel);
 
-        _window = MainWindow::create(
+        p.window = MainWindow::create(
             _context,
             std::dynamic_pointer_cast<App>(shared_from_this()));
         
-        for (const auto& input : _cmdLine.inputs->getList())
+        for (const auto& input : p.cmdLine.inputs->getList())
         {
             open(ftk::Path(input));
         }

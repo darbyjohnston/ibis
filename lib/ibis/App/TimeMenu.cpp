@@ -8,6 +8,11 @@
 
 namespace ibis
 {
+    struct TimeMenu::Private
+    {
+        std::shared_ptr<ftk::Menu> loopMenu;
+    };
+
     void TimeMenu::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
@@ -15,22 +20,27 @@ namespace ibis
         const std::shared_ptr<IWidget>& parent)
     {
         ftk::Menu::_init(context, parent);
+        FTK_P();
 
         auto actions = timeActions->getActions();
         addAction(actions["Stop"]);
         addAction(actions["Forward"]);
         addAction(actions["Reverse"]);
         addAction(actions["TogglePlayback"]);
-        _loopMenu = addSubMenu("Loop");
-        _loopMenu->addAction(actions["PlaybackLoop"]);
-        _loopMenu->addAction(actions["PlaybackOnce"]);
-        _loopMenu->addAction(actions["PlaybackPingPong"]);
+        p.loopMenu = addSubMenu("Loop");
+        p.loopMenu->addAction(actions["PlaybackLoop"]);
+        p.loopMenu->addAction(actions["PlaybackOnce"]);
+        p.loopMenu->addAction(actions["PlaybackPingPong"]);
         addDivider();
         addAction(actions["StartFrame"]);
         addAction(actions["PrevFrame"]);
         addAction(actions["NextFrame"]);
         addAction(actions["EndFrame"]);
     }
+
+    TimeMenu::TimeMenu() :
+        _p(new Private)
+    {}
 
     TimeMenu::~TimeMenu()
     {}

@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <ibis/Models/Document.h>
-
 #include <ftk/UI/Menu.h>
 
 namespace ibis

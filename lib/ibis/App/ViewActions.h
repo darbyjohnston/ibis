@@ -3,19 +3,22 @@
 
 #pragma once
 
-#include <ibis/Models/Document.h>
-
 #include <ftk/UI/Action.h>
 
 namespace ibis
 {
+    namespace models
+    {
+        class Document;
+    }
+
     class App;
     class MainWindow;
 
-    //! File actions.
-    class FileActions : public std::enable_shared_from_this<FileActions>
+    //! View actions.
+    class ViewActions : public std::enable_shared_from_this<ViewActions>
     {
-        FTK_NON_COPYABLE(FileActions);
+        FTK_NON_COPYABLE(ViewActions);
 
     protected:
         void _init(
@@ -23,12 +26,12 @@ namespace ibis
             const std::shared_ptr<App>&,
             const std::shared_ptr<MainWindow>&);
 
-        FileActions() = default;
+        ViewActions();
 
     public:
-        ~FileActions();
+        ~ViewActions();
 
-        static std::shared_ptr<FileActions> create(
+        static std::shared_ptr<ViewActions> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
             const std::shared_ptr<MainWindow>&);
@@ -36,8 +39,6 @@ namespace ibis
         const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
     private:
-        std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
-
-        std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > _documentsObserver;
+        FTK_PRIVATE();
     };
 }

@@ -10,31 +10,32 @@
 namespace ibis
 {
     class App;
-    class WindowActions;
+    class TimeActions;
 
-    //! Window menu.
-    class WindowMenu : public ftk::Menu
+    //! Time menu.
+    class TimeMenu : public ftk::Menu
     {
-        FTK_NON_COPYABLE(WindowMenu);
+        FTK_NON_COPYABLE(TimeMenu);
 
     protected:
         void _init(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<WindowActions>&,
+            const std::shared_ptr<TimeActions>&,
             const std::shared_ptr<IWidget>& parent);
 
-        WindowMenu() = default;
+        TimeMenu();
 
     public:
-        ~WindowMenu();
+        ~TimeMenu();
 
-        static std::shared_ptr<WindowMenu> create(
+        static std::shared_ptr<TimeMenu> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<WindowActions>&,
+            const std::shared_ptr<TimeActions>&,
             const std::shared_ptr<IWidget>& parent = nullptr);
 
     private:
+        FTK_PRIVATE();
     };
 }

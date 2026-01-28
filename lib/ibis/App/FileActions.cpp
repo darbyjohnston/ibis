@@ -6,15 +6,26 @@
 #include "App.h"
 #include "MainWindow.h"
 
+#include <ibis/Models/DocumentModel.h>
+
 namespace ibis
 {
+    struct FileActions::Private
+    {
+        std::map<std::string, std::shared_ptr<ftk::Action> > actions;
+
+        std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > documentsObserver;
+    };
+
     void FileActions::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
         const std::shared_ptr<MainWindow>& mainWindow)
     {
+        FTK_P();
+
         auto appWeak = std::weak_ptr<App>(app);
-        _actions["New"] = ftk::Action::create(
+        p.actions["New"] = ftk::Action::create(
             "New",
             "FileNew",
             ftk::KeyShortcut(ftk::Key::N, ftk::commandKeyModifier),
@@ -22,9 +33,9 @@ namespace ibis
             {
                 appWeak.lock()->newDocument();
             });
-        _actions["New"]->setTooltip("Create a new file.");
+        p.actions["New"]->setTooltip("Create a new file.");
 
-        _actions["Open"] = ftk::Action::create(
+        p.actions["Open"] = ftk::Action::create(
             "Open",
             "FileOpen",
             ftk::KeyShortcut(ftk::Key::O, ftk::commandKeyModifier),
@@ -32,9 +43,9 @@ namespace ibis
             {
                 appWeak.lock()->open();
             });
-        _actions["Open"]->setTooltip("Open a file.");
+        p.actions["Open"]->setTooltip("Open a file.");
 
-        _actions["Save"] = ftk::Action::create(
+        p.actions["Save"] = ftk::Action::create(
             "Save",
             "FileSave",
             ftk::KeyShortcut(ftk::Key::S, ftk::commandKeyModifier),
@@ -42,10 +53,10 @@ namespace ibis
             {
                 appWeak.lock()->save();
             });
-        _actions["Save"]->setTooltip("Save the current file.");
+        p.actions["Save"]->setTooltip("Save the current file.");
 
         std::weak_ptr<MainWindow> mainWindowWeak(mainWindow);
-        _actions["Close"] = ftk::Action::create(
+        p.actions["Close"] = ftk::Action::create(
             "Close",
             "FileClose",
             ftk::KeyShortcut(ftk::Key::E, ftk::commandKeyModifier),
@@ -54,9 +65,9 @@ namespace ibis
                 appWeak.lock()->getDocumentModel()->close(
                     mainWindowWeak.lock()->getCurrentTab());
             });
-        _actions["Close"]->setTooltip("Close the current file.");
+        p.actions["Close"]->setTooltip("Close the current file.");
 
-        _actions["CloseAll"] = ftk::Action::create(
+        p.actions["CloseAll"] = ftk::Action::create(
             "Close All",
             "FileCloseAll",
             ftk::KeyShortcut(ftk::Key::E, ftk::commandKeyModifier, ftk::KeyModifier::Shift),
@@ -64,9 +75,9 @@ namespace ibis
             {
                 appWeak.lock()->getDocumentModel()->closeAll();
             });
-        _actions["CloseAll"]->setTooltip("Close all files.");
+        p.actions["CloseAll"]->setTooltip("Close all files.");
 
-        _actions["Exit"] = ftk::Action::create(
+        p.actions["Exit"] = ftk::Action::create(
             "Exit",
             ftk::KeyShortcut(ftk::Key::Q, ftk::commandKeyModifier),
             [appWeak]
@@ -77,14 +88,19 @@ namespace ibis
                 }
             });
 
-        _documentsObserver = ftk::ListObserver<std::shared_ptr<models::Document> >::create(
+        p.documentsObserver = ftk::ListObserver<std::shared_ptr<models::Document> >::create(
             app->getDocumentModel()->observe(),
             [this, appWeak](const std::vector<std::shared_ptr<models::Document> >& value)
             {
-                _actions["Close"]->setEnabled(!value.empty());
-                _actions["CloseAll"]->setEnabled(!value.empty());
+                FTK_P();
+                p.actions["Close"]->setEnabled(!value.empty());
+                p.actions["CloseAll"]->setEnabled(!value.empty());
             });
     }
+
+    FileActions::FileActions() :
+        _p(new Private)
+    {}
 
     FileActions::~FileActions()
     {}
@@ -101,6 +117,6 @@ namespace ibis
 
     const std::map<std::string, std::shared_ptr<ftk::Action> >& FileActions::getActions() const
     {
-        return _actions;
+        return _p->actions;
     }
 }

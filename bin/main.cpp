@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis project.
 
-#include "App.h"
+#include <ibis/App/App.h>
 
 int main(int argc, char* argv[])
 {

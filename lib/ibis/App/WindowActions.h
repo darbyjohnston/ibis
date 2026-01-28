@@ -15,10 +15,10 @@ namespace ibis
     class App;
     class MainWindow;
 
-    //! View actions.
-    class ViewActions : public std::enable_shared_from_this<ViewActions>
+    //! Window actions.
+    class WindowActions : public std::enable_shared_from_this<WindowActions>
     {
-        FTK_NON_COPYABLE(ViewActions);
+        FTK_NON_COPYABLE(WindowActions);
 
     protected:
         void _init(
@@ -26,12 +26,12 @@ namespace ibis
             const std::shared_ptr<App>&,
             const std::shared_ptr<MainWindow>&);
 
-        ViewActions() = default;
+        WindowActions();
 
     public:
-        ~ViewActions();
+        ~WindowActions();
 
-        static std::shared_ptr<ViewActions> create(
+        static std::shared_ptr<WindowActions> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
             const std::shared_ptr<MainWindow>&);
@@ -39,8 +39,6 @@ namespace ibis
         const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
     private:
-        std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
-
-        std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > _currentObserver;
+        FTK_PRIVATE();
     };
 }

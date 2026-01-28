@@ -3,39 +3,37 @@
 
 #pragma once
 
-#include <ibis/Models/Document.h>
-
 #include <ftk/UI/Menu.h>
 
 namespace ibis
 {
     class App;
-    class TimeActions;
+    class FileActions;
 
-    //! Time menu.
-    class TimeMenu : public ftk::Menu
+    //! File menu.
+    class FileMenu : public ftk::Menu
     {
-        FTK_NON_COPYABLE(TimeMenu);
+        FTK_NON_COPYABLE(FileMenu);
 
     protected:
         void _init(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<TimeActions>&,
+            const std::shared_ptr<FileActions>&,
             const std::shared_ptr<IWidget>& parent);
 
-        TimeMenu() = default;
+        FileMenu();
 
     public:
-        ~TimeMenu();
+        ~FileMenu();
 
-        static std::shared_ptr<TimeMenu> create(
+        static std::shared_ptr<FileMenu> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<TimeActions>&,
+            const std::shared_ptr<FileActions>&,
             const std::shared_ptr<IWidget>& parent = nullptr);
 
     private:
-        std::shared_ptr<ftk::Menu> _loopMenu;
+        FTK_PRIVATE();
     };
 }
