@@ -7,14 +7,18 @@
 #include "DocumentWidget.h"
 #include "EditActions.h"
 #include "EditMenu.h"
+#include "EditToolBar.h"
 #include "FileActions.h"
 #include "FileMenu.h"
+#include "FileToolBar.h"
 #include "TimeActions.h"
 #include "TimeMenu.h"
 #include "ViewActions.h"
 #include "ViewMenu.h"
+#include "ViewToolBar.h"
 #include "WindowActions.h"
 #include "WindowMenu.h"
+#include "WindowToolBar.h"
 
 #include <ibis/Models/DocumentModel.h>
 
@@ -77,6 +81,11 @@ namespace ibis
         p.menuBar->addMenu("View", ViewMenu::create(context, app, p.viewActions));
         setMenuBar(p.menuBar);
 
+        auto fileToolBar = FileToolBar::create(context, app, p.fileActions);
+        auto editToolBar = EditToolBar::create(context, app, p.editActions);
+        auto windowToolBar = WindowToolBar::create(context, app, p.windowActions);
+        auto viewToolBar = ViewToolBar::create(context, app, p.viewActions);
+
         p.tabBar = ftk::TabBar::create(context);
         p.tabBar->setTabsClosable(true);
 
@@ -85,6 +94,15 @@ namespace ibis
 
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);
+        auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
+        fileToolBar->setParent(hLayout);
+        ftk::Divider::create(context, ftk::Orientation::Horizontal, hLayout);
+        editToolBar->setParent(hLayout);
+        ftk::Divider::create(context, ftk::Orientation::Horizontal, hLayout);
+        windowToolBar->setParent(hLayout);
+        ftk::Divider::create(context, ftk::Orientation::Horizontal, hLayout);
+        viewToolBar->setParent(hLayout);
+        ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.tabBar->setParent(p.layout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.stackLayout->setParent(p.layout);

@@ -91,7 +91,7 @@ namespace ibis
         p.actions["StartFrame"] = ftk::Action::create(
             "Start Frame",
             "FrameStart",
-            ftk::KeyShortcut(ftk::Key::Down),
+            ftk::KeyShortcut(ftk::Key::Up),
             [appWeak]
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())
@@ -127,7 +127,7 @@ namespace ibis
         p.actions["EndFrame"] = ftk::Action::create(
             "End Frame",
             "FrameEnd",
-            ftk::KeyShortcut(ftk::Key::Up),
+            ftk::KeyShortcut(ftk::Key::Down),
             [appWeak]
             {
                 if (auto document = appWeak.lock()->getDocumentModel()->getCurrent())

@@ -3,30 +3,38 @@ set(HEADERS
     DocumentWidget.h
     EditActions.h
     EditMenu.h
+    EditToolBar.h
     FileActions.h
     FileMenu.h
+    FileToolBar.h
     MainWindow.h
     TimeActions.h
     TimeMenu.h
     ViewActions.h
     ViewMenu.h
+    ViewToolBar.h
     WindowActions.h
-    WindowMenu.h)
+    WindowMenu.h
+    WindowToolBar.h)
 
 set(SOURCE
     App.cpp
     DocumentWidget.cpp
     EditActions.cpp
     EditMenu.cpp
+    EditToolBar.cpp
     FileActions.cpp
     FileMenu.cpp
+    FileToolBar.cpp
     MainWindow.cpp
     TimeActions.cpp
     TimeMenu.cpp
     ViewActions.cpp
     ViewMenu.cpp
+    ViewToolBar.cpp
     WindowActions.cpp
-    WindowMenu.cpp)
+    WindowMenu.cpp
+    WindowToolBar.cpp)
 
 set(LIBRARIES ibisUI)
 
