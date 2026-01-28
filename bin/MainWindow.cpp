@@ -11,6 +11,10 @@
 #include "FileMenu.h"
 #include "TimeActions.h"
 #include "TimeMenu.h"
+#include "ViewActions.h"
+#include "ViewMenu.h"
+#include "WindowActions.h"
+#include "WindowMenu.h"
 
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/IconSystem.h>
@@ -32,11 +36,15 @@ namespace ibis
         _fileActions = FileActions::create(context, app, mainWindow);
         _editActions = EditActions::create(context, app, mainWindow);
         _timeActions = TimeActions::create(context, app);
+        _windowActions = WindowActions::create(context, app, mainWindow);
+        _viewActions = ViewActions::create(context, app, mainWindow);
 
         _menuBar = ftk::MenuBar::create(context);
         _menuBar->addMenu("File", FileMenu::create(context, app, _fileActions));
         _menuBar->addMenu("Edit", EditMenu::create(context, app, _editActions));
         _menuBar->addMenu("Time", TimeMenu::create(context, app, _timeActions));
+        _menuBar->addMenu("Window", WindowMenu::create(context, app, _windowActions));
+        _menuBar->addMenu("View", ViewMenu::create(context, app, _viewActions));
         setMenuBar(_menuBar);
 
         _tabBar = ftk::TabBar::create(context);

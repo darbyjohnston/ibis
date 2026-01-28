@@ -19,6 +19,8 @@ namespace ibis
     class EditActions;
     class FileActions;
     class TimeActions;
+    class ViewActions;
+    class WindowActions;
 
     //! Main window.
     class MainWindow : public ftk::MainWindow
@@ -47,6 +49,8 @@ namespace ibis
         std::shared_ptr<FileActions> _fileActions;
         std::shared_ptr<EditActions> _editActions;
         std::shared_ptr<TimeActions> _timeActions;
+        std::shared_ptr<WindowActions> _windowActions;
+        std::shared_ptr<ViewActions> _viewActions;
         std::map<std::shared_ptr<models::Document>, std::shared_ptr<DocumentWidget> > _widgets;
         std::shared_ptr<ftk::MenuBar> _menuBar;
         std::shared_ptr<ftk::TabBar> _tabBar;
