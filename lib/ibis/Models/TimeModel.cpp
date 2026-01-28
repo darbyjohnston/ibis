@@ -41,7 +41,7 @@ namespace ibis
         {
             FTK_P();
 
-            p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 60.0 * 24.0, 24.0));
+            p.timeRange = ftk::Observable<OTIO_NS::TimeRange>::create(OTIO_NS::TimeRange(0.0, 10.0 * 24.0, 24.0));
             p.currentTime = ftk::Observable<OTIO_NS::RationalTime>::create(OTIO_NS::RationalTime(0.0, 24.0));
             p.playback = ftk::Observable<Playback>::create(Playback::Stop);
             p.loop = ftk::Observable<PlaybackLoop>::create(PlaybackLoop::Loop);

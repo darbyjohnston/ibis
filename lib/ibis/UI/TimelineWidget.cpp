@@ -7,10 +7,12 @@
 #include <ibis/UI/PlaybackToolBar.h>
 #include <ibis/UI/TimeEdit.h>
 #include <ibis/UI/TimeLabel.h>
+#include <ibis/UI/TimeSlider.h>
 #include <ibis/UI/TimeUnitsWidget.h>
 
 #include <ibis/Models/TimeModel.h>
 
+#include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -19,13 +21,14 @@ namespace ibis
     {
         struct TimelineWidget::Private
         {
+            std::shared_ptr<ui::TimeSlider> timeSlider;
             std::shared_ptr<ui::PlaybackToolBar> playbackToolBar;
             std::shared_ptr<ui::FrameToolBar> frameToolBar;
             std::shared_ptr<ui::TimeEdit> currentTimeEdit;
             std::shared_ptr<ui::TimeEdit> startTimeEdit;
             std::shared_ptr<ui::TimeEdit> durationEdit;
             std::shared_ptr<ui::TimeUnitsWidget> timeUnitsWidget;
-            std::shared_ptr<ftk::HorizontalLayout> layout;
+            std::shared_ptr<ftk::VerticalLayout> layout;
 
             std::shared_ptr<ftk::Observer<OTIO_NS::TimeRange> > timeRangeObserver;
             std::shared_ptr<ftk::Observer<OTIO_NS::RationalTime> > currentTimeObserver;
@@ -40,6 +43,7 @@ namespace ibis
             IWidget::_init(context, "ibis::TimelineWidget", parent);
             FTK_P();
 
+            p.timeSlider = ui::TimeSlider::create(context, timeUnitsModel, timeModel);
             p.playbackToolBar = ui::PlaybackToolBar::create(context, timeModel);
             p.frameToolBar = ui::FrameToolBar::create(context, timeModel);
             p.currentTimeEdit = ui::TimeEdit::create(context, timeUnitsModel);
@@ -47,16 +51,20 @@ namespace ibis
             p.durationEdit = ui::TimeEdit::create(context, timeUnitsModel);
             p.timeUnitsWidget = ui::TimeUnitsWidget::create(context, timeUnitsModel);
 
-            p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ftk::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ftk::SizeRole::MarginSmall);
-            p.playbackToolBar->setParent(p.layout);
-            p.frameToolBar->setParent(p.layout);
-            p.currentTimeEdit->setParent(p.layout);
-            p.startTimeEdit->setParent(p.layout);
+            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(ftk::SizeRole::None);
+            p.timeSlider->setParent(p.layout);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
+            auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(ftk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(ftk::SizeRole::MarginSmall);
+            p.playbackToolBar->setParent(hLayout);
+            p.frameToolBar->setParent(hLayout);
+            p.currentTimeEdit->setParent(hLayout);
+            p.startTimeEdit->setParent(hLayout);
             p.layout->addSpacer(ftk::Stretch::Expanding);
-            p.durationEdit->setParent(p.layout);
-            p.timeUnitsWidget->setParent(p.layout);
+            p.durationEdit->setParent(hLayout);
+            p.timeUnitsWidget->setParent(hLayout);
 
             p.currentTimeEdit->setCallback(
                 [timeModel](const OTIO_NS::RationalTime& value)

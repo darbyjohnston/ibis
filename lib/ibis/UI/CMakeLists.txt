@@ -16,6 +16,7 @@ set(HEADERS
     PlaybackToolBar.h
     TimeEdit.h
     TimeLabel.h
+    TimeSlider.h
     TimeUnitsWidget.h
     TimelineWidget.h
     Viewport.h)
@@ -38,6 +39,7 @@ set(SOURCE
     PlaybackToolBar.cpp
     TimeEdit.cpp
     TimeLabel.cpp
+    TimeSlider.cpp
     TimeUnitsWidget.cpp
     TimelineWidget.cpp
     Viewport.cpp)
