@@ -178,7 +178,9 @@ namespace ibis
                         -1.F,
                         1.F);
                     render->setTransform(pm);
-                    render->drawImage(p.image, g);
+                    ftk::ImageOptions imageOptions;
+                    imageOptions.cache = false;
+                    render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
         }
@@ -290,7 +292,9 @@ namespace ibis
                         -1.F,
                         1.F);
                     render->setTransform(pm);
-                    render->drawImage(p.image, g);
+                    ftk::ImageOptions imageOptions;
+                    imageOptions.cache = false;
+                    render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
         }

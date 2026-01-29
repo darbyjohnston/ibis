@@ -3,32 +3,38 @@
 
 #pragma once
 
-#include <ibis/UI/NodeDragDrop.h>
-
-#include <ibis/Render/NodeFactory.h>
-
-#include <ftk/UI/IMouseWidget.h>
+#include <ftk/UI/IWidget.h>
 
 namespace ibis
 {
+    namespace models
+    {
+        class DocumentModel;
+        class TimeUnitsModel;
+    }
+
     namespace ui
     {
-        //! Settings widget.
-        class SettingsWidget : public ftk::IWidget
+        //! Timeline widget.
+        class TimelineWidget : public ftk::IWidget
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::TimeUnitsModel>&,
+                const std::shared_ptr<models::DocumentModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            SettingsWidget();
+            TimelineWidget();
 
         public:
-            virtual ~SettingsWidget();
+            virtual ~TimelineWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<SettingsWidget> create(
+            static std::shared_ptr<TimelineWidget> create(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::TimeUnitsModel>&,
+                const std::shared_ptr<models::DocumentModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;

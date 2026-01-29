@@ -5,7 +5,7 @@
 
 #include "NodeWidgetFactory.h"
 
-#include <ibis/Models/Document.h>
+#include <ibis/Models/DocumentModel.h>
 #include <ibis/Models/NodeSelectionModel.h>
 
 #include <ibis/Render/Graph.h>
@@ -23,13 +23,14 @@ namespace ibis
             std::shared_ptr<ftk::VerticalLayout> layout;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
 
+            std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > currentObserver;
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
         };
 
         void NodeEditor::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<NodeWidgetFactory>& factory,
-            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<models::DocumentModel>& documentModel,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::NodeEditor", parent);
@@ -42,20 +43,35 @@ namespace ibis
             p.scrollWidget->setBorder(false);
             p.scrollWidget->setWidget(p.layout);
 
-            p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
-                document->observeSelection(),
-                [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
+            p.currentObserver = ftk::Observer<std::shared_ptr<models::Document> >::create(
+                documentModel->observeCurrent(),
+                [this, factory](const std::shared_ptr<models::Document>& document)
                 {
                     FTK_P();
-                    p.widgets.clear();
-                    p.layout->clear();
-                    for (const auto& node : selection)
+                    if (document)
                     {
-                        if (auto widget = factory->createWidget(document, node))
-                        {
-                            widget->setParent(p.layout);
-                            p.widgets.push_back(widget);
-                        }
+                        p.selectionObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
+                            document->observeSelection(),
+                            [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
+                            {
+                                FTK_P();
+                                p.widgets.clear();
+                                p.layout->clear();
+                                for (const auto& node : selection)
+                                {
+                                    if (auto widget = factory->createWidget(document, node))
+                                    {
+                                        widget->setParent(p.layout);
+                                        p.widgets.push_back(widget);
+                                    }
+                                }
+                            });
+                    }
+                    else
+                    {
+                        p.widgets.clear();
+                        p.layout->clear();
+                        p.selectionObserver.reset();
                     }
                 });
         }
@@ -70,11 +86,11 @@ namespace ibis
         std::shared_ptr<NodeEditor> NodeEditor::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<NodeWidgetFactory>& factory,
-            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<models::DocumentModel>& documentModel,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeEditor> out(new NodeEditor);
-            out->_init(context, factory, document, parent);
+            out->_init(context, factory, documentModel, parent);
             return out;
         }
 

@@ -9,7 +9,7 @@ namespace ibis
 {
     namespace models
     {
-        class Document;
+        class DocumentModel;
     }
 
     namespace ui
@@ -23,7 +23,7 @@ namespace ibis
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<NodeWidgetFactory>&,
-                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<models::DocumentModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             NodeEditor();
@@ -35,7 +35,7 @@ namespace ibis
             static std::shared_ptr<NodeEditor> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<NodeWidgetFactory>&,
-                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<models::DocumentModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;

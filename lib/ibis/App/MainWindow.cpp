@@ -11,6 +11,7 @@
 #include "FileActions.h"
 #include "FileMenu.h"
 #include "FileToolBar.h"
+#include "SidePanel.h"
 #include "TimeActions.h"
 #include "TimeMenu.h"
 #include "ViewActions.h"
@@ -27,6 +28,7 @@
 #include <ftk/UI/Menu.h>
 #include <ftk/UI/MenuBar.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/Splitter.h>
 #include <ftk/UI/TabBar.h>
 #include <ftk/UI/ToolBar.h>
 #include <ftk/UI/Splitter.h>
@@ -45,8 +47,10 @@ namespace ibis
         std::shared_ptr<ViewActions> viewActions;
         std::map<std::shared_ptr<models::Document>, std::shared_ptr<DocumentWidget> > widgets;
         std::shared_ptr<ftk::MenuBar> menuBar;
-        std::shared_ptr<ftk::TabBar> tabBar;
-        std::shared_ptr<ftk::StackLayout> stackLayout;
+        std::shared_ptr<ftk::TabBar> documentTabBar;
+        std::shared_ptr<ftk::StackLayout> documentLayout;
+        std::shared_ptr<SidePanel> sidePanel;
+        std::shared_ptr<ftk::Splitter> splitter;
         std::shared_ptr<ftk::VerticalLayout> layout;
 
         std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > documentsObserver;
@@ -86,11 +90,13 @@ namespace ibis
         auto windowToolBar = WindowToolBar::create(context, app, p.windowActions);
         auto viewToolBar = ViewToolBar::create(context, app, p.viewActions);
 
-        p.tabBar = ftk::TabBar::create(context);
-        p.tabBar->setTabsClosable(true);
+        p.documentTabBar = ftk::TabBar::create(context);
+        p.documentTabBar->setTabsClosable(true);
 
-        p.stackLayout = ftk::StackLayout::create(context);
-        p.stackLayout->setVStretch(ftk::Stretch::Expanding);
+        p.documentLayout = ftk::StackLayout::create(context);
+        p.documentLayout->setVStretch(ftk::Stretch::Expanding);
+
+        p.sidePanel = SidePanel::create(context, app);
 
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);
@@ -103,19 +109,25 @@ namespace ibis
         ftk::Divider::create(context, ftk::Orientation::Horizontal, hLayout);
         viewToolBar->setParent(hLayout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
-        p.tabBar->setParent(p.layout);
+        p.splitter = ftk::Splitter::create(context, ftk::Orientation::Horizontal, p.layout);
+        p.splitter->setSplit(.8F);
+        auto vLayout = ftk::VerticalLayout::create(context, p.splitter);
+        vLayout->setSpacingRole(ftk::SizeRole::None);
+        p.documentTabBar->setParent(vLayout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
-        p.stackLayout->setParent(p.layout);
+        p.documentLayout->setParent(vLayout);
+        p.sidePanel->setParent(p.splitter);
+
         setWidget(p.layout);
 
         std::weak_ptr<App> appWeak(app);
-        p.tabBar->setCurrentTabCallback(
+        p.documentTabBar->setCurrentTabCallback(
             [appWeak](int index)
             {
                 appWeak.lock()->getDocumentModel()->setCurrent(index);
             });
 
-        p.tabBar->setTabCloseCallback(
+        p.documentTabBar->setTabCloseCallback(
             [appWeak](int index)
             {
                 appWeak.lock()->getDocumentModel()->close(index);
@@ -126,16 +138,16 @@ namespace ibis
             [this, appWeak](const std::vector<std::shared_ptr<models::Document> >& value)
             {
                 FTK_P();
-                auto currentWidget = p.stackLayout->getCurrentWidget();
-                p.tabBar->clear();
-                p.stackLayout->clear();
+                auto currentWidget = p.documentLayout->getCurrentWidget();
+                p.documentTabBar->clear();
+                p.documentLayout->clear();
 
                 std::map<std::shared_ptr<models::Document>, std::shared_ptr<DocumentWidget> > widgets;
                 for (const auto& document : value)
                 {
                     const auto& path = document->getPath();
                     const std::string fileName = path.filename().u8string();
-                    p.tabBar->addTab(fileName, path.u8string());
+                    p.documentTabBar->addTab(fileName, path.u8string());
 
                     std::shared_ptr<DocumentWidget> widget;
                     auto i = p.widgets.find(document);
@@ -151,11 +163,11 @@ namespace ibis
                             document);
                     }
                     widgets[document] = widget;
-                    widget->setParent(p.stackLayout);
+                    widget->setParent(p.documentLayout);
                 }
 
                 p.widgets = widgets;
-                p.stackLayout->setCurrentWidget(currentWidget);
+                p.documentLayout->setCurrentWidget(currentWidget);
             });
 
         p.currentObserver = ftk::Observer<std::shared_ptr<models::Document> >::create(
@@ -173,8 +185,8 @@ namespace ibis
             [this](int value)
             {
                 FTK_P();
-                p.tabBar->setCurrentTab(value);
-                p.stackLayout->setCurrentIndex(value);
+                p.documentTabBar->setCurrentTab(value);
+                p.documentLayout->setCurrentIndex(value);
             });
     }
 
@@ -196,7 +208,7 @@ namespace ibis
 
     int MainWindow::getCurrentTab() const
     {
-        return _p->tabBar->getCurrentTab();
+        return _p->documentTabBar->getCurrentTab();
     }
 
     std::shared_ptr<DocumentWidget> MainWindow::getDocumentWidget() const

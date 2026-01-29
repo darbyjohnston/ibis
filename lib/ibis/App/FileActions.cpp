@@ -93,6 +93,7 @@ namespace ibis
             [this, appWeak](const std::vector<std::shared_ptr<models::Document> >& value)
             {
                 FTK_P();
+                p.actions["Save"]->setEnabled(!value.empty());
                 p.actions["Close"]->setEnabled(!value.empty());
                 p.actions["CloseAll"]->setEnabled(!value.empty());
             });

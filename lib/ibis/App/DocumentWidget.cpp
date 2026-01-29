@@ -5,18 +5,14 @@
 
 #include "App.h"
 
-#include <ibis/UI/NodeBrowser.h>
-#include <ibis/UI/NodeEditor.h>
-#include <ibis/UI/NodeGraphCanvas.h>
 #include <ibis/UI/TimelineWidget.h>
+#include <ibis/UI/NodeGraphCanvas.h>
 #include <ibis/UI/Viewport.h>
 
 #include <ibis/Models/Document.h>
 
-#include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/Splitter.h>
-#include <ftk/UI/TabWidget.h>
 
 namespace ibis
 {
@@ -25,11 +21,7 @@ namespace ibis
         std::shared_ptr<ui::Viewport> viewport;
         std::shared_ptr<ui::NodeGraphCanvas> nodeGraphCanvas;
         std::shared_ptr<ui::TimelineWidget> timelineWidget;
-        std::shared_ptr<ui::NodeBrowser> nodeBrowser;
-        std::shared_ptr<ui::NodeEditor> nodeEditor;
-        std::shared_ptr<ftk::Splitter> splitterH;
-        std::shared_ptr<ftk::Splitter> splitterV;
-        std::shared_ptr<ftk::TabWidget> tabWidget;
+        std::shared_ptr<ftk::Splitter> splitter;
         std::shared_ptr<ftk::VerticalLayout> layout;
     };
 
@@ -53,30 +45,13 @@ namespace ibis
             app->getTimeUnitsModel(),
             document->getTimeModel());
 
-        p.nodeBrowser = ui::NodeBrowser::create(
-            context,
-            app->getNodeFactory());
-
-        p.nodeEditor = ui::NodeEditor::create(
-            context,
-            app->getNodeWidgetFactory(),
-            document);
-
         p.layout = ftk::VerticalLayout::create(context, shared_from_this());
         p.layout->setSpacingRole(ftk::SizeRole::None);
-        p.splitterH = ftk::Splitter::create(context, ftk::Orientation::Horizontal, p.layout);
-        p.splitterH->setSplit(.8F);
-        auto vLayout = ftk::VerticalLayout::create(context, p.splitterH);
-        vLayout->setSpacingRole(ftk::SizeRole::None);
-        p.splitterV = ftk::Splitter::create(context, ftk::Orientation::Vertical, vLayout);
-        p.splitterV->setSplit(.6F);
-        p.viewport->setParent(p.splitterV);
-        p.nodeGraphCanvas->setParent(p.splitterV);
-        ftk::Divider::create(context, ftk::Orientation::Vertical, vLayout);
-        p.timelineWidget->setParent(vLayout);
-        p.tabWidget = ftk::TabWidget::create(context, p.splitterH);
-        p.tabWidget->addTab("Node Browser", p.nodeBrowser);
-        p.tabWidget->addTab("Node Editor", p.nodeEditor);
+        p.splitter = ftk::Splitter::create(context, ftk::Orientation::Vertical, p.layout);
+        p.splitter->setSplit(.6F);
+        p.viewport->setParent(p.splitter);
+        p.nodeGraphCanvas->setParent(p.splitter);
+        p.timelineWidget->setParent(p.layout);
     }
 
     DocumentWidget::DocumentWidget() :

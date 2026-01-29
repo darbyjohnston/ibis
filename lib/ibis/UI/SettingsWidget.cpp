@@ -16,7 +16,6 @@ namespace ibis
 
         void SettingsWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::SettingsWidget", parent);
@@ -35,11 +34,10 @@ namespace ibis
 
         std::shared_ptr<SettingsWidget> SettingsWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<SettingsWidget> out(new SettingsWidget);
-            out->_init(context, app, parent);
+            out->_init(context, parent);
             return out;
         }
 
