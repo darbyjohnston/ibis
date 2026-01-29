@@ -28,7 +28,7 @@ namespace ibis
 
             auto layout = ftk::VerticalLayout::create(context);
             layout->setMarginRole(ftk::SizeRole::Margin);
-            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(layout);
         }
@@ -51,9 +51,9 @@ namespace ibis
             return out;
         }
 
-        std::string OverNodeWidget::getNodeID()
+        render::NodeInfo OverNodeWidget::getNodeInfo()
         {
-            return render::OverNode::getNodeID();
+            return render::OverNode::getNodeInfo();
         }
 
         ftk::Size2I OverNodeWidget::getSizeHint() const

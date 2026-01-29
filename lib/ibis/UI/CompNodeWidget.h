@@ -31,7 +31,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static std::string getNodeID();
+            static render::NodeInfo getNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;

@@ -22,7 +22,7 @@ namespace ibis
             const std::shared_ptr<WindowActions>&,
             const std::shared_ptr<IWidget>& parent);
 
-        WindowMenu() = default;
+        WindowMenu();
 
     public:
         ~WindowMenu();
@@ -34,5 +34,6 @@ namespace ibis
             const std::shared_ptr<IWidget>& parent = nullptr);
 
     private:
+        FTK_PRIVATE();
     };
 }

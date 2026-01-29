@@ -16,6 +16,7 @@ namespace ibis
         {
             std::weak_ptr<ftk::Context> context;
             std::map<std::string, NodeCreate> nodes;
+            std::map<std::string, NodeInfo> info;
         };
 
         void NodeFactory::_init(const std::shared_ptr<ftk::Context>& context)
@@ -24,12 +25,23 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNode::getNodeID()] = &ImageFileNode::create;
-            p.nodes[ImageFileSequenceNode::getNodeID()] = &ImageFileSequenceNode::create;
-            p.nodes[MathNode::getNodeID()] = &MathNode::create;
-            p.nodes[OverNode::getNodeID()] = &OverNode::create;
-            p.nodes[SVGFileNode::getNodeID()] = &SVGFileNode::create;
-            p.nodes[SolidColorNode::getNodeID()] = &SolidColorNode::create;
+            p.nodes[ArithmeticNode::getNodeInfo().id] = &ArithmeticNode::create;
+            p.info[ArithmeticNode::getNodeInfo().id] = ArithmeticNode::getNodeInfo();
+
+            p.nodes[ImageFileNode::getNodeInfo().id] = &ImageFileNode::create;
+            p.info[ImageFileNode::getNodeInfo().id] = ImageFileNode::getNodeInfo();
+
+            p.nodes[ImageSequenceNode::getNodeInfo().id] = &ImageSequenceNode::create;
+            p.info[ImageSequenceNode::getNodeInfo().id] = ImageSequenceNode::getNodeInfo();
+
+            p.nodes[OverNode::getNodeInfo().id] = &OverNode::create;
+            p.info[OverNode::getNodeInfo().id] = OverNode::getNodeInfo();
+
+            p.nodes[SVGFileNode::getNodeInfo().id] = &SVGFileNode::create;
+            p.info[SVGFileNode::getNodeInfo().id] = SVGFileNode::getNodeInfo();
+
+            p.nodes[SolidColorNode::getNodeInfo().id] = &SolidColorNode::create;
+            p.info[SolidColorNode::getNodeInfo().id] = SolidColorNode::getNodeInfo();
         }
 
         NodeFactory::NodeFactory() :
@@ -49,6 +61,17 @@ namespace ibis
         void NodeFactory::add(const std::string& id, const NodeCreate& create)
         {
             _p->nodes[id] = create;
+        }
+
+        std::vector<NodeInfo> NodeFactory::getInfo() const
+        {
+            FTK_P();
+            std::vector<NodeInfo> out;
+            for (auto i = p.info.begin(); i != p.info.end(); ++i)
+            {
+                out.push_back(i->second);
+            }
+            return out;
         }
 
         std::vector<std::string> NodeFactory::getIDs() const

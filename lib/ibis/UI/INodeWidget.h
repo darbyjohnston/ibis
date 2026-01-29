@@ -3,15 +3,12 @@
 
 #pragma once
 
+#include <ibis/Render/INode.h>
+
 #include <ftk/UI/IWidget.h>
 
 namespace ibis
 {
-    namespace render
-    {
-        class INode;
-    }
-
     namespace models
     {
         class Document;
@@ -34,8 +31,8 @@ namespace ibis
         public:
             virtual ~INodeWidget() = 0;
 
-            //! Get the ID.
-            const std::string& getID() const;
+            //! Get the node information.
+            const render::NodeInfo& getInfo() const;
 
             //! Get the node.
             const std::shared_ptr<ibis::render::INode>& getNode() const;

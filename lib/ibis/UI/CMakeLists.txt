@@ -1,5 +1,6 @@
 set(HEADERS
     CompNodeWidget.h
+    DiagWidget.h
     FrameToolBar.h
     GenNodeWidget.h
     INodeWidget.h
@@ -14,6 +15,8 @@ set(HEADERS
     NodeWidgetFactory.h
     PlaybackLoopWidget.h
     PlaybackToolBar.h
+    SettingsWidget.h
+    SysLogWidget.h
     TimeEdit.h
     TimeLabel.h
     TimeSlider.h
@@ -23,6 +26,7 @@ set(HEADERS
 
 set(SOURCE
     CompNodeWidget.cpp
+    DiagWidget.cpp
     FrameToolBar.cpp
     GenNodeWidget.cpp
     INodeWidget.cpp
@@ -37,6 +41,8 @@ set(SOURCE
     NodeWidgetFactory.cpp
     PlaybackLoopWidget.cpp
     PlaybackToolBar.cpp
+    SettingsWidget.cpp
+    SysLogWidget.cpp
     TimeEdit.cpp
     TimeLabel.cpp
     TimeSlider.cpp

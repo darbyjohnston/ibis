@@ -40,7 +40,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -84,9 +84,9 @@ namespace ibis
             return out;
         }
 
-        std::string ImageFileNodeWidget::getNodeID()
+        render::NodeInfo ImageFileNodeWidget::getNodeInfo()
         {
-            return render::ImageFileNode::getNodeID();
+            return render::ImageFileNode::getNodeInfo();
         }
 
         ftk::Size2I ImageFileNodeWidget::getSizeHint() const
@@ -100,7 +100,7 @@ namespace ibis
             _p->bellows->setGeometry(value);
         }
 
-        struct ImageFileSequenceNodeWidget::Private
+        struct ImageSequenceNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::Bellows> bellows;
@@ -108,7 +108,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void ImageFileSequenceNodeWidget::_init(
+        void ImageSequenceNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
@@ -122,7 +122,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -148,35 +148,35 @@ namespace ibis
                 });
         }
 
-        ImageFileSequenceNodeWidget::ImageFileSequenceNodeWidget() :
+        ImageSequenceNodeWidget::ImageSequenceNodeWidget() :
             _p(new Private)
         {}
 
-        ImageFileSequenceNodeWidget::~ImageFileSequenceNodeWidget()
+        ImageSequenceNodeWidget::~ImageSequenceNodeWidget()
         {}
 
-        std::shared_ptr<ImageFileSequenceNodeWidget> ImageFileSequenceNodeWidget::create(
+        std::shared_ptr<ImageSequenceNodeWidget> ImageSequenceNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<ImageFileSequenceNodeWidget> out(new ImageFileSequenceNodeWidget);
+            std::shared_ptr<ImageSequenceNodeWidget> out(new ImageSequenceNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        std::string ImageFileSequenceNodeWidget::getNodeID()
+        render::NodeInfo ImageSequenceNodeWidget::getNodeInfo()
         {
-            return render::ImageFileSequenceNode::getNodeID();
+            return render::ImageSequenceNode::getNodeInfo();
         }
 
-        ftk::Size2I ImageFileSequenceNodeWidget::getSizeHint() const
+        ftk::Size2I ImageSequenceNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void ImageFileSequenceNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ImageSequenceNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

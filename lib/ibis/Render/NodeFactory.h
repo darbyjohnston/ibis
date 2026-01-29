@@ -29,6 +29,9 @@ namespace ibis
             //! Add a node.
             void add(const std::string&, const NodeCreate&);
 
+            //! Get node information.
+            std::vector<NodeInfo> getInfo() const;
+
             //! Get node IDs.
             std::vector<std::string> getIDs() const;
 

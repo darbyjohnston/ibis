@@ -19,7 +19,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::string&,
+                const render::NodeInfo&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             NodeBrowserItem();
@@ -30,7 +30,7 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<NodeBrowserItem> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::string&,
+                const render::NodeInfo&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;

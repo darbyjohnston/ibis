@@ -18,7 +18,7 @@ namespace ibis
 {
     namespace ui
     {
-        struct MathNodeWidget::Private
+        struct ArithmeticNodeWidget::Private
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
@@ -28,7 +28,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void MathNodeWidget::_init(
+        void ArithmeticNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
@@ -42,7 +42,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -87,35 +87,35 @@ namespace ibis
                 });
         }
 
-        MathNodeWidget::MathNodeWidget() :
+        ArithmeticNodeWidget::ArithmeticNodeWidget() :
             _p(new Private)
         {}
 
-        MathNodeWidget::~MathNodeWidget()
+        ArithmeticNodeWidget::~ArithmeticNodeWidget()
         {}
 
-        std::shared_ptr<MathNodeWidget> MathNodeWidget::create(
+        std::shared_ptr<ArithmeticNodeWidget> ArithmeticNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<MathNodeWidget> out(new MathNodeWidget);
+            std::shared_ptr<ArithmeticNodeWidget> out(new ArithmeticNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        std::string MathNodeWidget::getNodeID()
+        render::NodeInfo ArithmeticNodeWidget::getNodeInfo()
         {
-            return render::MathNode::getNodeID();
+            return render::ArithmeticNode::getNodeInfo();
         }
 
-        ftk::Size2I MathNodeWidget::getSizeHint() const
+        ftk::Size2I ArithmeticNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void MathNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ArithmeticNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

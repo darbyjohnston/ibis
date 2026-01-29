@@ -21,7 +21,7 @@ namespace ibis
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
             attr["Color"] = ftk::Color4F(1.F, .7F, 0.F);
-            INode::_init(context, getNodeID(), 0, 1, attr);
+            INode::_init(context, getNodeInfo(), 0, 1, attr);
             FTK_P();
         }
 
@@ -32,9 +32,9 @@ namespace ibis
         SolidColorNode::~SolidColorNode()
         {}
 
-        std::string SolidColorNode::getNodeID()
+        NodeInfo SolidColorNode::getNodeInfo()
         {
-            return "Solid Color";
+            return { "SolidColor", "Solid Color", "Generator", "SolidColorNode" };
         }
 
         std::shared_ptr<INode> SolidColorNode::create(

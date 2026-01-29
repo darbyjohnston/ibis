@@ -20,7 +20,7 @@ namespace ibis
         public:
             virtual ~SolidColorNode();
 
-            static std::string getNodeID();
+            static NodeInfo getNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

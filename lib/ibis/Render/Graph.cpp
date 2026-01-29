@@ -121,7 +121,7 @@ namespace ibis
             {
                 const auto& node = nodes[i];
                 nlohmann::json nodeJSON;
-                nodeJSON["ID"] = node->getID();
+                nodeJSON["ID"] = node->getInfo().id;
                 nodeJSON["Pos"] = getPos(node);
                 const auto& attrKeys = node->getAttrKeys();
                 if (!attrKeys.empty())

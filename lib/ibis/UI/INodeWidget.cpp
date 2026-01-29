@@ -23,9 +23,9 @@ namespace ibis
         INodeWidget::~INodeWidget()
         {}
 
-        const std::string& INodeWidget::getID() const
+        const render::NodeInfo& INodeWidget::getInfo() const
         {
-            return _node->getID();
+            return _node->getInfo();
         }
 
         const std::shared_ptr<ibis::render::INode>& INodeWidget::getNode() const

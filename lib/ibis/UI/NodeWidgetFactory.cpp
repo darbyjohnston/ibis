@@ -34,11 +34,11 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNodeWidget::getNodeID()] = &ImageFileNodeWidget::create;
-            p.nodes[ImageFileSequenceNodeWidget::getNodeID()] = &ImageFileSequenceNodeWidget::create;
-            p.nodes[MathNodeWidget::getNodeID()] = &MathNodeWidget::create;
-            p.nodes[OverNodeWidget::getNodeID()] = &OverNodeWidget::create;
-            p.nodes[SolidColorNodeWidget::getNodeID()] = &SolidColorNodeWidget::create;
+            p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;
+            p.nodes[ImageFileNodeWidget::getNodeInfo().id] = &ImageFileNodeWidget::create;
+            p.nodes[ImageSequenceNodeWidget::getNodeInfo().id] = &ImageSequenceNodeWidget::create;
+            p.nodes[OverNodeWidget::getNodeInfo().id] = &OverNodeWidget::create;
+            p.nodes[SolidColorNodeWidget::getNodeInfo().id] = &SolidColorNodeWidget::create;
         }
 
         NodeWidgetFactory::NodeWidgetFactory() :
@@ -72,7 +72,7 @@ namespace ibis
         {
             FTK_P();
             std::shared_ptr<INodeWidget> out;
-            const auto i = p.nodes.find(node->getID());
+            const auto i = p.nodes.find(node->getInfo().id);
             if (i != p.nodes.end())
             {
                 out = i->second(p.context.lock(), document, node, nullptr);

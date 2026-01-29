@@ -3,35 +3,33 @@
 
 #pragma once
 
-#include <ibis/UI/INodeWidget.h>
+#include <ibis/UI/NodeDragDrop.h>
+
+#include <ibis/Render/NodeFactory.h>
+
+#include <ftk/UI/IMouseWidget.h>
 
 namespace ibis
 {
     namespace ui
     {
-        //! Arithmetic node widget.
-        class ArithmeticNodeWidget : public INodeWidget
+        //! Diagnostics widget.
+        class DiagWidget : public ftk::IWidget
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            ArithmeticNodeWidget();
+            DiagWidget();
 
         public:
-            virtual ~ArithmeticNodeWidget();
+            virtual ~DiagWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<ArithmeticNodeWidget> create(
+            static std::shared_ptr<DiagWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
-
-            static render::NodeInfo getNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;

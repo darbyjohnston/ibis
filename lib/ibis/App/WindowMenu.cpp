@@ -8,6 +8,11 @@
 
 namespace ibis
 {
+    struct WindowMenu::Private
+    {
+        std::shared_ptr<ftk::Menu> resizeMenu;
+    };
+
     void WindowMenu::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
@@ -15,10 +20,15 @@ namespace ibis
         const std::shared_ptr<IWidget>& parent)
     {
         ftk::Menu::_init(context, parent);
-
+        FTK_P();
         auto actions = windowActions->getActions();
         addAction(actions["FullScreen"]);
+        p.resizeMenu = addSubMenu("Resize");
     }
+
+    WindowMenu::WindowMenu() :
+        _p(new Private)
+    {}
 
     WindowMenu::~WindowMenu()
     {}

@@ -28,6 +28,15 @@ namespace ibis
     {
         class INode;
 
+        //! Node information.
+        struct NodeInfo
+        {
+            std::string id;
+            std::string name;
+            std::string group;
+            std::string icon;
+        };
+
         //! Node connection.
         struct NodeConnection
         {
@@ -53,7 +62,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::string& id,
+                const NodeInfo& info,
                 int inputCount,
                 int outputCount = 1,
                 const NodeAttr& = {});
@@ -63,8 +72,8 @@ namespace ibis
         public:
             virtual ~INode() = 0;
 
-            //! Get the ID.
-            const std::string& getID() const;
+            //! Get the node information.
+            const NodeInfo& getInfo() const;
 
             //! Get the inputs.
             const std::vector<NodeConnection>& getInputs() const;
@@ -99,7 +108,7 @@ namespace ibis
                 const OTIO_NS::RationalTime&);
 
         protected:
-            std::string _id;
+            NodeInfo _info;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;

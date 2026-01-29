@@ -57,7 +57,7 @@ namespace ibis
             formLayout->addRow("Width:", p.widthEdit);
             formLayout->addRow("Height:", p.heightEdit);
             formLayout->addRow("Color:", p.colorSwatch);
-            p.bellows = ftk::Bellows::create(context, getID(), shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -153,9 +153,9 @@ namespace ibis
             return out;
         }
 
-        std::string SolidColorNodeWidget::getNodeID()
+        render::NodeInfo SolidColorNodeWidget::getNodeInfo()
         {
-            return render::SolidColorNode::getNodeID();
+            return render::SolidColorNode::getNodeInfo();
         }
 
         ftk::Size2I SolidColorNodeWidget::getSizeHint() const

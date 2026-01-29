@@ -32,7 +32,10 @@ namespace ibis
             protected:
                 void _init(const std::shared_ptr<ftk::Context>& context)
                 {
-                    INode::_init(context, "TestNode", 1);
+                    INode::_init(
+                        context,
+                        { "TestNode", "Test Node", "Test", "TestNode" },
+                        1);
                 }
 
                 TestNode() = default;

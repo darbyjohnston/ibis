@@ -9,18 +9,18 @@ namespace ibis
 {
     namespace render
     {
-        //! Math node.
-        class MathNode : public INode
+        //! Arithmetic node.
+        class ArithmeticNode : public INode
         {
         protected:
             void _init(const std::shared_ptr<ftk::Context>&);
 
-            MathNode();
+            ArithmeticNode();
 
         public:
-            virtual ~MathNode();
+            virtual ~ArithmeticNode();
 
-            static std::string getNodeID();
+            static NodeInfo getNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

@@ -1,13 +1,19 @@
 set(HEADERS)
 set(SOURCE)
 set(RESOURCES
-    etc/Icons/View.svg
+    etc/Icons/ArithmeticNode.svg
+    etc/Icons/ImageFileNode.svg
+    etc/Icons/ImageSequenceNode.svg
     etc/Icons/NodeDragDrop.svg
     etc/Icons/NodePort.svg
     etc/Icons/NodePortConnected.svg
+    etc/Icons/OverNode.svg
     etc/Icons/PlaybackLoop.svg
     etc/Icons/PlaybackOnce.svg
     etc/Icons/PlaybackPingPong.svg
+    etc/Icons/SVGFileNode.svg
+    etc/Icons/SolidColorNode.svg
+    etc/Icons/View.svg
     etc/Icons/ibis.svg)
 foreach(RESOURCE ${RESOURCES})
     get_filename_component(RESOURCE_BASE ${RESOURCE} NAME_WE)

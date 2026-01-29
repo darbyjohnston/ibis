@@ -13,35 +13,35 @@ namespace ibis
 {
     namespace render
     {
-        struct MathNode::Private
+        struct ArithmeticNode::Private
         {
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void MathNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void ArithmeticNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
             NodeAttr attr;
             attr["Value"] = 0.5;
-            INode::_init(context, getNodeID(), 1, 1, attr);
+            INode::_init(context, getNodeInfo(), 1, 1, attr);
             FTK_P();
         }
 
-        MathNode::MathNode() :
+        ArithmeticNode::ArithmeticNode() :
             _p(new Private)
         {}
 
-        MathNode::~MathNode()
+        ArithmeticNode::~ArithmeticNode()
         {}
 
-        std::string MathNode::getNodeID()
+        NodeInfo ArithmeticNode::getNodeInfo()
         {
-            return "Math";
+            return { "Arithmetic", "Arithmetic", "Math", "ArithmeticNode" };
         }
 
-        std::shared_ptr<INode> MathNode::create(
+        std::shared_ptr<INode> ArithmeticNode::create(
             const std::shared_ptr<ftk::Context>& context)
         {
-            std::shared_ptr<MathNode> out(new MathNode);
+            std::shared_ptr<ArithmeticNode> out(new ArithmeticNode);
             out->_init(context);
             return out;
         }
@@ -86,7 +86,7 @@ namespace ibis
                 "}\n";
         }
 
-        void MathNode::exec(
+        void ArithmeticNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {

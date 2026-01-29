@@ -33,7 +33,7 @@ namespace ibis
             protected:
                 void _init(const std::shared_ptr<ftk::Context>& context)
                 {
-                    INode::_init(context, getNodeID(), 1);
+                    INode::_init(context, getNodeInfo(), 1);
                 }
 
                 TestNode() = default;
@@ -41,7 +41,7 @@ namespace ibis
             public:
                 virtual ~TestNode() = default;
 
-                static std::string getNodeID() { return "TestNode"; }
+                static render::NodeInfo getNodeInfo() { return { "TestNode", "Test Node", "Test", "TestNode" }; }
 
                 static std::shared_ptr<INode> create(
                     const std::shared_ptr<ftk::Context>& context)
@@ -157,7 +157,7 @@ namespace ibis
                 _print(json.dump(4));
 
                 auto nodeFactory = render::NodeFactory::create(_context);
-                nodeFactory->add(TestNode::getNodeID(), &TestNode::create);
+                nodeFactory->add(TestNode::getNodeInfo().id, &TestNode::create);
                 auto graph2 = render::Graph::create(_context, json, nodeFactory);
                 FTK_ASSERT(graph->getNodes().size() == graph2->getNodes().size());
                 node = graph2->getNodes()[0];

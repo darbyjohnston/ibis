@@ -14,28 +14,28 @@
                     }
                 ],
                 "Pos": [
-                    707,
-                    211
+                    737,
+                    187
                 ]
             },
             {
                 "Attr": {
                     "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\Charlie.jpg"
                 },
-                "ID": "Image File",
+                "ID": "ImageFile",
                 "Pos": [
-                    288,
-                    84
+                    306,
+                    48
                 ]
             },
             {
                 "Attr": {
                     "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\Counter.0.png"
                 },
-                "ID": "Image File Sequence",
+                "ID": "ImageSequence",
                 "Pos": [
-                    241,
-                    403
+                    312,
+                    364
                 ]
             }
         ]

@@ -3,9 +3,12 @@
 
 #include "NodeBrowser.h"
 
+#include <ftk/UI/Divider.h>
+#include <ftk/UI/Icon.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
+#include <ftk/UI/SearchBox.h>
 
 namespace ibis
 {
@@ -13,8 +16,10 @@ namespace ibis
     {
         struct NodeBrowserItem::Private
         {
-            std::string node;
+            render::NodeInfo info;
+            std::shared_ptr<ftk::Icon> icon;
             std::shared_ptr<ftk::Label> label;
+            std::shared_ptr<ftk::HorizontalLayout> layout;
 
             int dragLength = 0;
             float iconScale = 1.F;
@@ -23,7 +28,7 @@ namespace ibis
 
         void NodeBrowserItem::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::string& node,
+            const render::NodeInfo& info,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::NodeBrowserItem", parent);
@@ -32,10 +37,18 @@ namespace ibis
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
 
-            p.node = node;
+            p.info = info;
 
-            p.label = ftk::Label::create(context, node, shared_from_this());
-            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
+            p.icon = ftk::Icon::create(context, info.icon);
+            p.icon->setMarginRole(ftk::SizeRole::MarginInside);
+
+            p.label = ftk::Label::create(context, info.name);
+            p.label->setMarginRole(ftk::SizeRole::MarginInside);
+
+            p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
+            p.icon->setParent(p.layout);
+            p.label->setParent(p.layout);
         }
 
         NodeBrowserItem::NodeBrowserItem() :
@@ -47,23 +60,23 @@ namespace ibis
 
         std::shared_ptr<NodeBrowserItem> NodeBrowserItem::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::string& node,
+            const render::NodeInfo& info,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeBrowserItem> out(new NodeBrowserItem);
-            out->_init(context, node, parent);
+            out->_init(context, info, parent);
             return out;
         }
 
         ftk::Size2I NodeBrowserItem::getSizeHint() const
         {
-            return _p->label->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void NodeBrowserItem::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _p->label->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         void NodeBrowserItem::sizeHintEvent(const ftk::SizeHintEvent& event)
@@ -78,7 +91,7 @@ namespace ibis
             }
             if (!p.dragImage)
             {
-                p.dragImage = event.iconSystem->get("NodeDragDrop", event.displayScale);
+                p.dragImage = event.iconSystem->get(p.info.icon, event.displayScale);
             }
         }
 
@@ -117,7 +130,7 @@ namespace ibis
                 const float length = ftk::length(event.pos - _getMousePressPos());
                 if (length > p.dragLength)
                 {
-                    event.dragDropData = std::make_shared<NodeDragDropData>(p.node);
+                    event.dragDropData = std::make_shared<NodeDragDropData>(p.info.id);
                     event.dragDropCursor = p.dragImage;
                     const ftk::Box2I& g = getGeometry();
                     event.dragDropCursorHotspot.x = p.dragImage->getWidth() / 2;
@@ -128,8 +141,10 @@ namespace ibis
 
         struct NodeBrowser::Private
         {
-            std::shared_ptr<ftk::VerticalLayout> layout;
+            std::shared_ptr<ftk::VerticalLayout> itemLayout;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
+            std::shared_ptr<ftk::SearchBox> searchBox;
+            std::shared_ptr<ftk::VerticalLayout> layout;
         };
 
         void NodeBrowser::_init(
@@ -140,16 +155,29 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeBrowser", parent);
             FTK_P();
 
-            p.layout = ftk::VerticalLayout::create(context);
-            p.layout->setSpacingRole(ftk::SizeRole::None);
-            for (const auto& node : factory->getIDs())
+            p.itemLayout = ftk::VerticalLayout::create(context);
+            p.itemLayout->setSpacingRole(ftk::SizeRole::None);
+            for (const auto& info : factory->getInfo())
             {
-                auto item = NodeBrowserItem::create(context, node, p.layout);
+                auto item = NodeBrowserItem::create(context, info, p.itemLayout);
             }
 
-            p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
+            p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both);
             p.scrollWidget->setBorder(false);
-            p.scrollWidget->setWidget(p.layout);
+            p.scrollWidget->setVStretch(ftk::Stretch::Expanding);
+            p.scrollWidget->setWidget(p.itemLayout);
+
+            p.searchBox = ftk::SearchBox::create(context);
+            p.searchBox->setHStretch(ftk::Stretch::Expanding);
+
+            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(ftk::SizeRole::None);
+            p.scrollWidget->setParent(p.layout);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
+            auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(ftk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(ftk::SizeRole::SpacingSmall);
+            p.searchBox->setParent(hLayout);
         }
 
         NodeBrowser::NodeBrowser() :
@@ -171,13 +199,13 @@ namespace ibis
 
         ftk::Size2I NodeBrowser::getSizeHint() const
         {
-            return _p->scrollWidget->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void NodeBrowser::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _p->scrollWidget->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }
