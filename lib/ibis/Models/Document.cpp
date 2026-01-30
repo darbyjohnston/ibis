@@ -15,12 +15,12 @@ namespace ibis
     {
         struct Document::Private
         {
-            std::shared_ptr<render::Graph> graph;
             std::shared_ptr<ftk::CommandStack> commandStack;
             std::shared_ptr<NodeSelectionModel> selectionModel;
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<TimeModel> timeModel;
             std::shared_ptr<ftk::Observable<std::shared_ptr<render::INode> > > viewNode;
+            std::shared_ptr<render::Graph> graph;
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
         };
@@ -32,21 +32,50 @@ namespace ibis
             const std::shared_ptr<render::NodeFactory>& nodeFactory)
         {
             FTK_P();
-            if (!json.empty() && json.contains("Graph"))
+
+            p.commandStack = ftk::CommandStack::create();
+            p.selectionModel = NodeSelectionModel::create(context);
+            p.path = ftk::Observable<std::filesystem::path>::create(path);
+            p.timeModel = TimeModel::create(context);
+            p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create();
+
+            int viewNode = -1;
+            if (!json.empty())
             {
-                p.graph = render::Graph::create(context, json["Graph"], nodeFactory);
+                if (json.contains("TimeRange"))
+                {
+                    p.timeModel->setTimeRange(json["TimeRange"]);
+                }
+                if (json.contains("CurrentTime"))
+                {
+                    p.timeModel->setCurrentTime(json["CurrentTime"]);
+                }
+                if (json.contains("ViewNode"))
+                {
+                    viewNode = json["ViewNode"];
+                }
+                if (json.contains("Graph"))
+                {
+                    p.graph = render::Graph::create(context, json["Graph"], nodeFactory);
+                }
             }
             if (!p.graph)
             {
                 p.graph = render::Graph::create(context);
             }
-            p.commandStack = ftk::CommandStack::create();
-            p.selectionModel = NodeSelectionModel::create(context);
-            p.path = ftk::Observable<std::filesystem::path>::create(path);
-            p.timeModel = TimeModel::create(context);
-            const auto leafNodes = p.graph->getLeafNodes();
-            p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create(
-                !leafNodes.empty() ? leafNodes.front() : nullptr);
+
+            if (viewNode >= 0 && viewNode < p.graph->getNodes().size())
+            {
+                p.viewNode->setIfChanged(p.graph->getNodes()[viewNode]);
+            }
+            else
+            {
+                const auto leafNodes = p.graph->getLeafNodes();
+                if (!leafNodes.empty())
+                {
+                    p.viewNode->setIfChanged(leafNodes.front());
+                }
+            }
 
             p.nodesObserver = ftk::ListObserver<std::shared_ptr<render::INode> >::create(
                 p.graph->observeNodes(),
@@ -106,6 +135,16 @@ namespace ibis
         {
             FTK_P();
             nlohmann::json out;
+            out["TimeRange"] = p.timeModel->getTimeRange();
+            out["CurrentTime"] = p.timeModel->getCurrentTime();
+
+            const auto& nodes = p.graph->getNodes();
+            const auto i = std::find(nodes.begin(), nodes.end(), p.viewNode->get());
+            if (i != nodes.end())
+            {
+                out["ViewNode"] = i - nodes.begin();
+            }
+
             out["Graph"] = p.graph->to_json();
             return out;
         }
@@ -162,8 +201,7 @@ namespace ibis
             FTK_P();
             const auto selection = p.selectionModel->get();
             p.selectionModel->clear();
-            p.commandStack->push(
-                render::RemoveNodesCmd::create(p.graph, selection));
+            p.commandStack->push(render::RemoveNodesCmd::create(p.graph, selection));
         }
 
         void Document::select(const std::vector<std::shared_ptr<render::INode> >& value)
