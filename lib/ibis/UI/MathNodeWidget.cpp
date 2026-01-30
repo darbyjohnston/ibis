@@ -10,6 +10,7 @@
 #include <ibis/Render/MathNode.h>
 
 #include <ftk/UI/Bellows.h>
+#include <ftk/UI/ComboBox.h>
 #include <ftk/UI/DoubleEditSlider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
@@ -22,6 +23,7 @@ namespace ibis
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
+            std::shared_ptr<ftk::ComboBox> operatorComboBox;
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -37,14 +39,25 @@ namespace ibis
             INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
+            p.operatorComboBox = ftk::ComboBox::create(context, render::getArithmeticOperatorLabels());
+
             p.valueSlider = ftk::DoubleEditSlider::create(context);
+            p.valueSlider->setRange(0.0, 2.0);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
+            formLayout->addRow("Operator:", p.operatorComboBox);
             formLayout->addRow("Value:", p.valueSlider);
             p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
+
+            p.operatorComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Operator", value));
+                });
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -77,13 +90,9 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    double v = 0.0;
-                    auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        v = i->second;
-                    }
-                    p.valueSlider->setValue(v);
+                    auto tmp = value;
+                    p.operatorComboBox->setCurrentIndex(static_cast<int>(tmp["Operator"]));
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 

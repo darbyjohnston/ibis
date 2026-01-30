@@ -7,12 +7,22 @@
 #include <ftk/GL/Mesh.h>
 #include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/GL/Shader.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
 #include <ftk/Core/IRender.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
     namespace render
     {
+        FTK_ENUM_IMPL(
+            ArithmeticOperator,
+            "Add",
+            "Subtract",
+            "Multiply",
+            "Divide");
+
         struct ArithmeticNode::Private
         {
             std::shared_ptr<ftk::gl::Shader> shader;
@@ -22,6 +32,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 0.5;
+            attr["Operator"] = ArithmeticOperator::Add;
             INode::_init(context, getNodeInfo(), 1, 1, attr);
             FTK_P();
         }
@@ -74,15 +85,43 @@ namespace ibis
                 "in vec2 fTexture;\n"
                 "out vec4 outColor;\n"
                 "\n"
+                "// enum ibis::render::ArithmeticOperator\n"
+                "const uint ArithmeticOperator_Add      = 0;\n"
+                "const uint ArithmeticOperator_Subtract = 1;\n"
+                "const uint ArithmeticOperator_Multiply = 2;\n"
+                "const uint ArithmeticOperator_Divide   = 3;\n"
+                "\n"
+                "uniform int arithmeticOperator;\n"
                 "uniform float value;\n"
                 "uniform sampler2D textureSampler;\n"
                 "\n"
                 "void main()\n"
                 "{\n"
                 "    outColor = texture(textureSampler, fTexture);\n"
-                "    outColor.r += value;\n"
-                "    outColor.g += value;\n"
-                "    outColor.b += value;\n"
+                "    if (ArithmeticOperator_Add == arithmeticOperator)"
+                "    {\n"
+                "        outColor.r += value;\n"
+                "        outColor.g += value;\n"
+                "        outColor.b += value;\n"
+                "    }\n"
+                "    else if (ArithmeticOperator_Subtract == arithmeticOperator)"
+                "    {\n"
+                "        outColor.r -= value;\n"
+                "        outColor.g -= value;\n"
+                "        outColor.b -= value;\n"
+                "    }\n"
+                "    else if (ArithmeticOperator_Multiply == arithmeticOperator)"
+                "    {\n"
+                "        outColor.r *= value;\n"
+                "        outColor.g *= value;\n"
+                "        outColor.b *= value;\n"
+                "    }\n"
+                "    else if (ArithmeticOperator_Divide == arithmeticOperator)"
+                "    {\n"
+                "        outColor.r /= value;\n"
+                "        outColor.g /= value;\n"
+                "        outColor.b /= value;\n"
+                "    }\n"
                 "}\n";
         }
 
@@ -127,6 +166,7 @@ namespace ibis
                         -1.F,
                         1.F);
                     p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("arithmeticOperator", static_cast<int>(_attr->getItem("Operator")));
                     p.shader->setUniform("value", float(_attr->getItem("Value")));
                     p.shader->setUniform("textureSampler", 0);
 

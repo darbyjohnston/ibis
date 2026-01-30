@@ -70,5 +70,36 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+
+        //! SVG file node widget.
+        class SVGFileNodeWidget : public INodeWidget
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ibis::models::Document>&,
+                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent);
+
+            SVGFileNodeWidget();
+
+        public:
+            virtual ~SVGFileNodeWidget();
+
+            //! Create a new widget.
+            static std::shared_ptr<SVGFileNodeWidget> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ibis::models::Document>&,
+                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+            static render::NodeInfo getNodeInfo();
+
+            ftk::Size2I getSizeHint() const override;
+            void setGeometry(const ftk::Box2I&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
     }
 }

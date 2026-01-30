@@ -13,9 +13,10 @@
 #include <ftk/Core/Path.h>
 #include <ftk/Core/String.h>
 
-
 #include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imagebufalgo.h>
+
+#include <lunasvg/lunasvg.h>
 
 namespace ibis
 {
@@ -355,11 +356,14 @@ namespace ibis
 
         struct SVGFileNode::Private
         {
+            std::string path;
+            std::shared_ptr<ftk::Image> image;
         };
 
         void SVGFileNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
             NodeAttr attr;
+            attr["Path"] = "";
             INode::_init(context, getNodeInfo(), 0, 1, attr);
             FTK_P();
         }
@@ -390,6 +394,70 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+            const std::string path = _attr->getItem("Path");
+            if (!path.empty() && (!p.image || path != p.path))
+            {
+                p.path = path;
+                p.image.reset();
+                _outputs[0].reset();
+                try
+                {
+                    auto svg = lunasvg::Document::loadFromFile(path);
+                    const int w = svg->width();
+                    const int h = svg->height();
+                    auto bitmap = svg->renderToBitmap(w, h, 0x00000000);
+                    if (!bitmap.isNull())
+                    {
+                        p.image = ftk::Image::create(w, h, ftk::ImageType::RGBA_U8);
+                        for (int y = 0; y < h; ++y)
+                        {
+                            uint8_t* imageP = reinterpret_cast<uint8_t*>(p.image->getData()) + y * w * 4;
+                            const uint8_t* bitmapP = bitmap.data() + y * w * 4;
+                            for (int x = 0; x < w; ++x, imageP += 4, bitmapP += 4)
+                            {
+                                imageP[0] = bitmapP[2];
+                                imageP[1] = bitmapP[1];
+                                imageP[2] = bitmapP[0];
+                                imageP[3] = bitmapP[3];
+                            }
+                        }
+                    }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo
+                }
+            }
+            if (p.image)
+            {
+                const ftk::Size2I size = p.image->getSize();
+                if (size.isValid())
+                {
+                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
+                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    const ftk::Size2I size = p.image->getSize();
+                    const ftk::Box2I g(0, 0, size.w, size.h);
+                    render->setRenderSize(size);
+                    render->setViewport(g);
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const auto pm = ftk::ortho(
+                        0.F,
+                        static_cast<float>(size.w),
+                        static_cast<float>(size.h),
+                        0.F,
+                        -1.F,
+                        1.F);
+                    render->setTransform(pm);
+                    ftk::ImageOptions imageOptions;
+                    imageOptions.cache = false;
+                    render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
+                }
+            }
         }
     }
 }

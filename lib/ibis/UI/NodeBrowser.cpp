@@ -38,7 +38,7 @@ namespace ibis
             p.info = info;
 
             p.label = ftk::Label::create(context, info.name);
-            p.label->setMarginRole(ftk::SizeRole::MarginInside);
+            p.label->setMarginRole(ftk::SizeRole::MarginSmall);
 
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::SpacingSmall);

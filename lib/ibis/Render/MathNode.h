@@ -9,6 +9,19 @@ namespace ibis
 {
     namespace render
     {
+        //! Arithmetic operator.
+        enum class ArithmeticOperator
+        {
+            Add,
+            Subtract,
+            Multiply,
+            Divide,
+
+            Count,
+            First = Add
+        };
+        FTK_ENUM(ArithmeticOperator);
+
         //! Arithmetic node.
         class ArithmeticNode : public INode
         {
