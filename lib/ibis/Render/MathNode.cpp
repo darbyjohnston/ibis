@@ -154,9 +154,9 @@ namespace ibis
                         _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     p.shader->bind();
                     const auto pm = ftk::ortho(
                         0.F,

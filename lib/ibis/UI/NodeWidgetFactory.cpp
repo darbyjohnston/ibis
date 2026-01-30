@@ -39,6 +39,8 @@ namespace ibis
             p.nodes[ImageSequenceNodeWidget::getNodeInfo().id] = &ImageSequenceNodeWidget::create;
             p.nodes[SVGFileNodeWidget::getNodeInfo().id] = &SVGFileNodeWidget::create;
 
+            p.nodes[GradientNodeWidget::getNodeInfo().id] = &GradientNodeWidget::create;
+            p.nodes[NoiseNodeWidget::getNodeInfo().id] = &NoiseNodeWidget::create;
             p.nodes[SolidColorNodeWidget::getNodeInfo().id] = &SolidColorNodeWidget::create;
 
             p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;

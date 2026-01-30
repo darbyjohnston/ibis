@@ -33,6 +33,10 @@ namespace ibis
             p.nodes[SVGFileNode::getNodeInfo().id] = &SVGFileNode::create;
             p.info[SVGFileNode::getNodeInfo().id] = SVGFileNode::getNodeInfo();
 
+            p.nodes[GradientNode::getNodeInfo().id] = &GradientNode::create;
+            p.info[GradientNode::getNodeInfo().id] = GradientNode::getNodeInfo();
+            p.nodes[NoiseNode::getNodeInfo().id] = &NoiseNode::create;
+            p.info[NoiseNode::getNodeInfo().id] = NoiseNode::getNodeInfo();
             p.nodes[SolidColorNode::getNodeInfo().id] = &SolidColorNode::create;
             p.info[SolidColorNode::getNodeInfo().id] = SolidColorNode::getNodeInfo();
 
