@@ -42,7 +42,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -61,7 +61,7 @@ namespace ibis
                     }
                     else if (p.cmd)
                     {
-                        p.cmd->set(value);
+                        p.cmd->set("Value", value);
                         _document->command(p.cmd);
                         p.cmd.reset();
                     }

@@ -2,6 +2,8 @@ set(HEADERS)
 set(SOURCE)
 set(RESOURCES
     etc/Icons/ArithmeticNode.svg
+    etc/Icons/BrightnessNode.svg
+    etc/Icons/ContrastNode.svg
     etc/Icons/ImageFileNode.svg
     etc/Icons/ImageSequenceNode.svg
     etc/Icons/NodeDragDrop.svg

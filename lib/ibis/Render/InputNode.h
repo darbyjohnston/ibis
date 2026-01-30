@@ -9,6 +9,24 @@ namespace ibis
 {
     namespace render
     {
+        //! Input loop mode.
+        enum class InputLoop
+        {
+            None,
+            Loop,
+            Clamp,
+
+            Count,
+            First = None
+        };
+        FTK_ENUM(InputLoop);
+
+        //! Loop the input time.
+        OTIO_NS::RationalTime getInputLoop(
+            InputLoop,
+            const OTIO_NS::RationalTime&,
+            const OTIO_NS::TimeRange&);
+
         //! Image file node.
         class ImageFileNode : public INode
         {

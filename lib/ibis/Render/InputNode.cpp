@@ -7,8 +7,12 @@
 
 #include <ftk/GL/GL.h>
 #include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
 #include <ftk/Core/IRender.h>
 #include <ftk/Core/Path.h>
+#include <ftk/Core/String.h>
+
 
 #include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imagebufalgo.h>
@@ -17,6 +21,39 @@ namespace ibis
 {
     namespace render
     {
+        FTK_ENUM_IMPL(
+            InputLoop,
+            "None",
+            "Loop",
+            "Clamp");
+
+        OTIO_NS::RationalTime getInputLoop(
+            InputLoop loop,
+            const OTIO_NS::RationalTime& time,
+            const OTIO_NS::TimeRange& range)
+        {
+            OTIO_NS::RationalTime out = time;
+            switch (loop)
+            {
+            case InputLoop::Loop:
+            {
+                const OTIO_NS::RationalTime duration = range.duration();
+                if (duration.value() > 0.0)
+                {
+                    out = OTIO_NS::RationalTime(
+                        static_cast<int64_t>(out.value()) % static_cast<int64_t>(duration.value()),
+                        out.rate());
+                }
+                break;
+            }
+            case InputLoop::Clamp:
+                out = range.clamped(out);
+                break;
+            default: break;
+            }
+            return out;
+        }
+
         struct ImageFileNode::Private
         {
             std::string path;
@@ -196,6 +233,9 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Path"] = "";
+            attr["StartFrame"] = 0;
+            attr["EndFrame"] = 0;
+            attr["Loop"] = InputLoop::None;
             INode::_init(context, getNodeInfo(), 0, 1, attr);
             FTK_P();
         }
@@ -226,45 +266,59 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+
             const ftk::Path path(_attr->getItem("Path"));
-            if (!path.isEmpty() && (!p.image || path != p.path || time != p.time))
+            const int startFrame = _attr->getItem("StartFrame");
+            const int endFrame = _attr->getItem("EndFrame");
+            const InputLoop loop = _attr->getItem("Loop");
+
+            const OTIO_NS::TimeRange timeRange(
+                OTIO_NS::RationalTime(startFrame, time.rate()),
+                OTIO_NS::RationalTime(endFrame - startFrame + 1, time.rate()));
+            const OTIO_NS::RationalTime time2 = getInputLoop(loop, time, timeRange);
+
+            if (!path.isEmpty() && (!p.image || path != p.path || time2 != p.time))
             {
                 p.path = path;
-                p.time = time;
+                p.time = time2;
                 p.image.reset();
                 _outputs[0].reset();
-                try
+
+                if (timeRange.contains(time2))
                 {
-                    const std::string fileName = path.getFrame(time.value(), true);
-                    const auto oiioInput = OIIO::ImageInput::open(fileName);
-                    if (!oiioInput)
+                    try
                     {
-                        throw std::runtime_error(OIIO::geterror());
+                        const std::string fileName = path.getFrame(time2.value(), true);
+                        const auto oiioInput = OIIO::ImageInput::open(fileName);
+                        if (!oiioInput)
+                        {
+                            throw std::runtime_error(OIIO::geterror());
+                        }
+                        const auto oiioSpec = oiioInput->spec();
+                        const ftk::ImageType imageType = fromOIIO(oiioSpec);
+                        if (ftk::ImageType::None == imageType)
+                        {
+                            std::stringstream ss;
+                            ss << "Unsupported file: " << fileName;
+                            throw std::runtime_error(ss.str());
+                        }
+                        ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                        p.image = ftk::Image::create(imageInfo);
+                        if (!oiioInput->read_image(
+                            0,
+                            0,
+                            0,
+                            ftk::getChannelCount(imageType),
+                            oiioSpec.format,
+                            p.image->getData()))
+                        {
+                            throw std::runtime_error(OIIO::geterror());
+                        }
                     }
-                    const auto oiioSpec = oiioInput->spec();
-                    const ftk::ImageType imageType = fromOIIO(oiioSpec);
-                    if (ftk::ImageType::None == imageType)
+                    catch (const std::exception&)
                     {
-                        std::stringstream ss;
-                        ss << "Unsupported file: " << fileName;
-                        throw std::runtime_error(ss.str());
+                        //! \todo
                     }
-                    ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
-                    p.image = ftk::Image::create(imageInfo);
-                    if (!oiioInput->read_image(
-                        0,
-                        0,
-                        0,
-                        ftk::getChannelCount(imageType),
-                        oiioSpec.format,
-                        p.image->getData()))
-                    {
-                        throw std::runtime_error(OIIO::geterror());
-                    }
-                }
-                catch (const std::exception&)
-                {
-                    //! \todo
                 }
             }
             if (p.image)

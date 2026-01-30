@@ -159,14 +159,25 @@ namespace ibis
         void NodeAttrCmd::_init(
             const std::shared_ptr<Graph>& graph,
             const std::shared_ptr<INode>& node,
-            const std::string& key,
-            const nlohmann::json& value)
+            const std::vector<std::pair<std::string, nlohmann::json> >& attr)
         {
             _graph = graph;
             _node = node;
-            _key = key;
-            _value = value;
-            _prev = _node->getAttr(_key);
+            _attr = attr;
+            for (const auto& i : attr)
+            {
+                _prev.push_back(std::make_pair(i.first, _node->getAttr(i.first)));
+            }
+        }
+
+        std::shared_ptr<NodeAttrCmd> NodeAttrCmd::create(
+            const std::shared_ptr<Graph>& graph,
+            const std::shared_ptr<INode>& node,
+            const std::vector<std::pair<std::string, nlohmann::json> >& attr)
+        {
+            std::shared_ptr<NodeAttrCmd> out(new NodeAttrCmd);
+            out->_init(graph, node, attr);
+            return out;
         }
 
         std::shared_ptr<NodeAttrCmd> NodeAttrCmd::create(
@@ -176,23 +187,44 @@ namespace ibis
             const nlohmann::json& value)
         {
             std::shared_ptr<NodeAttrCmd> out(new NodeAttrCmd);
-            out->_init(graph, node, key, value);
+            out->_init(graph, node, { { key, value } });
             return out;
         }
 
-        void NodeAttrCmd::set(const nlohmann::json& value)
+        void NodeAttrCmd::set(const std::vector<std::pair<std::string, nlohmann::json > >& value)
         {
-            _value = value;
+            _attr = value;
+        }
+
+        void NodeAttrCmd::set(const std::string& key, const nlohmann::json& value)
+        {
+            const auto i = std::find_if(
+                _attr.begin(),
+                _attr.end(),
+                [&key](const std::pair<std::string, nlohmann::json >& value)
+                {
+                    return value.first == key;
+                });
+            if (i != _attr.end())
+            {
+                i->second = value;
+            }
         }
 
         void NodeAttrCmd::exec()
         {
-            _graph->setAttr(_node, _key, _value);
+            for (const auto& i : _attr)
+            {
+                _graph->setAttr(_node, i.first, i.second);
+            }
         }
 
         void NodeAttrCmd::undo()
         {
-            _graph->setAttr(_node, _key, _prev);
+            for (const auto& i : _prev)
+            {
+                _graph->setAttr(_node, i.first, i.second);
+            }
         }
     }
 }

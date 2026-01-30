@@ -9,6 +9,8 @@
 namespace ibis_resource
 {
     extern std::vector<uint8_t> ArithmeticNode;
+    extern std::vector<uint8_t> BrightnessNode;
+    extern std::vector<uint8_t> ContrastNode;
     extern std::vector<uint8_t> ImageFileNode;
     extern std::vector<uint8_t> ImageSequenceNode;
     extern std::vector<uint8_t> NodeDragDrop;
@@ -34,6 +36,8 @@ namespace ibis
 
             auto iconSystem = context->getSystem<ftk::IconSystem>();
             iconSystem->add("ArithmeticNode", ibis_resource::ArithmeticNode);
+            iconSystem->add("BrightnessNode", ibis_resource::BrightnessNode);
+            iconSystem->add("ContrastNode", ibis_resource::ContrastNode);
             iconSystem->add("ImageFileNode", ibis_resource::ImageFileNode);
             iconSystem->add("ImageSequenceNode", ibis_resource::ImageSequenceNode);
             iconSystem->add("NodeDragDrop", ibis_resource::NodeDragDrop);

@@ -1,4 +1,5 @@
 set(HEADERS
+    ColorNodeWidget.h
     CompNodeWidget.h
     DiagWidget.h
     FrameToolBar.h
@@ -25,6 +26,7 @@ set(HEADERS
     Viewport.h)
 
 set(SOURCE
+    ColorNodeWidget.cpp
     CompNodeWidget.cpp
     DiagWidget.cpp
     FrameToolBar.cpp

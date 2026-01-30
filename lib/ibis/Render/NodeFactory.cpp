@@ -3,6 +3,7 @@
 
 #include "NodeFactory.h"
 
+#include "ColorNode.h"
 #include "CompNode.h"
 #include "GenNode.h"
 #include "InputNode.h"
@@ -27,6 +28,12 @@ namespace ibis
 
             p.nodes[ArithmeticNode::getNodeInfo().id] = &ArithmeticNode::create;
             p.info[ArithmeticNode::getNodeInfo().id] = ArithmeticNode::getNodeInfo();
+
+            p.nodes[BrightnessNode::getNodeInfo().id] = &BrightnessNode::create;
+            p.info[BrightnessNode::getNodeInfo().id] = BrightnessNode::getNodeInfo();
+
+            p.nodes[ContrastNode::getNodeInfo().id] = &ContrastNode::create;
+            p.info[ContrastNode::getNodeInfo().id] = ContrastNode::getNodeInfo();
 
             p.nodes[ImageFileNode::getNodeInfo().id] = &ImageFileNode::create;
             p.info[ImageFileNode::getNodeInfo().id] = ImageFileNode::getNodeInfo();

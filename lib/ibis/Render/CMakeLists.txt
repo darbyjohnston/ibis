@@ -1,4 +1,5 @@
 set(HEADERS
+    ColorNode.h
     CompNode.h
     GenNode.h
     Graph.h
@@ -10,6 +11,7 @@ set(HEADERS
     RenderUtil.h)
 
 set(SOURCE
+    ColorNode.cpp
     CompNode.cpp
     GenNode.cpp
     Graph.cpp

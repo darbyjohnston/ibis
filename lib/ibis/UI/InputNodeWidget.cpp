@@ -10,7 +10,9 @@
 #include <ibis/Render/InputNode.h>
 
 #include <ftk/UI/Bellows.h>
+#include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
+#include <ftk/UI/IntEdit.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -40,7 +42,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -48,7 +50,9 @@ namespace ibis
                 [this](const ftk::Path& path)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Path", path.get()));
+                        _document->getGraph(),
+                        _node,
+                        { { "Path", path.get() } }));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -56,13 +60,11 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    std::string path;
                     auto i = value.find("Path");
                     if (i != value.end())
                     {
-                        path = i->second;
+                        p.fileEdit->setPath(ftk::Path(i->second));
                     }
-                    p.fileEdit->setPath(ftk::Path(path));
                 });
         }
 
@@ -103,8 +105,12 @@ namespace ibis
         struct ImageSequenceNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
+            std::shared_ptr<ftk::IntEdit> startFrameEdit;
+            std::shared_ptr<ftk::IntEdit> endFrameEdit;
+            std::shared_ptr<ftk::ComboBox> loopComboBox;
             std::shared_ptr<ftk::Bellows> bellows;
 
+            bool blockCallbacks = false;
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
@@ -119,18 +125,74 @@ namespace ibis
 
             p.fileEdit = ftk::FileEdit::create(context);
 
+            p.startFrameEdit = ftk::IntEdit::create(context);
+            p.startFrameEdit->setRange(0, 999999);
+
+            p.endFrameEdit = ftk::IntEdit::create(context);
+            p.endFrameEdit->setRange(0, 999999);
+
+            p.loopComboBox = ftk::ComboBox::create(context, render::getInputLoopLabels());
+
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
+            formLayout->addRow("Start frame:", p.startFrameEdit);
+            formLayout->addRow("End frame:", p.endFrameEdit);
+            formLayout->addRow("Loop:", p.loopComboBox);
+            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
                 {
+                    ftk::Path tmp = path;
+                    if (tmp.hasNum() && !tmp.isSeq())
+                    {
+                        tmp = ftk::expandSeq(tmp);
+                    }
+                    int startFrame = 0;
+                    int endFrame = 0;
+                    if (tmp.getFrames().has_value())
+                    {
+                        startFrame = tmp.getFrames()->min();
+                        endFrame = tmp.getFrames()->max();
+                    }
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Path", path.get()));
+                        _document->getGraph(),
+                        _node,
+                        {
+                            { "Path", path.get() },
+                            { "StartFrame", startFrame },
+                            { "EndFrame", endFrame }
+                        }));
+                });
+
+            p.startFrameEdit->setCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(),
+                        _node,
+                        { { "StartFrame", value } }));
+                });
+
+            p.endFrameEdit->setCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(),
+                        _node,
+                        { { "EndFrame", value } }));
+                });
+
+            p.loopComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(),
+                        _node,
+                        { { "Loop", static_cast<render::InputLoop>(value) } }));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -138,13 +200,26 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    std::string path;
                     auto i = value.find("Path");
                     if (i != value.end())
                     {
-                        path = i->second;
+                        p.fileEdit->setPath(ftk::Path(i->second));
                     }
-                    p.fileEdit->setPath(ftk::Path(path));
+                    i = value.find("StartFrame");
+                    if (i != value.end())
+                    {
+                        p.startFrameEdit->setValue(i->second);
+                    }
+                    i = value.find("EndFrame");
+                    if (i != value.end())
+                    {
+                        p.endFrameEdit->setValue(i->second);
+                    }
+                    i = value.find("Loop");
+                    if (i != value.end())
+                    {
+                        p.loopComboBox->setCurrentIndex(static_cast<int>(i->second));
+                    }
                 });
         }
 

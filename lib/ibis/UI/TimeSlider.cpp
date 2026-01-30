@@ -206,6 +206,9 @@ namespace ibis
         void TimeSlider::mousePressEvent(ftk::MouseClickEvent& event)
         {
             IMouseWidget::mousePressEvent(event);
+            FTK_P();
+            const OTIO_NS::RationalTime t = _posToTime(event.pos.x);
+            p.timeModel->setCurrentTime(t);
         }
 
         void TimeSlider::mouseReleaseEvent(ftk::MouseClickEvent& event)

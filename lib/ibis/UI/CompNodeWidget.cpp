@@ -28,7 +28,7 @@ namespace ibis
 
             auto layout = ftk::VerticalLayout::create(context);
             layout->setMarginRole(ftk::SizeRole::Margin);
-            p.bellows = ftk::Bellows::create(context, getInfo().id, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(layout);
         }

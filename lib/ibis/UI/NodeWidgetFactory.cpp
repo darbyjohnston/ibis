@@ -3,6 +3,7 @@
 
 #include "NodeWidgetFactory.h"
 
+#include "ColorNodeWidget.h"
 #include "CompNodeWidget.h"
 #include "GenNodeWidget.h"
 #include "InputNodeWidget.h"
@@ -35,6 +36,8 @@ namespace ibis
             p.context = context;
 
             p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;
+            p.nodes[BrightnessNodeWidget::getNodeInfo().id] = &BrightnessNodeWidget::create;
+            p.nodes[ContrastNodeWidget::getNodeInfo().id] = &ContrastNodeWidget::create;
             p.nodes[ImageFileNodeWidget::getNodeInfo().id] = &ImageFileNodeWidget::create;
             p.nodes[ImageSequenceNodeWidget::getNodeInfo().id] = &ImageSequenceNodeWidget::create;
             p.nodes[OverNodeWidget::getNodeInfo().id] = &OverNodeWidget::create;
