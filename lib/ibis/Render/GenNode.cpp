@@ -34,7 +34,7 @@ namespace ibis
 
         NodeInfo SolidColorNode::getNodeInfo()
         {
-            return { "SolidColor", "Solid Color", "Generator", "SolidColorNode" };
+            return { "SolidColor", "Solid Color", "Generator" };
         }
 
         std::shared_ptr<INode> SolidColorNode::create(

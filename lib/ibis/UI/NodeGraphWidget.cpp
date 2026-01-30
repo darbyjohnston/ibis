@@ -194,7 +194,6 @@ namespace ibis
 
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
-            std::shared_ptr<ftk::Icon> icon;
             std::shared_ptr<NodeGraphThumbnail> thumbnail;
             std::shared_ptr<ftk::HorizontalLayout> layout;
             std::shared_ptr<ftk::Menu> menu;
@@ -230,9 +229,6 @@ namespace ibis
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginInside);
 
-            p.icon = ftk::Icon::create(context, node->getInfo().icon);
-            p.icon->setMarginRole(ftk::SizeRole::MarginInside);
-
             p.thumbnail = NodeGraphThumbnail::create(context, node);
 
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
@@ -249,7 +245,6 @@ namespace ibis
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             auto hLayout = ftk::HorizontalLayout::create(context, vLayout);
             hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
-            p.icon->setParent(hLayout);
             label->setParent(hLayout);
             p.thumbnail->setParent(vLayout);
             

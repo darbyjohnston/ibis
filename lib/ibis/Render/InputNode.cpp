@@ -77,7 +77,7 @@ namespace ibis
 
         NodeInfo ImageFileNode::getNodeInfo()
         {
-            return { "ImageFile", "Image File", "Input", "ImageFileNode" };
+            return { "ImageFile", "Image File", "Input" };
         }
 
         std::shared_ptr<INode> ImageFileNode::create(
@@ -249,7 +249,7 @@ namespace ibis
 
         NodeInfo ImageSequenceNode::getNodeInfo()
         {
-            return { "ImageSequence", "Image Sequence", "Input", "ImageSequenceNode" };
+            return { "ImageSequence", "Image Sequence", "Input" };
         }
 
         std::shared_ptr<INode> ImageSequenceNode::create(
@@ -373,7 +373,7 @@ namespace ibis
 
         NodeInfo SVGFileNode::getNodeInfo()
         {
-            return { "SVGFile", "SVG File", "Input", "SVGFileNode" };
+            return { "SVGFile", "SVG File", "Input" };
         }
 
         std::shared_ptr<INode> SVGFileNode::create(

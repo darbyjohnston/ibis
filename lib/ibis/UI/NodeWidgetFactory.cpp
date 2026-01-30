@@ -35,13 +35,21 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;
-            p.nodes[BrightnessNodeWidget::getNodeInfo().id] = &BrightnessNodeWidget::create;
-            p.nodes[ContrastNodeWidget::getNodeInfo().id] = &ContrastNodeWidget::create;
             p.nodes[ImageFileNodeWidget::getNodeInfo().id] = &ImageFileNodeWidget::create;
             p.nodes[ImageSequenceNodeWidget::getNodeInfo().id] = &ImageSequenceNodeWidget::create;
-            p.nodes[OverNodeWidget::getNodeInfo().id] = &OverNodeWidget::create;
+
             p.nodes[SolidColorNodeWidget::getNodeInfo().id] = &SolidColorNodeWidget::create;
+
+            p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;
+
+            p.nodes[BrightnessNodeWidget::getNodeInfo().id] = &BrightnessNodeWidget::create;
+            p.nodes[ContrastNodeWidget::getNodeInfo().id] = &ContrastNodeWidget::create;
+            p.nodes[LevelsNodeWidget::getNodeInfo().id] = &LevelsNodeWidget::create;
+            p.nodes[SaturationNodeWidget::getNodeInfo().id] = &SaturationNodeWidget::create;
+            p.nodes[SoftClipNodeWidget::getNodeInfo().id] = &SoftClipNodeWidget::create;
+            p.nodes[TintNodeWidget::getNodeInfo().id] = &TintNodeWidget::create;
+
+            p.nodes[OverNodeWidget::getNodeInfo().id] = &OverNodeWidget::create;
         }
 
         NodeWidgetFactory::NodeWidgetFactory() :

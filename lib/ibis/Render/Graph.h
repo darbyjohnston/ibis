@@ -93,6 +93,11 @@ namespace ibis
                 const std::string&,
                 const nlohmann::json&);
 
+            //! Set node attributes.
+            void setAttr(
+                const std::shared_ptr<INode>&,
+                const std::vector<std::pair<std::string, nlohmann::json > >&);
+
             //! Connect nodes.
             void connect(
                 const std::shared_ptr<INode>& inputNode,

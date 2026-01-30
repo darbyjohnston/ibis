@@ -12,7 +12,7 @@
 #include <ftk/UI/Bellows.h>
 #include <ftk/UI/ColorSwatch.h>
 #include <ftk/UI/FormLayout.h>
-#include <ftk/UI/IntEdit.h>
+#include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -22,8 +22,8 @@ namespace ibis
         struct SolidColorNodeWidget::Private
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
-            std::shared_ptr<ftk::IntEdit> widthEdit;
-            std::shared_ptr<ftk::IntEdit> heightEdit;
+            std::shared_ptr<ftk::IntEditSlider> widthSlider;
+            std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -39,76 +39,48 @@ namespace ibis
             INodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.widthEdit = ftk::IntEdit::create(context);
-            p.widthEdit->setRange(1, 4096);
-            p.widthEdit->setStep(10);
-            p.widthEdit->setLargeStep(100);
+            p.widthSlider = ftk::IntEditSlider::create(context);
+            p.widthSlider->setRange(1, 4096);
+            p.widthSlider->setStep(10);
+            p.widthSlider->setLargeStep(100);
 
-            p.heightEdit = ftk::IntEdit::create(context);
-            p.heightEdit->setRange(1, 4096);
-            p.heightEdit->setStep(10);
-            p.heightEdit->setLargeStep(100);
+            p.heightSlider = ftk::IntEditSlider::create(context);
+            p.heightSlider->setRange(1, 4096);
+            p.heightSlider->setStep(10);
+            p.heightSlider->setLargeStep(100);
 
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Width:", p.widthEdit);
-            formLayout->addRow("Height:", p.heightEdit);
+            formLayout->addRow("Width:", p.widthSlider);
+            formLayout->addRow("Height:", p.heightSlider);
             formLayout->addRow("Color:", p.colorSwatch);
             p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
-            p.widthEdit->setCallback(
-                [this](int value)
+            p.widthSlider->setPressedCallback(
+                [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
-                    if (value != size.w)
-                    {
-                        size.w = value;
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Size", size));
-                    }
+                    size.w = value;
+                    _callback({ { "Size", size } }, pressed);
                 });
 
-            p.heightEdit->setCallback(
-                [this](int value)
+            p.heightSlider->setPressedCallback(
+                [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
-                    if (value != size.h)
-                    {
-                        size.h = value;
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Size", size));
-                    }
+                    size.h = value;
+                    _callback({ { "Size", size } }, pressed);
                 });
 
             p.colorSwatch->setPressedCallback(
                 [this](const ftk::Color4F& value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Color", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Color", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Color", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Color", value));
-                    }
+                    _callback({ { "Color", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -116,22 +88,11 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    ftk::Size2I size;
-                    auto i = value.find("Size");
-                    if (i != value.end())
-                    {
-                        size = i->second;
-                    }
-                    p.widthEdit->setValue(size.w);
-                    p.heightEdit->setValue(size.h);
-
-                    ftk::Color4F color;
-                    i = value.find("Color");
-                    if (i != value.end())
-                    {
-                        color = i->second;
-                    }
-                    p.colorSwatch->setColor(color);
+                    auto tmp = value;
+                    const ftk::Size2I size = tmp["Size"];
+                    p.widthSlider->setValue(size.w);
+                    p.heightSlider->setValue(size.h);
+                    p.colorSwatch->setColor(tmp["Color"]);
                 });
         }
 
@@ -167,6 +128,33 @@ namespace ibis
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
+        }
+
+        void SolidColorNodeWidget::_callback(
+            const std::vector<std::pair<std::string, nlohmann::json> >& attr,
+            bool pressed)
+        {
+            FTK_P();
+            if (pressed)
+            {
+                if (!p.cmd)
+                {
+                    p.cmd = render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, attr);
+                }
+                _document->getGraph()->setAttr(_node, attr);
+            }
+            else if (p.cmd)
+            {
+                p.cmd->set(attr);
+                _document->command(p.cmd);
+                p.cmd.reset();
+            }
+            else
+            {
+                _document->command(render::NodeAttrCmd::create(
+                    _document->getGraph(), _node, attr));
+            }
         }
     }
 }

@@ -33,7 +33,7 @@ namespace ibis
 
         NodeInfo OverNode::getNodeInfo()
         {
-            return { "Over", "Over", "Compositing", "OverNode" };
+            return { "Over", "Over", "Compositing" };
         }
 
         std::shared_ptr<INode> OverNode::create(

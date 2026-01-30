@@ -41,7 +41,7 @@ namespace ibis
             public:
                 virtual ~TestNode() = default;
 
-                static render::NodeInfo getNodeInfo() { return { "TestNode", "Test Node", "Test", "TestNode" }; }
+                static render::NodeInfo getNodeInfo() { return { "TestNode", "Test Node", "Test" }; }
 
                 static std::shared_ptr<INode> create(
                     const std::shared_ptr<ftk::Context>& context)

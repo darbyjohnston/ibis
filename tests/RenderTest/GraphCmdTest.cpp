@@ -34,7 +34,7 @@ namespace ibis
                 {
                     INode::_init(
                         context,
-                        { "TestNode", "Test Node", "Test", "TestNode" },
+                        { "TestNode", "Test Node", "Test" },
                         1);
                 }
 

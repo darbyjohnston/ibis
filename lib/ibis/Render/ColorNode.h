@@ -11,16 +11,123 @@ namespace ibis
 {
     namespace render
     {
+        //! Base class for color matrix nodes.
+        class IColorMatrixNode : public INode
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const NodeInfo& info,
+                int inputCount,
+                int outputCount = 1,
+                const NodeAttr& = {});
+
+            IColorMatrixNode();
+
+        public:
+            virtual ~IColorMatrixNode() = 0;
+
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
+
+        protected:
+            virtual ftk::M44F _getColorMatrix() const = 0;
+
+        private:
+            FTK_PRIVATE();
+        };
+
         //! Brightness node.
-        class BrightnessNode : public INode
+        class BrightnessNode : public IColorMatrixNode
         {
         protected:
             void _init(const std::shared_ptr<ftk::Context>&);
 
-            BrightnessNode();
+            BrightnessNode() = default;
 
         public:
             virtual ~BrightnessNode();
+
+            static NodeInfo getNodeInfo();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+        protected:
+            ftk::M44F _getColorMatrix() const override;
+        };
+
+        //! Contrast node.
+        class ContrastNode : public IColorMatrixNode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            ContrastNode() = default;
+
+        public:
+            virtual ~ContrastNode();
+
+            static NodeInfo getNodeInfo();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+        protected:
+            ftk::M44F _getColorMatrix() const override;
+        };
+
+        //! Saturation node.
+        class SaturationNode : public IColorMatrixNode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            SaturationNode() = default;
+
+        public:
+            virtual ~SaturationNode();
+
+            static NodeInfo getNodeInfo();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+        protected:
+            ftk::M44F _getColorMatrix() const override;
+        };
+
+        //! Tint node.
+        class TintNode : public IColorMatrixNode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            TintNode() = default;
+
+        public:
+            virtual ~TintNode();
+
+            static NodeInfo getNodeInfo();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+        protected:
+            ftk::M44F _getColorMatrix() const override;
+        };
+
+        //! Invert node.
+        class InvertNode : public INode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            InvertNode();
+
+        public:
+            virtual ~InvertNode();
 
             static NodeInfo getNodeInfo();
 
@@ -35,16 +142,40 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! Contrast node.
-        class ContrastNode : public INode
+        //! Levels node.
+        class LevelsNode : public INode
         {
         protected:
             void _init(const std::shared_ptr<ftk::Context>&);
 
-            ContrastNode();
+            LevelsNode();
 
         public:
-            virtual ~ContrastNode();
+            virtual ~LevelsNode();
+
+            static NodeInfo getNodeInfo();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&);
+
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+
+        //! Soft clip node.
+        class SoftClipNode : public INode
+        {
+        protected:
+            void _init(const std::shared_ptr<ftk::Context>&);
+
+            SoftClipNode();
+
+        public:
+            virtual ~SoftClipNode();
 
             static NodeInfo getNodeInfo();
 

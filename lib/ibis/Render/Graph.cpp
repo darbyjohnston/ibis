@@ -324,6 +324,22 @@ namespace ibis
             }
         }
 
+        void Graph::setAttr(
+            const std::shared_ptr<INode>& node,
+            const std::vector<std::pair<std::string, nlohmann::json > >& attr)
+        {
+            FTK_P();
+            bool changed = false;
+            for (const auto& i : attr)
+            {
+                changed |= node->setAttr(i.first, i.second);
+            }
+            if (changed)
+            {
+                p.changed->setAlways(true);
+            }
+        }
+
         std::vector<std::shared_ptr<INode> > Graph::getRootNodes() const
         {
             FTK_P();

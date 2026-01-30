@@ -35,7 +35,7 @@ namespace ibis
 
         NodeInfo ArithmeticNode::getNodeInfo()
         {
-            return { "Arithmetic", "Arithmetic", "Math", "ArithmeticNode" };
+            return { "Arithmetic", "Arithmetic", "Math" };
         }
 
         std::shared_ptr<INode> ArithmeticNode::create(

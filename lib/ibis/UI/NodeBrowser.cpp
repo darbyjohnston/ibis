@@ -4,7 +4,6 @@
 #include "NodeBrowser.h"
 
 #include <ftk/UI/Divider.h>
-#include <ftk/UI/Icon.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
@@ -17,7 +16,6 @@ namespace ibis
         struct NodeBrowserItem::Private
         {
             render::NodeInfo info;
-            std::shared_ptr<ftk::Icon> icon;
             std::shared_ptr<ftk::Label> label;
             std::shared_ptr<ftk::HorizontalLayout> layout;
 
@@ -39,15 +37,11 @@ namespace ibis
 
             p.info = info;
 
-            p.icon = ftk::Icon::create(context, info.icon);
-            p.icon->setMarginRole(ftk::SizeRole::MarginInside);
-
             p.label = ftk::Label::create(context, info.name);
             p.label->setMarginRole(ftk::SizeRole::MarginInside);
 
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
-            p.icon->setParent(p.layout);
             p.label->setParent(p.layout);
         }
 
@@ -91,7 +85,7 @@ namespace ibis
             }
             if (!p.dragImage)
             {
-                p.dragImage = event.iconSystem->get(p.info.icon, event.displayScale);
+                p.dragImage = event.iconSystem->get("NodeDragDrop", event.displayScale);
             }
         }
 

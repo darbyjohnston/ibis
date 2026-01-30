@@ -34,7 +34,6 @@ namespace ibis
             std::string id;
             std::string name;
             std::string group;
-            std::string icon;
         };
 
         //! Node connection.

@@ -26,29 +26,36 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ArithmeticNode::getNodeInfo().id] = &ArithmeticNode::create;
-            p.info[ArithmeticNode::getNodeInfo().id] = ArithmeticNode::getNodeInfo();
-
-            p.nodes[BrightnessNode::getNodeInfo().id] = &BrightnessNode::create;
-            p.info[BrightnessNode::getNodeInfo().id] = BrightnessNode::getNodeInfo();
-
-            p.nodes[ContrastNode::getNodeInfo().id] = &ContrastNode::create;
-            p.info[ContrastNode::getNodeInfo().id] = ContrastNode::getNodeInfo();
-
             p.nodes[ImageFileNode::getNodeInfo().id] = &ImageFileNode::create;
             p.info[ImageFileNode::getNodeInfo().id] = ImageFileNode::getNodeInfo();
-
             p.nodes[ImageSequenceNode::getNodeInfo().id] = &ImageSequenceNode::create;
             p.info[ImageSequenceNode::getNodeInfo().id] = ImageSequenceNode::getNodeInfo();
-
-            p.nodes[OverNode::getNodeInfo().id] = &OverNode::create;
-            p.info[OverNode::getNodeInfo().id] = OverNode::getNodeInfo();
-
             p.nodes[SVGFileNode::getNodeInfo().id] = &SVGFileNode::create;
             p.info[SVGFileNode::getNodeInfo().id] = SVGFileNode::getNodeInfo();
 
             p.nodes[SolidColorNode::getNodeInfo().id] = &SolidColorNode::create;
             p.info[SolidColorNode::getNodeInfo().id] = SolidColorNode::getNodeInfo();
+
+            p.nodes[ArithmeticNode::getNodeInfo().id] = &ArithmeticNode::create;
+            p.info[ArithmeticNode::getNodeInfo().id] = ArithmeticNode::getNodeInfo();
+
+            p.nodes[BrightnessNode::getNodeInfo().id] = &BrightnessNode::create;
+            p.info[BrightnessNode::getNodeInfo().id] = BrightnessNode::getNodeInfo();
+            p.nodes[ContrastNode::getNodeInfo().id] = &ContrastNode::create;
+            p.info[ContrastNode::getNodeInfo().id] = ContrastNode::getNodeInfo();
+            p.nodes[InvertNode::getNodeInfo().id] = &InvertNode::create;
+            p.info[InvertNode::getNodeInfo().id] = InvertNode::getNodeInfo();
+            p.nodes[LevelsNode::getNodeInfo().id] = &LevelsNode::create;
+            p.info[LevelsNode::getNodeInfo().id] = LevelsNode::getNodeInfo();
+            p.nodes[SaturationNode::getNodeInfo().id] = &SaturationNode::create;
+            p.info[SaturationNode::getNodeInfo().id] = SaturationNode::getNodeInfo();
+            p.nodes[SoftClipNode::getNodeInfo().id] = &SoftClipNode::create;
+            p.info[SoftClipNode::getNodeInfo().id] = SoftClipNode::getNodeInfo();
+            p.nodes[TintNode::getNodeInfo().id] = &TintNode::create;
+            p.info[TintNode::getNodeInfo().id] = TintNode::getNodeInfo();
+
+            p.nodes[OverNode::getNodeInfo().id] = &OverNode::create;
+            p.info[OverNode::getNodeInfo().id] = OverNode::getNodeInfo();
         }
 
         NodeFactory::NodeFactory() :
