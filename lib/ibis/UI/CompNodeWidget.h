@@ -37,6 +37,10 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
 
         private:
+            void _callback(
+                const std::vector<std::pair<std::string, nlohmann::json> >&,
+                bool pressed);
+
             FTK_PRIVATE();
         };
     }

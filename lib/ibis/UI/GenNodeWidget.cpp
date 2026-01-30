@@ -24,6 +24,7 @@ namespace ibis
         struct SolidColorNodeWidget::Private
         {
             std::shared_ptr<render::NodeAttrCmd> cmd;
+
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;

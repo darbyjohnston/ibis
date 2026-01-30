@@ -34,6 +34,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Mode"] = OverMode::Premult;
+            attr["Position"] = ftk::V2I();
             INode::_init(context, getNodeInfo(), 2, 1, attr);
         }
 
@@ -104,14 +105,14 @@ namespace ibis
                 "void main()\n"
                 "{\n"
                 "    vec2 bgUV = fTexture;\n"
-                "    bgUV.x = bgUV.x * (textureSamplerU.y - textureSamplerU.x) - textureSamplerU.x;\n"
-                "    bgUV.y = bgUV.y * (textureSamplerV.y - textureSamplerV.x) - textureSamplerV.x;\n"
+                "    bgUV.x = (bgUV.x - textureSamplerU.x) / (textureSamplerU.y - textureSamplerU.x);\n"
+                "    bgUV.y = (bgUV.y - textureSamplerV.x) / (textureSamplerV.y - textureSamplerV.x);\n"
                 "    vec4 bg = vec4(0.0, 0.0, 0.0, 0.0);\n"
                 "    if (bgUV.x >= 0.0 && bgUV.x <= 1.0 && bgUV.y >= 0.0 && bgUV.y <= 1.0)\n"
                 "        bg = texture(textureSampler, bgUV);\n"
                 "    vec2 fgUV = fTexture;\n"
-                "    fgUV.x = fgUV.x * (textureSampler2U.y - textureSampler2U.x) - textureSampler2U.x;\n"
-                "    fgUV.y = fgUV.y * (textureSampler2V.y - textureSampler2V.x) - textureSampler2V.x;\n"
+                "    fgUV.x = (fgUV.x - textureSampler2U.x) / (textureSampler2U.y - textureSampler2U.x);\n"
+                "    fgUV.y = (fgUV.y - textureSampler2V.x) / (textureSampler2V.y - textureSampler2V.x);\n"
                 "    vec4 fg = vec4(0.0, 0.0, 0.0, 0.0);\n"
                 "    if (fgUV.x >= 0.0 && fgUV.x <= 1.0 && fgUV.y >= 0.0 && fgUV.y <= 1.0)\n"
                 "        fg = texture(textureSampler2, fgUV);\n"
@@ -187,8 +188,9 @@ namespace ibis
                 const auto& input1 = _inputs->getItem(1).node->getOutputs();
                 const ftk::Size2I& size0 = input0.front()->getSize();
                 const ftk::Size2I& size1 = input1.front()->getSize();
-                size.w = std::max(size0.w, size1.w);
-                size.h = std::max(size0.h, size1.h);
+                const ftk::V2I pos = _attr->getItem("Position");
+                size.w = std::max(size0.w, pos.x + size1.w);
+                size.h = std::max(size0.h, pos.y + size1.h);
                 if (size.isValid())
                 {
                     ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -212,11 +214,15 @@ namespace ibis
                     p.shader->setUniform("transform.mvp", pm);
                     p.shader->setUniform("overMode", static_cast<int>(_attr->getItem("Mode")));
                     p.shader->setUniform("textureSampler", 0);
-                    p.shader->setUniform("textureSamplerU", ftk::V2F(0.0, size.w / static_cast<float>(size0.w)));
-                    p.shader->setUniform("textureSamplerV", ftk::V2F(0.0, size.h / static_cast<float>(size0.h)));
+                    p.shader->setUniform("textureSamplerU", ftk::V2F(0.0, size0.w / static_cast<float>(size.w)));
+                    p.shader->setUniform("textureSamplerV", ftk::V2F(0.0, size0.h / static_cast<float>(size.h)));
                     p.shader->setUniform("textureSampler2", 1);
-                    p.shader->setUniform("textureSampler2U", ftk::V2F(0.0, size.w / static_cast<float>(size1.w)));
-                    p.shader->setUniform("textureSampler2V", ftk::V2F(0.0, size.h / static_cast<float>(size1.h)));
+                    p.shader->setUniform("textureSampler2U", ftk::V2F(
+                        pos.x / static_cast<float>(size.w),
+                        (pos.x + size1.w) / static_cast<float>(size.w)));
+                    p.shader->setUniform("textureSampler2V", ftk::V2F(
+                        pos.y / static_cast<float>(size.h),
+                        (pos.y + size1.h) / static_cast<float>(size.h)));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                     glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
