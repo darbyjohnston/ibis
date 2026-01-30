@@ -66,7 +66,6 @@ namespace ibis
             NodeAttr attr;
             attr["Path"] = "";
             INode::_init(context, getNodeInfo(), 0, 1, attr);
-            FTK_P();
         }
 
         ImageFileNode::ImageFileNode() :

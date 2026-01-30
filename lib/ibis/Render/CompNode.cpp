@@ -7,12 +7,24 @@
 #include <ftk/GL/Mesh.h>
 #include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/GL/Shader.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
 #include <ftk/Core/IRender.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
     namespace render
     {
+        FTK_ENUM_IMPL(
+            OverMode,
+            "Premult",
+            "NonPremult",
+            "Add",
+            "Subtract",
+            "Multiply",
+            "Divide");
+
         struct OverNode::Private
         {
             std::shared_ptr<ftk::gl::Shader> shader;
@@ -20,8 +32,9 @@ namespace ibis
 
         void OverNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, getNodeInfo(), 2);
-            FTK_P();
+            NodeAttr attr;
+            attr["Mode"] = OverMode::Premult;
+            INode::_init(context, getNodeInfo(), 2, 1, attr);
         }
 
         OverNode::OverNode() :
@@ -72,6 +85,15 @@ namespace ibis
                 "in vec2 fTexture;\n"
                 "out vec4 outColor;\n"
                 "\n"
+                "// enum ibis::render::OverMode\n"
+                "const uint OverMode_Premult    = 0;\n"
+                "const uint OverMode_NonPremult = 1;\n"
+                "const uint OverMode_Add        = 2;\n"
+                "const uint OverMode_Subtract   = 3;\n"
+                "const uint OverMode_Multiply   = 4;\n"
+                "const uint OverMode_Divide     = 5;\n"
+                "\n"
+                "uniform int overMode;\n"
                 "uniform sampler2D textureSampler;\n"
                 "uniform vec2 textureSamplerU;\n"
                 "uniform vec2 textureSamplerV;\n"
@@ -93,11 +115,51 @@ namespace ibis
                 "    vec4 fg = vec4(0.0, 0.0, 0.0, 0.0);\n"
                 "    if (fgUV.x >= 0.0 && fgUV.x <= 1.0 && fgUV.y >= 0.0 && fgUV.y <= 1.0)\n"
                 "        fg = texture(textureSampler2, fgUV);\n"
-                "    float ia = 1.0 - fg.a;\n"
-                "    outColor.r = fg.r * fg.a + bg.r * ia;\n"
-                "    outColor.g = fg.g * fg.a + bg.g * ia;\n"
-                "    outColor.b = fg.b * fg.a + bg.b * ia;\n"
-                "    outColor.a = min(fg.a + ia, 1.0);\n"
+                "\n"
+                "    if (OverMode_Premult == overMode)\n"
+                "    {\n"
+                "        float ia = 1.0 - fg.a;\n"
+                "        outColor.r = fg.r + bg.r * ia;\n"
+                "        outColor.g = fg.g + bg.g * ia;\n"
+                "        outColor.b = fg.b + bg.b * ia;\n"
+                "        outColor.a = clamp(fg.a + ia, 0.0, 1.0);\n"
+                "    }\n"
+                "    else if (OverMode_NonPremult == overMode)\n"
+                "    {\n"
+                "        float ia = 1.0 - fg.a;\n"
+                "        outColor.r = fg.r * fg.a + bg.r * ia;\n"
+                "        outColor.g = fg.g * fg.a + bg.g * ia;\n"
+                "        outColor.b = fg.b * fg.a + bg.b * ia;\n"
+                "        outColor.a = clamp(fg.a + ia, 0.0, 1.0);\n"
+                "    }\n"
+                "    else if (OverMode_Add == overMode)\n"
+                "    {\n"
+                "        outColor.r = fg.r + bg.r;\n"
+                "        outColor.g = fg.g + bg.g;\n"
+                "        outColor.b = fg.b + bg.b;\n"
+                "        outColor.a = max(fg.a, bg.a);\n"
+                "    }\n"
+                "    else if (OverMode_Subtract == overMode)\n"
+                "    {\n"
+                "        outColor.r = bg.r - fg.r;\n"
+                "        outColor.g = bg.g - fg.g;\n"
+                "        outColor.b = bg.b - fg.b;\n"
+                "        outColor.a = max(fg.a, bg.a);\n"
+                "    }\n"
+                "    else if (OverMode_Multiply == overMode)\n"
+                "    {\n"
+                "        outColor.r = fg.r * bg.r;\n"
+                "        outColor.g = fg.g * bg.g;\n"
+                "        outColor.b = fg.b * bg.b;\n"
+                "        outColor.a = max(fg.a, bg.a);\n"
+                "    }\n"
+                "    else if (OverMode_Divide == overMode)\n"
+                "    {\n"
+                "        outColor.r = bg.r / fg.r;\n"
+                "        outColor.g = bg.g / fg.g;\n"
+                "        outColor.b = bg.b / fg.b;\n"
+                "        outColor.a = max(fg.a, bg.a);\n"
+                "    }\n"
                 "}\n";
         }
 
@@ -148,6 +210,7 @@ namespace ibis
                         -1.F,
                         1.F);
                     p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("overMode", static_cast<int>(_attr->getItem("Mode")));
                     p.shader->setUniform("textureSampler", 0);
                     p.shader->setUniform("textureSamplerU", ftk::V2F(0.0, size.w / static_cast<float>(size0.w)));
                     p.shader->setUniform("textureSamplerV", ftk::V2F(0.0, size.h / static_cast<float>(size0.h)));

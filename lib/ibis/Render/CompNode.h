@@ -9,6 +9,21 @@ namespace ibis
 {
     namespace render
     {
+        //! Over mode.
+        enum class OverMode
+        {
+            Premult,
+            NonPremult,
+            Add,
+            Subtract,
+            Multiply,
+            Divide,
+
+            Count,
+            First = Premult
+        };
+        FTK_ENUM(OverMode);
+
         //! Over node.
         class OverNode : public INode
         {
