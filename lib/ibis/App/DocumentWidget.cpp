@@ -11,6 +11,7 @@
 
 #include <ibis/Models/Document.h>
 
+#include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/Splitter.h>
 
@@ -51,6 +52,7 @@ namespace ibis
         p.splitter->setSplit(.6F);
         p.viewport->setParent(p.splitter);
         p.nodeGraphCanvas->setParent(p.splitter);
+        ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.timelineWidget->setParent(p.layout);
     }
 

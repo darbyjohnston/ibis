@@ -3,9 +3,7 @@
 
 #include "DiagWidget.h"
 
-#include <ftk/UI/Divider.h>
 #include <ftk/UI/GraphWidget.h>
-#include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
 #include <ftk/gl/Mesh.h>
@@ -21,7 +19,6 @@ namespace ibis
     {
         struct DiagWidget::Private
         {
-            std::map<std::string, std::shared_ptr<ftk::Label> > labels;
             std::map<std::string, std::shared_ptr<ftk::GraphWidget> > graphs;
             std::shared_ptr<ftk::Timer> timer;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
@@ -34,34 +31,44 @@ namespace ibis
             IWidget::_init(context, "ibis::DiagWidget", parent);
             FTK_P();
 
-            const std::vector<std::string> graphs =
-            {
-                "Images",
-                "ImagesSize",
-                "Meshes",
-                "MeshesSize",
-                "Textures",
-                "TexturesSize",
-                "OffscreenBuffers",
-                "Shaders",
-                "Widgets"
-            };
-            for (const auto& graph : graphs)
-            {
-                p.labels[graph] = ftk::Label::create(context);
-                p.graphs[graph] = ftk::GraphWidget::create(context);
-            }
+            p.graphs["GLObjects"] = ftk::GraphWidget::create(
+                context,
+                "OpenGL Objects",
+                {
+                    { ftk::ColorRole::Cyan, "Meshes: {0}" },
+                    { ftk::ColorRole::Magenta, "Textures: {0}" },
+                    { ftk::ColorRole::Yellow, "Buffers: {0}" },
+                    { ftk::ColorRole::Red, "Shaders: {0}" }
+                });
+
+            p.graphs["GLMemory"] = ftk::GraphWidget::create(
+                context,
+                "OpenGL Memory",
+                {
+                    { ftk::ColorRole::Cyan, "Meshes: {0}MB" },
+                    { ftk::ColorRole::Magenta, "Textures: {0}MB" }
+                });
+
+            p.graphs["Objects"] = ftk::GraphWidget::create(
+                context,
+                "Objects",
+                {
+                    { ftk::ColorRole::Cyan, "Images: {0}" },
+                    { ftk::ColorRole::Magenta, "Widgets: {0}" }
+                });
+
+            p.graphs["Memory"] = ftk::GraphWidget::create(
+                context,
+                "Memory",
+                {
+                    { ftk::ColorRole::Cyan, "Images: {0}MB" }
+                });
 
             auto layout = ftk::VerticalLayout::create(context);
-            layout->setSpacingRole(ftk::SizeRole::None);
-            for (const auto& graph : graphs)
+            layout->setMarginRole(ftk::SizeRole::Margin);
+            for (const auto& i : p.graphs)
             {
-                auto vLayout = ftk::VerticalLayout::create(context, layout);
-                vLayout->setMarginRole(ftk::SizeRole::Margin);
-                vLayout->setSpacingRole(ftk::SizeRole::SpacingSmall);
-                p.labels[graph]->setParent(vLayout);
-                p.graphs[graph]->setParent(vLayout);
-                ftk::Divider::create(context, ftk::Orientation::Vertical, layout);
+                i.second->setParent(layout);
             }
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
@@ -110,42 +117,36 @@ namespace ibis
         void DiagWidget::_widgetUpdate()
         {
             FTK_P();
+            p.graphs["GLObjects"]->addSample(
+                ftk::ColorRole::Cyan,
+                ftk::gl::VBO::getObjectCount());
+            p.graphs["GLObjects"]->addSample(
+                ftk::ColorRole::Magenta,
+                ftk::gl::Texture::getObjectCount());
+            p.graphs["GLObjects"]->addSample(
+                ftk::ColorRole::Yellow,
+                ftk::gl::OffscreenBuffer::getObjectCount());
+            p.graphs["GLObjects"]->addSample(
+                ftk::ColorRole::Red,
+                ftk::gl::Shader::getObjectCount());
 
-            size_t count = ftk::Image::getObjectCount();
-            p.labels["Images"]->setText(ftk::Format("Image objects: {0}").arg(count));
-            p.graphs["Images"]->addSample(count);
+            p.graphs["GLMemory"]->addSample(
+                ftk::ColorRole::Cyan,
+                ftk::gl::VBO::getTotalByteCount() / ftk::megabyte);
+            p.graphs["GLMemory"]->addSample(
+                ftk::ColorRole::Magenta,
+                ftk::gl::Texture::getTotalByteCount() / ftk::megabyte);
 
-            count = ftk::Image::getTotalByteCount() / ftk::megabyte;
-            p.labels["ImagesSize"]->setText(ftk::Format("Total images size: {0}MB").arg(count));
-            p.graphs["ImagesSize"]->addSample(count);
+            p.graphs["Objects"]->addSample(
+                ftk::ColorRole::Cyan,
+                ftk::gl::VBO::getObjectCount());
+            p.graphs["Objects"]->addSample(
+                ftk::ColorRole::Magenta,
+                ftk::gl::Texture::getObjectCount());
 
-            count = ftk::gl::VBO::getObjectCount();
-            p.labels["Meshes"]->setText(ftk::Format("Mesh objects: {0}").arg(count));
-            p.graphs["Meshes"]->addSample(count);
-
-            count = ftk::gl::VBO::getTotalByteCount() / ftk::megabyte;
-            p.labels["MeshesSize"]->setText(ftk::Format("Total meshes size: {0}MB").arg(count));
-            p.graphs["MeshesSize"]->addSample(count);
-
-            count = ftk::gl::Texture::getObjectCount();
-            p.labels["Textures"]->setText(ftk::Format("Texture objects: {0}").arg(count));
-            p.graphs["Textures"]->addSample(count);
-
-            count = ftk::gl::Texture::getTotalByteCount() / ftk::megabyte;
-            p.labels["TexturesSize"]->setText(ftk::Format("Total textures size: {0}MB").arg(count));
-            p.graphs["TexturesSize"]->addSample(count);
-
-            count = ftk::gl::OffscreenBuffer::getObjectCount();
-            p.labels["OffscreenBuffers"]->setText(ftk::Format("Offscreen buffers: {0}").arg(count));
-            p.graphs["OffscreenBuffers"]->addSample(count);
-
-            count = ftk::gl::Shader::getObjectCount();
-            p.labels["Shaders"]->setText(ftk::Format("Shaders: {0}").arg(count));
-            p.graphs["Shaders"]->addSample(count);
-
-            count = ftk::IWidget::getObjectCount();
-            p.labels["Widgets"]->setText(ftk::Format("Widgets: {0}").arg(count));
-            p.graphs["Widgets"]->addSample(count);
+            p.graphs["Memory"]->addSample(
+                ftk::ColorRole::Cyan,
+                ftk::Image::getTotalByteCount() / ftk::megabyte);
         }
     }
 }
