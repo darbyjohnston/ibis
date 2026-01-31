@@ -241,7 +241,7 @@ namespace ibis
 
         ftk::M44F TintNode::_getColorMatrix() const
         {
-            const float v = _attr->getItem("Value") / 360.F;
+            const float v = static_cast<float>(_attr->getItem("Value")) / 360.F;
             return ftk::tint(v);
         }
 
