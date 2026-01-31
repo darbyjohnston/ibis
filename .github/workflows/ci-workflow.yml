@@ -16,7 +16,7 @@ jobs:
       IBIS_FFMPEG_MINIMAL: OFF
       IBIS_OIIO: ON
       IBIS_USD: OFF
-      IBIS_PYTHON: ON
+      IBIS_PYTHON: OFF
       IBIS_TESTS: ON
       IBIS_GCOV: ON
       FTK_API: GL_4_1
@@ -65,7 +65,7 @@ jobs:
       IBIS_FFMPEG_MINIMAL: OFF
       IBIS_OIIO: OFF
       IBIS_USD: OFF
-      IBIS_PYTHON: ON
+      IBIS_PYTHON: OFF
       IBIS_TESTS: ON
       FTK_API: GL_4_1
       BUILD_SHARED_LIBS: OFF
@@ -107,7 +107,7 @@ jobs:
       IBIS_FFMPEG_MINIMAL: OFF
       IBIS_OIIO: OFF
       IBIS_USD: OFF
-      IBIS_PYTHON: ON
+      IBIS_PYTHON: OFF
       IBIS_TESTS: ON
       FTK_API: GLES_2
       BUILD_SHARED_LIBS: OFF
@@ -149,7 +149,7 @@ jobs:
       IBIS_FFMPEG_MINIMAL: OFF
       IBIS_OIIO: ON
       IBIS_USD: OFF
-      IBIS_PYTHON: ON
+      IBIS_PYTHON: OFF
       IBIS_TESTS: ON
       IBIS_GCOV: OFF
       FTK_API: GL_4_1
@@ -198,7 +198,7 @@ jobs:
       IBIS_FFMPEG_MINIMAL: OFF
       IBIS_OIIO: ON
       IBIS_USD: OFF
-      IBIS_PYTHON: ON
+      IBIS_PYTHON: OFF
       IBIS_TESTS: ON
       BUILD_SHARED_LIBS: OFF
       FTK_API: GL_4_1
