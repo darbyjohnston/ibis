@@ -4,6 +4,7 @@
 #pragma once
 
 #include <ftk/Core/Context.h>
+#include <ftk/Core/Image.h>
 #include <ftk/Core/Observable.h>
 #include <ftk/Core/ObservableList.h>
 #include <ftk/Core/ObservableMap.h>
@@ -61,7 +62,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const NodeInfo& info,
+                const NodeInfo&,
                 int inputCount,
                 int outputCount = 1,
                 const NodeAttr& = {});
@@ -85,6 +86,12 @@ namespace ibis
 
             //! Get the outputs.
             const std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> >& getOutputs() const;
+
+            //! Get the image information.
+            ftk::ImageInfo getImageInfo(int) const;
+
+            //! Observe the image information.
+            std::shared_ptr<ftk::IObservableList<ftk::ImageInfo> > observeImageInfo() const;
 
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
@@ -110,6 +117,7 @@ namespace ibis
             NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
+            std::shared_ptr<ftk::ObservableList<ftk::ImageInfo> > _imageInfo;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;
         };
     }

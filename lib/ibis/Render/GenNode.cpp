@@ -67,6 +67,12 @@ namespace ibis
                 render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                 render->clearViewport(_attr->getItem("Color"));
             }
+
+            _imageInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::ImageInfo(_outputs[0]->getWidth(), _outputs[0]->getHeight(), _outputs[0]->getOptions().color) :
+                ftk::ImageInfo());
         }
 
         struct GradientNode::Private
@@ -167,6 +173,12 @@ namespace ibis
                     });
                 render->drawColorMesh(mesh);
             }
+
+            _imageInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::ImageInfo(_outputs[0]->getWidth(), _outputs[0]->getHeight(), _outputs[0]->getOptions().color) :
+                ftk::ImageInfo());
         }
 
         struct NoiseNode::Private
@@ -260,6 +272,12 @@ namespace ibis
             {
                 p.image.reset();
             }
+
+            _imageInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::ImageInfo(_outputs[0]->getWidth(), _outputs[0]->getHeight(), _outputs[0]->getOptions().color) :
+                ftk::ImageInfo());
         }
     }
 }

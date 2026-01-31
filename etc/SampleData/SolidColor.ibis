@@ -6,6 +6,13 @@
     "Graph": {
         "Nodes": [
             {
+                "Attr": {
+                    "Mode": 2,
+                    "Offset": [
+                        0,
+                        0
+                    ]
+                },
                 "ID": "Over",
                 "Inputs": [
                     {
@@ -34,22 +41,20 @@
             },
             {
                 "Attr": {
-                    "EndFrame": 9,
-                    "Loop": 1,
-                    "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\Counter.0.png",
-                    "StartFrame": 0
+                    "Scale": 23.111879348754883,
+                    "Size": [
+                        1024,
+                        1024
+                    ]
                 },
-                "ID": "ImageSequence",
+                "ID": "Noise",
                 "Pos": [
-                    312,
-                    352
+                    294,
+                    384
                 ]
             },
             {
-                "Attr": {
-                    "Value": 0.6028513238289206
-                },
-                "ID": "Brightness",
+                "ID": "Invert",
                 "Inputs": [
                     {
                         "Index": 0,
@@ -57,8 +62,8 @@
                     }
                 ],
                 "Pos": [
-                    1139,
-                    193
+                    1192,
+                    177
                 ]
             }
         ]

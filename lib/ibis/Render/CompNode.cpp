@@ -326,6 +326,12 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
+
+            _imageInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::ImageInfo(_outputs[0]->getWidth(), _outputs[0]->getHeight(), _outputs[0]->getOptions().color) :
+                ftk::ImageInfo());
         }
     }
 }

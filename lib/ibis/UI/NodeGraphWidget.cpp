@@ -195,6 +195,7 @@ namespace ibis
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
             std::shared_ptr<NodeGraphThumbnail> thumbnail;
+            std::shared_ptr<ftk::Label> imageInfoLabel;
             std::shared_ptr<ftk::HorizontalLayout> layout;
             std::shared_ptr<ftk::Menu> menu;
 
@@ -203,6 +204,8 @@ namespace ibis
             int keyFocusSize = 0;
 
             std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
+
+            std::shared_ptr<ftk::ListObserver<ftk::ImageInfo> > imageInfoObserver;
         };
 
         void NodeGraphWidget::_init(
@@ -231,6 +234,8 @@ namespace ibis
 
             p.thumbnail = NodeGraphThumbnail::create(context, node);
 
+            p.imageInfoLabel = ftk::Label::create(context);
+
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
 
@@ -247,13 +252,27 @@ namespace ibis
             hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             label->setParent(hLayout);
             p.thumbnail->setParent(vLayout);
-            
+            p.imageInfoLabel->setParent(vLayout);
+
             vLayout = ftk::VerticalLayout::create(context, p.layout);
             vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             for (const auto& i : p.outputs)
             {
                 i->setParent(vLayout);
             }
+
+            p.imageInfoObserver = ftk::ListObserver<ftk::ImageInfo>::create(
+                node->observeImageInfo(),
+                [this](const std::vector<ftk::ImageInfo>& value)
+                {
+                    FTK_P();
+                    std::string text;
+                    if (!value.empty() && value.front().type != ftk::ImageType::None)
+                    {
+                        text = ftk::getLabel(value.front());
+                    }
+                    p.imageInfoLabel->setText(text);
+                });
         }
 
         NodeGraphWidget::NodeGraphWidget() :

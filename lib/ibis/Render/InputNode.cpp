@@ -151,6 +151,7 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+
             const std::string path = _attr->getItem("Path");
             if (!path.empty() && (!p.image || path != p.path))
             {
@@ -172,7 +173,7 @@ namespace ibis
                         ss << "Unsupported file: " << path;
                         throw std::runtime_error(ss.str());
                     }
-                    ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                    const ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
                     p.image = ftk::Image::create(imageInfo);
                     if (!oiioInput->read_image(
                         0,
@@ -190,6 +191,7 @@ namespace ibis
                     //! \todo
                 }
             }
+
             if (p.image)
             {
                 const ftk::Size2I size = p.image->getSize();
@@ -220,6 +222,8 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
+
+            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
         }
 
         struct ImageSequenceNode::Private
@@ -320,6 +324,7 @@ namespace ibis
                     }
                 }
             }
+
             if (p.image)
             {
                 const ftk::Size2I size = p.image->getSize();
@@ -350,6 +355,8 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
+
+            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
         }
 
         struct SVGFileNode::Private
@@ -391,6 +398,7 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
+
             const std::string path = _attr->getItem("Path");
             if (!path.empty() && (!p.image || path != p.path))
             {
@@ -425,6 +433,7 @@ namespace ibis
                     //! \todo
                 }
             }
+
             if (p.image)
             {
                 const ftk::Size2I size = p.image->getSize();
@@ -455,6 +464,8 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
+
+            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
         }
     }
 }
