@@ -199,7 +199,7 @@ namespace ibis
                     &errorStatus);
             }
             const bool valid =
-                tmp != invalidTime &&
+                !tmp.strictly_equal(invalidTime) &&
                 !opentime::is_error(errorStatus);
             if (valid)
             {

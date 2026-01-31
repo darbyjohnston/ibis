@@ -275,7 +275,10 @@ namespace ibis
             const OTIO_NS::TimeRange timeRange(
                 OTIO_NS::RationalTime(startFrame, time.rate()),
                 OTIO_NS::RationalTime(endFrame - startFrame + 1, time.rate()));
-            const OTIO_NS::RationalTime time2 = getInputLoop(loop, time, timeRange);
+            const OTIO_NS::RationalTime time2 = getInputLoop(
+                loop,
+                time + timeRange.start_time(),
+                timeRange);
 
             if (!path.isEmpty() && (!p.image || path != p.path || time2 != p.time))
             {
