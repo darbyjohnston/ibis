@@ -25,7 +25,7 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&);
             
             //! Get node IDs.
-            std::vector<std::string> NodeWidgetFactory::getNodeIDs() const;
+            std::vector<std::string> getNodeIDs() const;
 
             //! Create a new widget.
             std::shared_ptr<INodeWidget> createWidget(

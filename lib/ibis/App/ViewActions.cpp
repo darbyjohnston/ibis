@@ -7,7 +7,7 @@
 #include "DocumentWidget.h"
 #include "MainWindow.h"
 
-#include <ibis/ui/Viewport.h>
+#include <ibis/UI/Viewport.h>
 
 #include <ibis/Models/DocumentModel.h>
 
