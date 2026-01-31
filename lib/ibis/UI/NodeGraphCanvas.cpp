@@ -22,6 +22,8 @@ namespace ibis
         {
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::NodeFactory> nodeFactory;
+            ftk::Size2I canvasSize = ftk::Size2I(4000, 4000);
+            ftk::Size2I gridSize = ftk::Size2I(100, 100);
 
             std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
             std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
@@ -31,12 +33,16 @@ namespace ibis
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
             std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
 
-            int sizeHint = 0;
-            int borderSize = 0;
-            int handleSize = 0;
-            int shadowSize = 0;
-            float iconScale = 1.F;
-            std::shared_ptr<ftk::Image> viewNodeImage;
+            struct SizeData
+            {
+                ftk::Size2I canvas;
+                ftk::Size2I grid;
+                int border = 0;
+                int handle = 0;
+                int shadow = 0;
+            };
+            SizeData size;
+
             std::optional<Move> move;
             std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
             std::optional<Connect> connect;
@@ -123,7 +129,7 @@ namespace ibis
 
         ftk::Size2I NodeGraphCanvas::getSizeHint() const
         {
-            return ftk::Size2I(_p->sizeHint, _p->sizeHint);
+            return _p->size.canvas;
         }
 
         void NodeGraphCanvas::setGeometry(const ftk::Box2I& value)
@@ -150,19 +156,11 @@ namespace ibis
         void NodeGraphCanvas::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             FTK_P();
-            p.sizeHint = event.style->getSizeRole(ftk::SizeRole::ScrollArea, event.displayScale);
-            p.borderSize = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
-            p.handleSize = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
-            p.shadowSize = event.style->getSizeRole(ftk::SizeRole::Shadow, event.displayScale);
-            if (event.displayScale != p.iconScale)
-            {
-                p.iconScale = event.displayScale;
-                p.viewNodeImage.reset();
-            }
-            if (!p.viewNodeImage)
-            {
-                p.viewNodeImage = event.iconSystem->get("View", event.displayScale);
-            }
+            p.size.canvas = p.canvasSize * event.displayScale;
+            p.size.grid = p.gridSize * event.displayScale;
+            p.size.border = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
+            p.size.handle = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
+            p.size.shadow = event.style->getSizeRole(ftk::SizeRole::Shadow, event.displayScale);
         }
 
         void NodeGraphCanvas::drawOverlayEvent(
@@ -186,14 +184,14 @@ namespace ibis
                 }
                 ftk::V2I v1 = _getMousePos();
                 ftk::LineOptions lineOptions;
-                lineOptions.width = p.handleSize / 2;
+                lineOptions.width = p.size.handle / 2;
                 event.render->drawLine(
                     v0,
                     v1,
                     ftk::Color4F(1.F, 1.F, 1.F),
                     lineOptions);
-                event.render->drawMesh(ftk::circle(v0, p.handleSize / 2));
-                event.render->drawMesh(ftk::circle(v1, p.handleSize / 2));
+                event.render->drawMesh(ftk::circle(v0, p.size.handle / 2));
+                event.render->drawMesh(ftk::circle(v1, p.size.handle / 2));
             }
         }
 
@@ -205,13 +203,37 @@ namespace ibis
             FTK_P();
             const ftk::Box2I& g = getGeometry();
 
+            // Draw the grid.
+            std::vector<std::pair<ftk::V2I, ftk::V2I> > lines;
+            for (int y = p.size.grid.h; y < p.size.canvas.h; y += p.size.grid.h)
+            {
+                const int y2 = g.min.y + y;
+                if (y2 >= drawRect.min.y && y2 <= drawRect.max.y)
+                {
+                    lines.push_back(std::make_pair(
+                        ftk::V2I(g.min.x, g.min.y + y),
+                        ftk::V2I(g.max.x, g.min.y + y)));
+                }
+            }
+            for (int x = p.size.grid.w; x < p.size.canvas.w; x += p.size.grid.w)
+            {
+                const int x2 = g.min.x + x;
+                if (x2 >= drawRect.min.x && x2 <= drawRect.max.x)
+                {
+                    lines.push_back(std::make_pair(
+                        ftk::V2I(g.min.x + x, g.min.y),
+                        ftk::V2I(g.min.x + x, g.max.y)));
+                }
+            }
+            event.render->drawLines(lines, event.style->getColorRole(ftk::ColorRole::Border));
+
             // Draw shadows.
             for (const auto i : p.nodeToWidget)
             {
                 const ftk::Box2I& g2 = i.second->getGeometry();
                 event.render->drawColorMesh(ftk::shadow(
-                    ftk::margin(g2, p.shadowSize, 0, p.shadowSize, p.shadowSize),
-                    p.shadowSize));
+                    ftk::margin(g2, p.size.shadow, 0, p.size.shadow, p.size.shadow),
+                    p.size.shadow));
             }
 
             // Draw connections.
@@ -229,7 +251,7 @@ namespace ibis
                             const ftk::V2I v0 = ftk::center(i.second->getInputs()[j]->getGeometry());
                             const ftk::V2I v1 = ftk::center(k->second->getOutputs()[input.index]->getGeometry());
                             ftk::LineOptions lineOptions;
-                            lineOptions.width = p.handleSize / 2;
+                            lineOptions.width = p.size.handle / 2;
                             event.render->drawLine(
                                 v0,
                                 v1,

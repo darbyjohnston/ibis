@@ -13,6 +13,7 @@
 
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/ScrollWidget.h>
 #include <ftk/UI/Splitter.h>
 
 namespace ibis
@@ -51,7 +52,9 @@ namespace ibis
         p.splitter = ftk::Splitter::create(context, ftk::Orientation::Vertical, p.layout);
         p.splitter->setSplit(.6F);
         p.viewport->setParent(p.splitter);
-        p.nodeGraphCanvas->setParent(p.splitter);
+        auto scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, p.splitter);
+        scrollWidget->setBorder(false);
+        scrollWidget->setWidget(p.nodeGraphCanvas);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.timelineWidget->setParent(p.layout);
     }
