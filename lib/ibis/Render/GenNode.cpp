@@ -3,6 +3,8 @@
 
 #include "GenNode.h"
 
+#include <ibis/Core/Time.h>
+
 #include <ftk/UI/WidgetOptions.h>
 #include <ftk/GL/GL.h>
 #include <ftk/GL/OffscreenBuffer.h>
@@ -171,6 +173,7 @@ namespace ibis
         {
             ftk::Noise noise;
             float scale = 0.F;
+            ftk::Size2I size;
             std::shared_ptr<ftk::Image> image;
         };
 
@@ -212,18 +215,23 @@ namespace ibis
             if (size.isValid())
             {
                 const float scale = _attr->getItem("Scale");
-                if (scale != p.scale)
+                if (scale != p.scale || size != p.size)
                 {
                     p.scale = scale;
+                    p.size = size;
                     p.image = ftk::Image::create(size, ftk::ImageType::L_U8);
                     for (int y = 0; y < size.h; ++y)
                     {
                         uint8_t* dataP = p.image->getData() + size.w * y;
-                        const float v = y / static_cast<float>(size.h - 1);
+                        const float v = y / 100.F;
                         for (int x = 0; x < size.w; ++x)
                         {
-                            const float u = x / static_cast<float>(size.w - 1);
-                            *dataP++ = (p.noise.get(u * p.scale, v * p.scale, 0.0) + 1.0) / 2.0 * 255;
+                            const float u = x / 100.F;
+                            const float w = 0.F;
+                            *dataP++ = (p.noise.get(
+                                u * p.scale,
+                                v * p.scale,
+                                w * p.scale) + 1.0) / 2.0 * 255;
                         }
                     }
                 }

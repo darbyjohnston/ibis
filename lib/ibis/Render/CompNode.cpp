@@ -23,7 +23,9 @@ namespace ibis
             "Add",
             "Subtract",
             "Multiply",
-            "Divide");
+            "Divide",
+            "Min",
+            "Max");
 
         struct OverNode::Private
         {
@@ -34,7 +36,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Mode"] = OverMode::Premult;
-            attr["Position"] = ftk::V2I();
+            attr["Offset"] = ftk::V2I();
             INode::_init(context, getNodeInfo(), 2, 1, attr);
         }
 
@@ -93,6 +95,8 @@ namespace ibis
                 "const uint OverMode_Subtract   = 3;\n"
                 "const uint OverMode_Multiply   = 4;\n"
                 "const uint OverMode_Divide     = 5;\n"
+                "const uint OverMode_Min        = 6;\n"
+                "const uint OverMode_Max        = 7;\n"
                 "\n"
                 "uniform int overMode;\n"
                 "uniform sampler2D textureSampler;\n"
@@ -161,6 +165,20 @@ namespace ibis
                 "        outColor.b = bg.b / fg.b;\n"
                 "        outColor.a = max(fg.a, bg.a);\n"
                 "    }\n"
+                "    else if (OverMode_Min == overMode)\n"
+                "    {\n"
+                "        outColor.r = min(fg.r, bg.r);\n"
+                "        outColor.g = min(fg.g, bg.g);\n"
+                "        outColor.b = min(fg.b, bg.b);\n"
+                "        outColor.a = min(fg.a, bg.a);\n"
+                "    }\n"
+                "    else if (OverMode_Max == overMode)\n"
+                "    {\n"
+                "        outColor.r = max(fg.r, bg.r);\n"
+                "        outColor.g = max(fg.g, bg.g);\n"
+                "        outColor.b = max(fg.b, bg.b);\n"
+                "        outColor.a = max(fg.a, bg.a);\n"
+                "    }\n"
                 "}\n";
         }
 
@@ -188,7 +206,7 @@ namespace ibis
                 const auto& input1 = _inputs->getItem(1).node->getOutputs();
                 const ftk::Size2I& size0 = input0.front()->getSize();
                 const ftk::Size2I& size1 = input1.front()->getSize();
-                const ftk::V2I pos = _attr->getItem("Position");
+                const ftk::V2I pos = _attr->getItem("Offset");
                 size.w = std::max(size0.w, pos.x + size1.w);
                 size.h = std::max(size0.h, pos.y + size1.h);
                 if (size.isValid())

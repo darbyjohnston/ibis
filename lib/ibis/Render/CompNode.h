@@ -18,6 +18,8 @@ namespace ibis
             Subtract,
             Multiply,
             Divide,
+            Min,
+            Max,
 
             Count,
             First = Premult

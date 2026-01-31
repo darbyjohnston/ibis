@@ -24,8 +24,8 @@ namespace ibis
             std::shared_ptr<render::NodeAttrCmd> cmd;
 
             std::shared_ptr<ftk::ComboBox> modeComboBox;
-            std::shared_ptr<ftk::IntEditSlider> posXSlider;
-            std::shared_ptr<ftk::IntEditSlider> posYSlider;
+            std::shared_ptr<ftk::IntEditSlider> xSlider;
+            std::shared_ptr<ftk::IntEditSlider> ySlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -42,16 +42,16 @@ namespace ibis
 
             p.modeComboBox = ftk::ComboBox::create(context, render::getOverModeLabels());
 
-            p.posXSlider = ftk::IntEditSlider::create(context);
-            p.posXSlider->setRange(0, 8192);
-            p.posYSlider = ftk::IntEditSlider::create(context);
-            p.posYSlider->setRange(0, 8192);
+            p.xSlider = ftk::IntEditSlider::create(context);
+            p.xSlider->setRange(0, 8192);
+            p.ySlider = ftk::IntEditSlider::create(context);
+            p.ySlider->setRange(0, 8192);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Operator:", p.modeComboBox);
-            formLayout->addRow("X position:", p.posXSlider);
-            formLayout->addRow("Y position:", p.posYSlider);
+            formLayout->addRow("X offset:", p.xSlider);
+            formLayout->addRow("Y offset:", p.ySlider);
             p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
@@ -63,20 +63,20 @@ namespace ibis
                         _document->getGraph(), _node, "Mode", value));
                 });
 
-            p.posXSlider->setPressedCallback(
+            p.xSlider->setPressedCallback(
                 [this](int value, bool pressed)
                 {
-                    ftk::V2I pos = _node->getAttr("Position");
+                    ftk::V2I pos = _node->getAttr("Offset");
                     pos.x = value;
-                    _callback({ { "Position", pos } }, pressed);
+                    _callback({ { "Offset", pos } }, pressed);
                 });
 
-            p.posYSlider->setPressedCallback(
+            p.ySlider->setPressedCallback(
                 [this](int value, bool pressed)
                 {
-                    ftk::V2I pos = _node->getAttr("Position");
+                    ftk::V2I pos = _node->getAttr("Offset");
                     pos.y = value;
-                    _callback({ { "Position", pos } }, pressed);
+                    _callback({ { "Offset", pos } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -86,9 +86,9 @@ namespace ibis
                     FTK_P();
                     auto tmp = value;
                     p.modeComboBox->setCurrentIndex(static_cast<int>(tmp["Mode"]));
-                    const ftk::V2I pos = tmp["Position"];
-                    p.posXSlider->setValue(pos.x);
-                    p.posYSlider->setValue(pos.y);
+                    const ftk::V2I pos = tmp["Offset"];
+                    p.xSlider->setValue(pos.x);
+                    p.ySlider->setValue(pos.y);
                 });
         }
 
