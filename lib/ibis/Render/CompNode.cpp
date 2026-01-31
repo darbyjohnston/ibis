@@ -206,9 +206,12 @@ namespace ibis
                 const auto& input1 = _inputs->getItem(1).node->getOutputs();
                 const ftk::Size2I& size0 = input0.front()->getSize();
                 const ftk::Size2I& size1 = input1.front()->getSize();
-                const ftk::V2I pos = _attr->getItem("Offset");
-                size.w = std::max(size0.w, pos.x + size1.w);
-                size.h = std::max(size0.h, pos.y + size1.h);
+                const ftk::V2I pos0 = _attr->getItem("Offset");
+
+                const ftk::Box2I bounds0(0, 0, size0.w, size0.h);
+                const ftk::Box2I bounds1(pos0.x, pos0.y, size1.w, size1.h);
+                const ftk::Box2I bounds = ftk::expand(bounds0, bounds1);
+                size = bounds.size();                
                 if (size.isValid())
                 {
                     ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
@@ -231,16 +234,22 @@ namespace ibis
                         1.F);
                     p.shader->setUniform("transform.mvp", pm);
                     p.shader->setUniform("overMode", static_cast<int>(_attr->getItem("Mode")));
+
                     p.shader->setUniform("textureSampler", 0);
-                    p.shader->setUniform("textureSamplerU", ftk::V2F(0.0, size0.w / static_cast<float>(size.w)));
-                    p.shader->setUniform("textureSamplerV", ftk::V2F(0.0, size0.h / static_cast<float>(size.h)));
+                    p.shader->setUniform("textureSamplerU", ftk::V2F(
+                        (bounds0.min.x - bounds.min.x) / static_cast<float>(size.w),
+                        (bounds0.min.x - bounds.min.x + size0.w) / static_cast<float>(size.w)));
+                    p.shader->setUniform("textureSamplerV", ftk::V2F(
+                        (bounds0.min.y - bounds.min.y) / static_cast<float>(size.h),
+                        (bounds0.min.y - bounds.min.y + size0.h) / static_cast<float>(size.h)));
+
                     p.shader->setUniform("textureSampler2", 1);
                     p.shader->setUniform("textureSampler2U", ftk::V2F(
-                        pos.x / static_cast<float>(size.w),
-                        (pos.x + size1.w) / static_cast<float>(size.w)));
+                        (bounds1.min.x - bounds.min.x) / static_cast<float>(size.w),
+                        (bounds1.min.x - bounds.min.x + size1.w) / static_cast<float>(size.w)));
                     p.shader->setUniform("textureSampler2V", ftk::V2F(
-                        pos.y / static_cast<float>(size.h),
-                        (pos.y + size1.h) / static_cast<float>(size.h)));
+                        (bounds1.min.y - bounds.min.y) / static_cast<float>(size.h),
+                        (bounds1.min.y - bounds.min.y + size1.h) / static_cast<float>(size.h)));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                     glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());

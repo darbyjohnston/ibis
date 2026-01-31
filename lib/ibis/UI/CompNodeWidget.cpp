@@ -43,9 +43,9 @@ namespace ibis
             p.modeComboBox = ftk::ComboBox::create(context, render::getOverModeLabels());
 
             p.xSlider = ftk::IntEditSlider::create(context);
-            p.xSlider->setRange(0, 8192);
+            p.xSlider->setRange(-8192, 8192);
             p.ySlider = ftk::IntEditSlider::create(context);
-            p.ySlider->setRange(0, 8192);
+            p.ySlider->setRange(-8192, 8192);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
