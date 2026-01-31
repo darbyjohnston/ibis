@@ -13,8 +13,10 @@
 #include <ftk/Core/Path.h>
 #include <ftk/Core/String.h>
 
+#if defined(IBIS_OIIO)
 #include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imagebufalgo.h>
+#endif // IBIS_OIIO
 
 #include <lunasvg/lunasvg.h>
 
@@ -90,6 +92,7 @@ namespace ibis
 
         namespace
         {
+#if defined(IBIS_OIIO)
             ftk::ImageType fromOIIO(const OIIO::ImageSpec& oiio)
             {
                 ftk::ImageType out = ftk::ImageType::None;
@@ -143,6 +146,7 @@ namespace ibis
                 }
                 return out;
             }
+#endif // IBIS_OIIO
         }
 
         void ImageFileNode::exec(
@@ -160,6 +164,7 @@ namespace ibis
                 _outputs[0].reset();
                 try
                 {
+#if defined(IBIS_OIIO)
                     const auto oiioInput = OIIO::ImageInput::open(path);
                     if (!oiioInput)
                     {
@@ -185,6 +190,7 @@ namespace ibis
                     {
                         throw std::runtime_error(OIIO::geterror());
                     }
+#endif // IBIS_OIIO
                 }
                 catch (const std::exception&)
                 {
@@ -282,6 +288,7 @@ namespace ibis
                 {
                     try
                     {
+#if defined(IBIS_OIIO)
                         const std::string fileName = path.getFrame(time2.value(), true);
                         const auto oiioInput = OIIO::ImageInput::open(fileName);
                         if (!oiioInput)
@@ -308,6 +315,7 @@ namespace ibis
                         {
                             throw std::runtime_error(OIIO::geterror());
                         }
+#endif // IBIS_OIIO
                     }
                     catch (const std::exception&)
                     {
