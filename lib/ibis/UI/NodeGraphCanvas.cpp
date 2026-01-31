@@ -13,6 +13,7 @@
 #include <ibis/Render/NodeFactory.h>
 
 #include <ftk/UI/DrawUtil.h>
+#include <ftk/UI/ScrollWidget.h>
 
 namespace ibis
 {
@@ -43,9 +44,28 @@ namespace ibis
             };
             SizeData size;
 
-            std::optional<Move> move;
-            std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
-            std::optional<Connect> connect;
+            enum class MouseMode
+            {
+                None,
+                MoveNodes,
+                ConnectNodes,
+                Pan,
+                Select
+            };
+            struct MouseData
+            {
+                MouseMode mode = MouseMode::None;
+                bool inside = false;
+                ftk::V2I press;
+                ftk::V2I pos;
+                std::optional<Move> move;
+                std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
+                std::optional<Connect> connect;
+                ftk::V2I panStart;
+                ftk::V2I selectStart;
+            };
+            MouseData mouse;
+
             bool dropTarget = false;
         };
 
@@ -58,8 +78,7 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeGraphCanvas", parent);
             FTK_P();
 
-            _setMouseHoverEnabled(true);
-            _setMousePressEnabled(true);
+            setAcceptsKeyFocus(true);
 
             p.document = document;
             p.nodeFactory = nodeFactory;
@@ -86,13 +105,13 @@ namespace ibis
                         const auto j = std::find(selection.begin(), selection.end(), i.first);
                         i.second->setSelected(j != selection.end());
                     }
-                    p.moveNodes.clear();
+                    p.mouse.moveNodes.clear();
                     for (const auto& node : selection)
                     {
                         const auto i = p.nodeToPos.find(node);
                         if (i != p.nodeToPos.end())
                         {
-                            p.moveNodes[node] = i->second;
+                            p.mouse.moveNodes[node] = i->second;
                         }
                     }
                 });
@@ -170,28 +189,44 @@ namespace ibis
             IWidget::drawOverlayEvent(drawRect, event);
             FTK_P();
             const ftk::Box2I& g = getGeometry();
-            if (p.connect)
+            switch (p.mouse.mode)
             {
-                // Draw in-progress connection.
-                ftk::V2I v0;
-                if (p.connect->input != -1)
+            case Private::MouseMode::ConnectNodes:
+                if (p.mouse.connect)
                 {
-                    v0 = ftk::center(p.connect->widget->getInputs()[p.connect->input]->getGeometry());
+                    // Draw the in-progress connection.
+                    ftk::V2I v0;
+                    if (p.mouse.connect->input != -1)
+                    {
+                        v0 = ftk::center(p.mouse.connect->widget->getInputs()[p.mouse.connect->input]->getGeometry());
+                    }
+                    else if (p.mouse.connect->output != -1)
+                    {
+                        v0 = ftk::center(p.mouse.connect->widget->getOutputs()[p.mouse.connect->output]->getGeometry());
+                    }
+                    ftk::V2I v1 = p.mouse.pos;
+                    ftk::LineOptions lineOptions;
+                    lineOptions.width = p.size.handle / 2;
+                    event.render->drawLine(
+                        v0,
+                        v1,
+                        ftk::Color4F(1.F, 1.F, 1.F),
+                        lineOptions);
+                    event.render->drawMesh(ftk::circle(v0, p.size.handle / 2));
+                    event.render->drawMesh(ftk::circle(v1, p.size.handle / 2));
                 }
-                else if (p.connect->output != -1)
-                {
-                    v0 = ftk::center(p.connect->widget->getOutputs()[p.connect->output]->getGeometry());
-                }
-                ftk::V2I v1 = _getMousePos();
-                ftk::LineOptions lineOptions;
-                lineOptions.width = p.size.handle / 2;
-                event.render->drawLine(
-                    v0,
-                    v1,
-                    ftk::Color4F(1.F, 1.F, 1.F),
-                    lineOptions);
-                event.render->drawMesh(ftk::circle(v0, p.size.handle / 2));
-                event.render->drawMesh(ftk::circle(v1, p.size.handle / 2));
+                break;
+
+            case Private::MouseMode::Select:
+            {
+                // Draw the selection rectangle.
+                ftk::Color4F c = event.style->getColorRole(ftk::ColorRole::Checked);
+                c.a = .5F;
+                event.render->drawRect(_getSelectionRect(), c);
+                break;
+            }
+
+            default: break;
             }
         }
 
@@ -263,56 +298,98 @@ namespace ibis
             }
         }
 
+        void NodeGraphCanvas::mouseEnterEvent(ftk::MouseEnterEvent& event)
+        {
+            FTK_P();
+            event.accept = true;
+            p.mouse.inside = true;
+        }
+
+        void NodeGraphCanvas::mouseLeaveEvent()
+        {
+            FTK_P();
+            p.mouse.inside = false;
+        }
+
         void NodeGraphCanvas::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
-            IMouseWidget::mouseMoveEvent(event);
             FTK_P();
-            if (p.move.has_value())
+            event.accept = true;
+            p.mouse.pos = event.pos;
+            const ftk::V2I offset = event.pos - p.mouse.press;
+
+            switch (p.mouse.mode)
             {
-                // Temporarily move the nodes.
-                const ftk::V2I offset = event.pos - _getMousePressPos();
-                for (const auto i : p.moveNodes)
+            case Private::MouseMode::MoveNodes:
+                if (p.mouse.move.has_value())
                 {
-                    const auto j = p.nodeToPos.find(i.first);
-                    if (j != p.nodeToPos.end())
+                    // Temporarily move the nodes.
+                    for (const auto i : p.mouse.moveNodes)
                     {
-                        j->second = i.second + offset;
+                        const auto j = p.nodeToPos.find(i.first);
+                        if (j != p.nodeToPos.end())
+                        {
+                            j->second = i.second + offset;
+                        }
                     }
+                    setSizeUpdate();
+                    setDrawUpdate();
                 }
-                setSizeUpdate();
+                break;
+
+            case Private::MouseMode::ConnectNodes:
                 setDrawUpdate();
-            }
-            else if (p.connect.has_value())
-            {
+                break;
+
+            case Private::MouseMode::Select:
                 setDrawUpdate();
+                break;
+
+            case Private::MouseMode::Pan:
+                if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
+                {
+                    scrollWidget->setScrollPos(p.mouse.panStart - offset);
+                }
+                break;
+
+            default: break;
             }
         }
 
         void NodeGraphCanvas::mousePressEvent(ftk::MouseClickEvent& event)
         {
-            IMouseWidget::mousePressEvent(event);
             FTK_P();
+            event.accept = true;
+            p.mouse.mode = Private::MouseMode::None;
+            p.mouse.press = event.pos;
+            takeKeyFocus();
 
             // Check for a connection.
-            p.connect = _getConnect(event.pos);
-            if (p.connect)
+            if (Private::MouseMode::None == p.mouse.mode)
             {
-                moveToFront(p.connect->widget);
-            }
-            else
-            {
-                // Check for a move.
-                p.move = _getMove(event.pos);
-                if (p.move)
+                p.mouse.connect = _getConnect(event);
+                if (p.mouse.connect)
                 {
-                    moveToFront(p.move->widget);
+                    p.mouse.mode = Private::MouseMode::ConnectNodes;
+                    moveToFront(p.mouse.connect->widget);
+                }
+            }
+
+            // Check for a move.
+            if (Private::MouseMode::None == p.mouse.mode)
+            {
+                p.mouse.move = _getMove(event);
+                if (p.mouse.move)
+                {
+                    p.mouse.mode = Private::MouseMode::MoveNodes;
+                    moveToFront(p.mouse.move->widget);
                     const auto& selection = p.document->getSelection();
-                    const auto i = std::find(selection.begin(), selection.end(), p.move->node);
+                    const auto i = std::find(selection.begin(), selection.end(), p.mouse.move->node);
                     if (i == selection.end())
                     {
-                        p.document->select({ p.move->node });
+                        p.document->select({ p.mouse.move->node });
                     }
-                    for (auto& i : p.moveNodes)
+                    for (auto& i : p.mouse.moveNodes)
                     {
                         const auto j = p.nodeToPos.find(i.first);
                         if (j != p.nodeToPos.end())
@@ -321,70 +398,140 @@ namespace ibis
                         }
                     }
                 }
-                else
+            }
+
+            // Check for selection.
+            if (Private::MouseMode::None == p.mouse.mode)
+            {
+                if (ftk::MouseButton::Left == event.button)
                 {
-                    p.document->clearSelection();
+                    p.mouse.mode = Private::MouseMode::Select;
+                    p.mouse.selectStart = event.pos;
+                    if (auto node = _getNode(event.pos))
+                    {
+                        if (ftk::checkKeyModifier(ftk::KeyModifier::Shift, event.modifiers))
+                        {
+                            p.document->selectionAdd({ node });
+                        }
+                        else if (ftk::checkKeyModifier(ftk::KeyModifier::Control, event.modifiers))
+                        {
+                            p.document->selectionRemove({ node });
+                        }
+                        else
+                        {
+                            p.document->select({ node });
+                        }
+                    }
                 }
+            }
+
+            // Check for panning.
+            if (Private::MouseMode::None == p.mouse.mode)
+            {
+                if (ftk::MouseButton::Middle == event.button &&
+                    0 == event.modifiers)
+                {
+                    if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
+                    {
+                        p.mouse.mode = Private::MouseMode::Pan;
+                        p.mouse.panStart = scrollWidget->getScrollPos();
+                    }
+                }
+            }
+
+            if (Private::MouseMode::None == p.mouse.mode)
+            {
+                // Clear the selection.
+                p.document->clearSelection();
             }
         }
 
         void NodeGraphCanvas::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
-            IMouseWidget::mouseReleaseEvent(event);
             FTK_P();
-            const auto& graph = p.document->getGraph();
-            if (p.move.has_value())
+            event.accept = true;
+            switch (p.mouse.mode)
             {
-                // Move the nodes.
-                const ftk::V2I offset = event.pos - _getMousePressPos();
-                if (ftk::length(offset) > 0.F)
+            case Private::MouseMode::MoveNodes:
+                if (p.mouse.move.has_value())
                 {
-                    std::vector<std::shared_ptr<render::INode> > nodes;
-                    std::vector<ftk::V2I> pos;
-                    for (const auto i : p.moveNodes)
+                    const ftk::V2I offset = event.pos - p.mouse.press;
+                    if (ftk::length(offset) > 0.F)
                     {
-                        nodes.push_back(i.first);
-                        pos.push_back(i.second + offset);
+                        std::vector<std::shared_ptr<render::INode> > nodes;
+                        std::vector<ftk::V2I> pos;
+                        for (const auto i : p.mouse.moveNodes)
+                        {
+                            nodes.push_back(i.first);
+                            pos.push_back(i.second + offset);
+                        }
+                        const auto& graph = p.document->getGraph();
+                        p.document->command(
+                            render::MoveNodesCmd::create(graph, nodes, pos));
                     }
-                    p.document->command(
-                        render::MoveNodesCmd::create(graph, nodes, pos));
+                    p.mouse.move.reset();
                 }
-                p.move.reset();
-            }
-            else if (p.connect.has_value())
+                break;
+
+            case Private::MouseMode::ConnectNodes:
+                if (p.mouse.connect.has_value())
+                {
+                    const auto& graph = p.document->getGraph();
+                    if (p.mouse.connect->input != -1)
+                    {
+                        const auto output = _getOutput(event.pos);
+                        if (output.has_value())
+                        {
+                            p.document->command(
+                                render::ConnectNodesCmd::create(
+                                    graph,
+                                    p.mouse.connect->node,
+                                    p.mouse.connect->input,
+                                    output->node,
+                                    output->output));
+                        }
+                    }
+                    else if (p.mouse.connect->output != -1)
+                    {
+                        const auto input = _getInput(event.pos);
+                        if (input.has_value())
+                        {
+                            p.document->command(
+                                render::ConnectNodesCmd::create(
+                                    graph,
+                                    input->node,
+                                    input->input,
+                                    p.mouse.connect->node,
+                                    p.mouse.connect->output));
+                        }
+                    }
+                    p.mouse.connect.reset();
+                    setDrawUpdate();
+                }
+                break;
+
+            case Private::MouseMode::Select:
             {
-                // Connect the nodes.
-                if (p.connect->input != -1)
+                const auto nodes = _getNodes(_getSelectionRect());
+                if (ftk::checkKeyModifier(ftk::KeyModifier::Shift, event.modifiers))
                 {
-                    const auto output = _getOutput(event.pos);
-                    if (output.has_value())
-                    {
-                        p.document->command(
-                            render::ConnectNodesCmd::create(
-                                graph,
-                                p.connect->node,
-                                p.connect->input,
-                                output->node,
-                                output->output));
-                    }
+                    p.document->selectionAdd(nodes);
                 }
-                else if (p.connect->output != -1)
+                else
+                if (ftk::checkKeyModifier(ftk::KeyModifier::Control, event.modifiers))
                 {
-                    const auto input = _getInput(event.pos);
-                    if (input.has_value())
-                    {
-                        p.document->command(
-                            render::ConnectNodesCmd::create(
-                                graph,
-                                input->node,
-                                input->input,
-                                p.connect->node,
-                                p.connect->output));
-                    }
+                    p.document->selectionRemove(nodes);
                 }
-                p.connect.reset();
-                setDrawUpdate();
+                else
+                {
+                    p.document->select(nodes);
+                }
+                break;
             }
+
+            default: break;
+            }
+            p.mouse.mode = Private::MouseMode::None;
         }
 
         void NodeGraphCanvas::dragEnterEvent(ftk::DragDropEvent& event)
@@ -434,60 +581,68 @@ namespace ibis
             }
         }
 
-        std::optional<NodeGraphCanvas::Move> NodeGraphCanvas::_getMove(const ftk::V2I& pos)
+        std::optional<NodeGraphCanvas::Move> NodeGraphCanvas::_getMove(const ftk::MouseClickEvent& event)
         {
             FTK_P();
             std::optional<NodeGraphCanvas::Move> out;
-            const auto& children = getChildren();
-            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            if (ftk::MouseButton::Left == event.button &&
+                0 == event.modifiers)
             {
-                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                const auto& children = getChildren();
+                for (auto i = children.rbegin(); i != children.rend(); ++i)
                 {
-                    const ftk::Box2I& g = widget->getGeometry();
-                    if (ftk::contains(g, pos))
+                    if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
                     {
-                        out = Move();
-                        out->node = widget->getNode();
-                        out->widget = widget;
-                        break;
+                        const ftk::Box2I& g = widget->getGeometry();
+                        if (ftk::contains(g, event.pos))
+                        {
+                            out = Move();
+                            out->node = widget->getNode();
+                            out->widget = widget;
+                            break;
+                        }
                     }
                 }
             }
             return out;
         }
 
-        std::optional<NodeGraphCanvas::Connect> NodeGraphCanvas::_getConnect(const ftk::V2I& pos)
+        std::optional<NodeGraphCanvas::Connect> NodeGraphCanvas::_getConnect(const ftk::MouseClickEvent& event)
         {
             std::optional<NodeGraphCanvas::Connect> out;
-            const auto& children = getChildren();
-            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            if (ftk::MouseButton::Left == event.button &&
+                0 == event.modifiers)
             {
-                if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                const auto& children = getChildren();
+                for (auto i = children.rbegin(); i != children.rend(); ++i)
                 {
-                    const auto& inputs = widget->getInputs();
-                    for (int i = 0; i < inputs.size(); ++i)
+                    if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
                     {
-                        const ftk::Box2I& g = inputs[i]->getGeometry();
-                        if (ftk::contains(g, pos))
+                        const auto& inputs = widget->getInputs();
+                        for (int i = 0; i < inputs.size(); ++i)
                         {
-                            out = Connect();
-                            out->node = widget->getNode();
-                            out->widget = widget;
-                            out->input = i;
-                            break;
+                            const ftk::Box2I& g = inputs[i]->getGeometry();
+                            if (ftk::contains(g, event.pos))
+                            {
+                                out = Connect();
+                                out->node = widget->getNode();
+                                out->widget = widget;
+                                out->input = i;
+                                break;
+                            }
                         }
-                    }
-                    const auto& outputs = widget->getOutputs();
-                    for (int i = 0; i < outputs.size(); ++i)
-                    {
-                        const ftk::Box2I& g = outputs[i]->getGeometry();
-                        if (ftk::contains(g, pos))
+                        const auto& outputs = widget->getOutputs();
+                        for (int i = 0; i < outputs.size(); ++i)
                         {
-                            out = Connect();
-                            out->node = widget->getNode();
-                            out->widget = widget;
-                            out->output = i;
-                            break;
+                            const ftk::Box2I& g = outputs[i]->getGeometry();
+                            if (ftk::contains(g, event.pos))
+                            {
+                                out = Connect();
+                                out->node = widget->getNode();
+                                out->widget = widget;
+                                out->output = i;
+                                break;
+                            }
                         }
                     }
                 }
@@ -542,6 +697,54 @@ namespace ibis
                             break;
                         }
                     }
+                }
+            }
+            return out;
+        }
+
+        ftk::Box2I NodeGraphCanvas::_getSelectionRect() const
+        {
+            FTK_P();
+            ftk::Box2I out;
+            out.min.x = std::min(p.mouse.selectStart.x, p.mouse.pos.x);
+            out.min.y = std::min(p.mouse.selectStart.y, p.mouse.pos.y);
+            out.max.x = std::max(p.mouse.selectStart.x, p.mouse.pos.x);
+            out.max.y = std::max(p.mouse.selectStart.y, p.mouse.pos.y);
+            return out;
+        }
+
+        std::shared_ptr<render::INode> NodeGraphCanvas::_getNode(const ftk::V2I& pos) const
+        {
+            FTK_P();
+            std::shared_ptr<render::INode> out;
+            const auto& children = getChildren();
+            for (auto i = children.rbegin(); i != children.rend(); ++i)
+            {
+                if (ftk::contains((*i)->getGeometry(), pos))
+                {
+                    if (auto widget = std::dynamic_pointer_cast<NodeGraphWidget>(*i))
+                    {
+                        const auto j = p.widgetToNode.find(widget);
+                        if (j != p.widgetToNode.end())
+                        {
+                            out = j->second;
+                            break;
+                        }
+                    }
+                }
+            }
+            return out;
+        }
+
+        std::vector<std::shared_ptr<render::INode> > NodeGraphCanvas::_getNodes(const ftk::Box2I& rect) const
+        {
+            FTK_P();
+            std::vector<std::shared_ptr<render::INode> > out;
+            for (const auto& i : p.nodeToWidget)
+            {
+                if (ftk::intersects(i.second->getGeometry(), rect))
+                {
+                    out.push_back(i.first);
                 }
             }
             return out;

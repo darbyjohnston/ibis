@@ -36,10 +36,10 @@ namespace ibis
             void set(const std::vector<std::shared_ptr<render::INode> >&);
 
             //! Add to the selection.
-            void add(const std::shared_ptr<render::INode>&);
+            void add(const std::vector<std::shared_ptr<render::INode> >&);
 
             //! Remove from the selection.
-            void remove(const std::shared_ptr<render::INode>&);
+            void remove(const std::vector<std::shared_ptr<render::INode> >&);
             
             //! Clear the selection.
             void clear();

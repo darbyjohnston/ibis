@@ -47,18 +47,39 @@ namespace ibis
             _p->selection->setIfChanged(value);
         }
 
-        void NodeSelectionModel::add(const std::shared_ptr<render::INode>& value)
+        void NodeSelectionModel::add(const std::vector<std::shared_ptr<render::INode> >& value)
         {
-            _p->selection->pushBack(value);
+            FTK_P();
+            auto selection = p.selection->get();
+            for (const auto& i : value)
+            {
+                const auto j = std::find(selection.begin(), selection.end(), i);
+                if (j == selection.end())
+                {
+                    selection.push_back(i);
+                }
+            }
+            p.selection->setIfChanged(selection);
         }
 
-        void NodeSelectionModel::remove(const std::shared_ptr<render::INode>& value)
+        void NodeSelectionModel::remove(const std::vector<std::shared_ptr<render::INode> >& value)
         {
-            const size_t i = _p->selection->indexOf(value);
-            if (i != ftk::ObservableListInvalidIndex)
+            FTK_P();
+            auto selection = p.selection->get();
+            auto i = selection.begin();
+            while (i != selection.end())
             {
-                _p->selection->removeItem(i);
+                const auto j = std::find(value.begin(), value.end(), *i);
+                if (j != value.end())
+                {
+                    i = selection.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
             }
+            p.selection->setIfChanged(selection);
         }
 
         void NodeSelectionModel::clear()

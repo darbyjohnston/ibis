@@ -90,6 +90,8 @@ namespace ibis
             std::shared_ptr<ftk::IObservableList<std::shared_ptr<render::INode> > > observeSelection() const;
 
             void select(const std::vector<std::shared_ptr<render::INode> >&);
+            void selectionAdd(const std::vector<std::shared_ptr<render::INode> >&);
+            void selectionRemove(const std::vector<std::shared_ptr<render::INode> >&);
             void selectAll();
             void clearSelection();
             void invertSelection();

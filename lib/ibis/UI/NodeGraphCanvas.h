@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ftk/UI/IMouseWidget.h>
+#include <ftk/UI/IWidget.h>
 
 #include <optional>
 
@@ -26,7 +26,7 @@ namespace ibis
         class NodeGraphWidget;
 
         //! Node graph canvas.
-        class NodeGraphCanvas : public ftk::IMouseWidget
+        class NodeGraphCanvas : public ftk::IWidget
         {
         protected:
             void _init(
@@ -52,6 +52,8 @@ namespace ibis
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
             void drawOverlayEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
             void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseEnterEvent(ftk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
             void mouseMoveEvent(ftk::MouseMoveEvent&) override;
             void mousePressEvent(ftk::MouseClickEvent&) override;
             void mouseReleaseEvent(ftk::MouseClickEvent&) override;
@@ -66,7 +68,7 @@ namespace ibis
                 std::shared_ptr<render::INode> node;
                 std::shared_ptr<NodeGraphWidget> widget;
             };
-            std::optional<Move> _getMove(const ftk::V2I&);
+            std::optional<Move> _getMove(const ftk::MouseClickEvent&);
 
             struct Connect
             {
@@ -75,7 +77,7 @@ namespace ibis
                 int input = -1;
                 int output = -1;
             };
-            std::optional<Connect> _getConnect(const ftk::V2I&);
+            std::optional<Connect> _getConnect(const ftk::MouseClickEvent&);
 
             struct Input
             {
@@ -92,6 +94,10 @@ namespace ibis
                 int output = -1;
             };
             std::optional<Output> _getOutput(const ftk::V2I&);
+
+            ftk::Box2I _getSelectionRect() const;
+            std::shared_ptr<render::INode> _getNode(const ftk::V2I&) const;
+            std::vector<std::shared_ptr<render::INode> > _getNodes(const ftk::Box2I&) const;
 
             void _graphUpdate();
 

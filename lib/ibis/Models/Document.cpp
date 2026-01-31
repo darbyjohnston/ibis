@@ -209,6 +209,16 @@ namespace ibis
             _p->selectionModel->set(value);
         }
 
+        void Document::selectionAdd(const std::vector<std::shared_ptr<render::INode> >& value)
+        {
+            _p->selectionModel->add(value);
+        }
+
+        void Document::selectionRemove(const std::vector<std::shared_ptr<render::INode> >& value)
+        {
+            _p->selectionModel->remove(value);
+        }
+
         void Document::selectAll()
         {
             FTK_P();
