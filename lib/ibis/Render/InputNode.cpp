@@ -197,11 +197,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();
@@ -330,11 +328,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();
@@ -439,11 +435,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();

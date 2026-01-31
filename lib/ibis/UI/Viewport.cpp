@@ -339,11 +339,9 @@ namespace ibis
                 p.doRender = false;
 
                 const ftk::Size2I size = g.size();
-                ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                if (ftk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
+                if (ftk::gl::doCreate(p.buffer, size, ftk::ImageType::RGBA_F32))
                 {
-                    p.buffer = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    p.buffer = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                 }
                 ftk::gl::OffscreenBufferBinding binding(p.buffer);
 

@@ -214,11 +214,9 @@ namespace ibis
                 size = bounds.size();                
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -271,11 +269,9 @@ namespace ibis
                 size = input.front()->getSize();
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -303,11 +299,9 @@ namespace ibis
                 size = input.front()->getSize();
                 if (size.isValid())
                 {
-                    ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = ftk::ImageType::RGBA_F32;
-                    if (ftk::gl::doCreate(_outputs[0], size, offscreenBufferOptions))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -339,7 +333,7 @@ namespace ibis
             _imageInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getWidth(), _outputs[0]->getHeight(), _outputs[0]->getOptions().color) :
+                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
                 ftk::ImageInfo());
         }
     }
