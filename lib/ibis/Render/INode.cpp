@@ -129,5 +129,16 @@ namespace ibis
                 }
             }
         }
+
+        ftk::M44F INode::_getProjection(const ftk::Size2I& size) const
+        {
+            return ftk::ortho(
+                0.F,
+                static_cast<float>(size.w),
+                static_cast<float>(size.h),
+                0.F,
+                -1.F,
+                1.F);
+        }
     }
 }

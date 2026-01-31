@@ -123,14 +123,7 @@ namespace ibis
                 render->setRenderSize(size);
                 render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                 render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                const auto pm = ftk::ortho(
-                    0.F,
-                    static_cast<float>(size.w),
-                    static_cast<float>(size.h),
-                    0.F,
-                    -1.F,
-                    1.F);
-                render->setTransform(pm);
+                render->setTransform(_getProjection(size));
 
                 ftk::TriMesh2F mesh;
                 mesh.v.push_back(ftk::V2F(0.F, 0.F));
@@ -252,14 +245,7 @@ namespace ibis
                 render->setRenderSize(size);
                 render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                 render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                const auto pm = ftk::ortho(
-                    0.F,
-                    static_cast<float>(size.w),
-                    static_cast<float>(size.h),
-                    0.F,
-                    -1.F,
-                    1.F);
-                render->setTransform(pm);
+                render->setTransform(_getProjection(size));
                 render->drawImage(p.image, ftk::Box2I(0, 0, size.w, size.h));
             }
             else

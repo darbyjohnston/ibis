@@ -207,14 +207,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(g);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    render->setTransform(pm);
+                    render->setTransform(_getProjection(size));
                     ftk::ImageOptions imageOptions;
                     imageOptions.cache = false;
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
@@ -338,14 +331,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(g);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    render->setTransform(pm);
+                    render->setTransform(_getProjection(size));
                     ftk::ImageOptions imageOptions;
                     imageOptions.cache = false;
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
@@ -445,14 +431,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(g);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    render->setTransform(pm);
+                    render->setTransform(_getProjection(size));
                     ftk::ImageOptions imageOptions;
                     imageOptions.cache = false;
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);

@@ -8,6 +8,7 @@
 #include <ftk/Core/Observable.h>
 #include <ftk/Core/ObservableList.h>
 #include <ftk/Core/ObservableMap.h>
+#include <ftk/Core/Matrix.h>
 
 #include <opentimelineio/version.h>
 
@@ -114,6 +115,8 @@ namespace ibis
                 const OTIO_NS::RationalTime&);
 
         protected:
+            ftk::M44F _getProjection(const ftk::Size2I&) const;
+
             NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;

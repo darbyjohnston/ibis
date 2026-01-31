@@ -103,14 +103,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                     p.shader->bind();
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("transform.mvp", _getProjection(size));
                     p.shader->setUniform("colorMatrix", _getColorMatrix());
                     p.shader->setUniform("textureSampler", 0);
 
@@ -352,14 +345,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                     p.shader->bind();
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("transform.mvp", _getProjection(size));
                     p.shader->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -514,14 +500,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                     p.shader->bind();
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("transform.mvp", _getProjection(size));
                     p.shader->setUniform("levels.inLow", float(_attr->getItem("InLow")));
                     p.shader->setUniform("levels.inHigh", float(_attr->getItem("InHigh")));
                     const float gamma = _attr->getItem("Gamma");
@@ -664,14 +643,7 @@ namespace ibis
                     render->setRenderSize(size);
                     render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
                     p.shader->bind();
-                    const auto pm = ftk::ortho(
-                        0.F,
-                        static_cast<float>(size.w),
-                        static_cast<float>(size.h),
-                        0.F,
-                        -1.F,
-                        1.F);
-                    p.shader->setUniform("transform.mvp", pm);
+                    p.shader->setUniform("transform.mvp", _getProjection(size));
                     p.shader->setUniform("value", float(_attr->getItem("Value")));
                     p.shader->setUniform("textureSampler", 0);
 

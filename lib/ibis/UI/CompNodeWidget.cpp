@@ -44,8 +44,10 @@ namespace ibis
 
             p.xSlider = ftk::IntEditSlider::create(context);
             p.xSlider->setRange(-8192, 8192);
+            p.xSlider->setDefaultValue(0);
             p.ySlider = ftk::IntEditSlider::create(context);
             p.ySlider->setRange(-8192, 8192);
+            p.ySlider->setDefaultValue(0);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
