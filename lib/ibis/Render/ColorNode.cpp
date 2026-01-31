@@ -552,7 +552,7 @@ namespace ibis
 
         NodeInfo SoftClipNode::getClassNodeInfo()
         {
-            return { "SoftClip", "SoftClip", "Color" };
+            return { "SoftClip", "Soft Clip", "Color" };
         }
 
         std::shared_ptr<INode> SoftClipNode::create(
