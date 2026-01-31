@@ -126,7 +126,7 @@ namespace ibis
             if (l > p.size.margin * 2)
             {
                 for (int64_t f = timeRange.start_time().value();
-                    f < timeRange.duration().value();
+                    f <= timeRange.end_time_inclusive().value();
                     ++f)
                 {
                     OTIO_NS::RationalTime t = OTIO_NS::RationalTime(f, timeRange.duration().rate());
@@ -144,7 +144,7 @@ namespace ibis
             l = _timeToPos(timeRange.start_time() + OTIO_NS::RationalTime(1.0, 1.0)) -
                 _timeToPos(timeRange.start_time());
             for (int64_t s = timeRange.start_time().to_seconds();
-                s < timeRange.duration().to_seconds();
+                s <= timeRange.end_time_inclusive().to_seconds();
                 ++s)
             {
                 OTIO_NS::RationalTime t = OTIO_NS::RationalTime(s, 1.0).rescaled_to(timeRange.duration().rate());

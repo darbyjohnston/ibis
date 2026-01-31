@@ -77,7 +77,11 @@ namespace ibis
 
         void TimeModel::setTimeRange(const OTIO_NS::TimeRange& value)
         {
-            _p->timeRange->setIfChanged(value);
+            FTK_P();
+            if (p.timeRange->setIfChanged(value))
+            {
+                p.currentTime->setIfChanged(value.clamped(p.currentTime->get()));
+            }
         }
 
         const OTIO_NS::RationalTime& TimeModel::getCurrentTime()

@@ -44,12 +44,23 @@ namespace ibis
             FTK_P();
 
             p.timeSlider = ui::TimeSlider::create(context, timeUnitsModel, timeModel);
+            p.timeSlider->setTooltip("Time slider.");
+
             p.playbackToolBar = ui::PlaybackToolBar::create(context, timeModel);
+
             p.frameToolBar = ui::FrameToolBar::create(context, timeModel);
+
             p.currentTimeEdit = ui::TimeEdit::create(context, timeUnitsModel);
+            p.currentTimeEdit->setTooltip("Current time.");
+
             p.startTimeEdit = ui::TimeEdit::create(context, timeUnitsModel);
+            p.startTimeEdit->setTooltip("Start time.");
+
             p.durationEdit = ui::TimeEdit::create(context, timeUnitsModel);
+            p.durationEdit->setTooltip("Time duration.");
+
             p.timeUnitsWidget = ui::TimeUnitsWidget::create(context, timeUnitsModel);
+            p.timeUnitsWidget->setTooltip("Time units.");
 
             p.layout = ftk::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
