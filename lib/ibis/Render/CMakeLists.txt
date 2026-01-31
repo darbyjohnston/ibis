@@ -22,7 +22,7 @@ set(SOURCE
     NodeFactory.cpp
     RenderUtil.cpp)
 
-set(LIBRARIES ibisCore ftk::ftkGL)
+set(LIBRARIES ibisCore ftk::ftkUI ftk::ftkGL)
 set(LIBRARIES_PRIVATE)
 if(ibis_OIIO)
     list(APPEND LIBRARIES_PRIVATE OpenImageIO::OpenImageIO)

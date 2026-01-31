@@ -52,7 +52,7 @@ set(SOURCE
     TimelineWidget.cpp
     Viewport.cpp)
 
-set(LIBRARIES ibisModels ftk::ftkUI)
+set(LIBRARIES ibisModels)
 
 add_library(ibisUI ${HEADERS} ${SOURCE})
 target_link_libraries(ibisUI ${LIBRARIES})

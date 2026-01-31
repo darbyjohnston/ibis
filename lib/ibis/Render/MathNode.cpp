@@ -33,8 +33,7 @@ namespace ibis
             NodeAttr attr;
             attr["Value"] = 0.5;
             attr["Operator"] = ArithmeticOperator::Add;
-            INode::_init(context, getNodeInfo(), 1, 1, attr);
-            FTK_P();
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         ArithmeticNode::ArithmeticNode() :
@@ -44,7 +43,7 @@ namespace ibis
         ArithmeticNode::~ArithmeticNode()
         {}
 
-        NodeInfo ArithmeticNode::getNodeInfo()
+        NodeInfo ArithmeticNode::getClassNodeInfo()
         {
             return { "Arithmetic", "Arithmetic", "Math" };
         }

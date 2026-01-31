@@ -38,7 +38,7 @@ namespace ibis
         public:
             virtual ~ImageFileNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -62,7 +62,7 @@ namespace ibis
         public:
             virtual ~ImageSequenceNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -86,7 +86,7 @@ namespace ibis
         public:
             virtual ~SVGFileNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

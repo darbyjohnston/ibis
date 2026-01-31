@@ -48,7 +48,7 @@ namespace ibis
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Operator:", p.operatorComboBox);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -114,9 +114,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo ArithmeticNodeWidget::getNodeInfo()
+        render::NodeInfo ArithmeticNodeWidget::getClassNodeInfo()
         {
-            return render::ArithmeticNode::getNodeInfo();
+            return render::ArithmeticNode::getClassNodeInfo();
         }
 
         ftk::Size2I ArithmeticNodeWidget::getSizeHint() const

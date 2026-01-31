@@ -72,7 +72,7 @@ namespace ibis
             virtual ~INode() = 0;
 
             //! Get the node information.
-            const NodeInfo& getInfo() const;
+            const NodeInfo& getNodeInfo() const;
 
             //! Get the inputs.
             const std::vector<NodeConnection>& getInputs() const;
@@ -107,7 +107,7 @@ namespace ibis
                 const OTIO_NS::RationalTime&);
 
         protected:
-            NodeInfo _info;
+            NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;

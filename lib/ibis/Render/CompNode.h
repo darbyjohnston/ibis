@@ -37,7 +37,7 @@ namespace ibis
         public:
             virtual ~OverNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

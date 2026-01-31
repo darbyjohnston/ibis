@@ -31,7 +31,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
@@ -62,7 +62,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
@@ -93,7 +93,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
@@ -124,7 +124,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
@@ -155,7 +155,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
@@ -194,7 +194,7 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
-            static render::NodeInfo getNodeInfo();
+            static render::NodeInfo getClassNodeInfo();
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;

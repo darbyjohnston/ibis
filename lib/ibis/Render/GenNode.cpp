@@ -24,7 +24,7 @@ namespace ibis
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
             attr["Color"] = ftk::Color4F(1.F, .7F, 0.F);
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         SolidColorNode::SolidColorNode() :
@@ -34,7 +34,7 @@ namespace ibis
         SolidColorNode::~SolidColorNode()
         {}
 
-        NodeInfo SolidColorNode::getNodeInfo()
+        NodeInfo SolidColorNode::getClassNodeInfo()
         {
             return { "SolidColor", "Solid Color", "Generator" };
         }
@@ -79,7 +79,7 @@ namespace ibis
             attr["Color0"] = ftk::Color4F(0.F, 0.F, 0.F);
             attr["Color1"] = ftk::Color4F(1.F, 1.F, 1.F);
             attr["Orientation"] = ftk::Orientation::Vertical;
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         GradientNode::GradientNode() :
@@ -89,7 +89,7 @@ namespace ibis
         GradientNode::~GradientNode()
         {}
 
-        NodeInfo GradientNode::getNodeInfo()
+        NodeInfo GradientNode::getClassNodeInfo()
         {
             return { "Gradient", "Gradient", "Generator" };
         }
@@ -182,7 +182,7 @@ namespace ibis
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
             attr["Scale"] = 1.F;
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         NoiseNode::NoiseNode() :
@@ -192,7 +192,7 @@ namespace ibis
         NoiseNode::~NoiseNode()
         {}
 
-        NodeInfo NoiseNode::getNodeInfo()
+        NodeInfo NoiseNode::getClassNodeInfo()
         {
             return { "Noise", "Noise", "Generator" };
         }

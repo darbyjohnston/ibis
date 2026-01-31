@@ -24,12 +24,12 @@ namespace ibis
 
         void INode::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const NodeInfo& info,
+            const NodeInfo& nodeInfo,
             int inputCount,
             int outputCount,
             const NodeAttr& attr)
         {
-            _info = info;
+            _nodeInfo = nodeInfo;
             _inputs = ftk::ObservableList<NodeConnection>::create(
                 std::vector<NodeConnection>(inputCount));
             _outputs.resize(outputCount);
@@ -42,9 +42,9 @@ namespace ibis
         INode::~INode()
         {}
 
-        const NodeInfo& INode::getInfo() const
+        const NodeInfo& INode::getNodeInfo() const
         {
-            return _info;
+            return _nodeInfo;
         }
 
         const std::vector<NodeConnection>& INode::getInputs() const

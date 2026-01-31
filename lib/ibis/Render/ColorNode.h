@@ -49,7 +49,7 @@ namespace ibis
         public:
             virtual ~BrightnessNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -69,7 +69,7 @@ namespace ibis
         public:
             virtual ~ContrastNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -89,7 +89,7 @@ namespace ibis
         public:
             virtual ~SaturationNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -109,7 +109,7 @@ namespace ibis
         public:
             virtual ~TintNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -129,7 +129,7 @@ namespace ibis
         public:
             virtual ~InvertNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -153,7 +153,7 @@ namespace ibis
         public:
             virtual ~LevelsNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -177,7 +177,7 @@ namespace ibis
         public:
             virtual ~SoftClipNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

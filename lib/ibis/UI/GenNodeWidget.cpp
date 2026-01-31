@@ -60,7 +60,7 @@ namespace ibis
             formLayout->addRow("Width:", p.widthSlider);
             formLayout->addRow("Height:", p.heightSlider);
             formLayout->addRow("Color:", p.colorSwatch);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -117,9 +117,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo SolidColorNodeWidget::getNodeInfo()
+        render::NodeInfo SolidColorNodeWidget::getClassNodeInfo()
         {
-            return render::SolidColorNode::getNodeInfo();
+            return render::SolidColorNode::getClassNodeInfo();
         }
 
         ftk::Size2I SolidColorNodeWidget::getSizeHint() const
@@ -207,7 +207,7 @@ namespace ibis
             formLayout->addRow("Color 0:", p.color0Swatch);
             formLayout->addRow("Color 1:", p.color1Swatch);
             formLayout->addRow("Orientation:", p.orientationComboBox);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -279,9 +279,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo GradientNodeWidget::getNodeInfo()
+        render::NodeInfo GradientNodeWidget::getClassNodeInfo()
         {
-            return render::GradientNode::getNodeInfo();
+            return render::GradientNode::getClassNodeInfo();
         }
 
         ftk::Size2I GradientNodeWidget::getSizeHint() const
@@ -360,7 +360,7 @@ namespace ibis
             formLayout->addRow("Width:", p.widthSlider);
             formLayout->addRow("Height:", p.heightSlider);
             formLayout->addRow("Scale:", p.scaleSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -417,9 +417,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo NoiseNodeWidget::getNodeInfo()
+        render::NodeInfo NoiseNodeWidget::getClassNodeInfo()
         {
-            return render::NoiseNode::getNodeInfo();
+            return render::NoiseNode::getClassNodeInfo();
         }
 
         ftk::Size2I NoiseNodeWidget::getSizeHint() const

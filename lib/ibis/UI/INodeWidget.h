@@ -32,7 +32,7 @@ namespace ibis
             virtual ~INodeWidget() = 0;
 
             //! Get the node information.
-            const render::NodeInfo& getInfo() const;
+            const render::NodeInfo& getNodeInfo() const;
 
             //! Get the node.
             const std::shared_ptr<ibis::render::INode>& getNode() const;

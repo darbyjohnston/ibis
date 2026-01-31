@@ -35,24 +35,24 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNodeWidget::getNodeInfo().id] = &ImageFileNodeWidget::create;
-            p.nodes[ImageSequenceNodeWidget::getNodeInfo().id] = &ImageSequenceNodeWidget::create;
-            p.nodes[SVGFileNodeWidget::getNodeInfo().id] = &SVGFileNodeWidget::create;
+            p.nodes[ImageFileNodeWidget::getClassNodeInfo().id] = &ImageFileNodeWidget::create;
+            p.nodes[ImageSequenceNodeWidget::getClassNodeInfo().id] = &ImageSequenceNodeWidget::create;
+            p.nodes[SVGFileNodeWidget::getClassNodeInfo().id] = &SVGFileNodeWidget::create;
 
-            p.nodes[GradientNodeWidget::getNodeInfo().id] = &GradientNodeWidget::create;
-            p.nodes[NoiseNodeWidget::getNodeInfo().id] = &NoiseNodeWidget::create;
-            p.nodes[SolidColorNodeWidget::getNodeInfo().id] = &SolidColorNodeWidget::create;
+            p.nodes[GradientNodeWidget::getClassNodeInfo().id] = &GradientNodeWidget::create;
+            p.nodes[NoiseNodeWidget::getClassNodeInfo().id] = &NoiseNodeWidget::create;
+            p.nodes[SolidColorNodeWidget::getClassNodeInfo().id] = &SolidColorNodeWidget::create;
 
-            p.nodes[ArithmeticNodeWidget::getNodeInfo().id] = &ArithmeticNodeWidget::create;
+            p.nodes[ArithmeticNodeWidget::getClassNodeInfo().id] = &ArithmeticNodeWidget::create;
 
-            p.nodes[BrightnessNodeWidget::getNodeInfo().id] = &BrightnessNodeWidget::create;
-            p.nodes[ContrastNodeWidget::getNodeInfo().id] = &ContrastNodeWidget::create;
-            p.nodes[LevelsNodeWidget::getNodeInfo().id] = &LevelsNodeWidget::create;
-            p.nodes[SaturationNodeWidget::getNodeInfo().id] = &SaturationNodeWidget::create;
-            p.nodes[SoftClipNodeWidget::getNodeInfo().id] = &SoftClipNodeWidget::create;
-            p.nodes[TintNodeWidget::getNodeInfo().id] = &TintNodeWidget::create;
+            p.nodes[BrightnessNodeWidget::getClassNodeInfo().id] = &BrightnessNodeWidget::create;
+            p.nodes[ContrastNodeWidget::getClassNodeInfo().id] = &ContrastNodeWidget::create;
+            p.nodes[LevelsNodeWidget::getClassNodeInfo().id] = &LevelsNodeWidget::create;
+            p.nodes[SaturationNodeWidget::getClassNodeInfo().id] = &SaturationNodeWidget::create;
+            p.nodes[SoftClipNodeWidget::getClassNodeInfo().id] = &SoftClipNodeWidget::create;
+            p.nodes[TintNodeWidget::getClassNodeInfo().id] = &TintNodeWidget::create;
 
-            p.nodes[OverNodeWidget::getNodeInfo().id] = &OverNodeWidget::create;
+            p.nodes[OverNodeWidget::getClassNodeInfo().id] = &OverNodeWidget::create;
         }
 
         NodeWidgetFactory::NodeWidgetFactory() :
@@ -86,7 +86,7 @@ namespace ibis
         {
             FTK_P();
             std::shared_ptr<INodeWidget> out;
-            const auto i = p.nodes.find(node->getInfo().id);
+            const auto i = p.nodes.find(node->getNodeInfo().id);
             if (i != p.nodes.end())
             {
                 out = i->second(p.context.lock(), document, node, nullptr);

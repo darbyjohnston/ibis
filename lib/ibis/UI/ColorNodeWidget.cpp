@@ -44,7 +44,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -105,9 +105,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo BrightnessNodeWidget::getNodeInfo()
+        render::NodeInfo BrightnessNodeWidget::getClassNodeInfo()
         {
-            return render::BrightnessNode::getNodeInfo();
+            return render::BrightnessNode::getClassNodeInfo();
         }
 
         ftk::Size2I BrightnessNodeWidget::getSizeHint() const
@@ -147,7 +147,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -208,9 +208,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo ContrastNodeWidget::getNodeInfo()
+        render::NodeInfo ContrastNodeWidget::getClassNodeInfo()
         {
-            return render::ContrastNode::getNodeInfo();
+            return render::ContrastNode::getClassNodeInfo();
         }
 
         ftk::Size2I ContrastNodeWidget::getSizeHint() const
@@ -250,7 +250,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -311,9 +311,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo SaturationNodeWidget::getNodeInfo()
+        render::NodeInfo SaturationNodeWidget::getClassNodeInfo()
         {
-            return render::SaturationNode::getNodeInfo();
+            return render::SaturationNode::getClassNodeInfo();
         }
 
         ftk::Size2I SaturationNodeWidget::getSizeHint() const
@@ -353,7 +353,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -414,9 +414,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo TintNodeWidget::getNodeInfo()
+        render::NodeInfo TintNodeWidget::getClassNodeInfo()
         {
-            return render::TintNode::getNodeInfo();
+            return render::TintNode::getClassNodeInfo();
         }
 
         ftk::Size2I TintNodeWidget::getSizeHint() const
@@ -472,7 +472,7 @@ namespace ibis
             formLayout->addRow("Gamma:", p.sliders["Gamma"]);
             formLayout->addRow("Out low:", p.sliders["OutLow"]);
             formLayout->addRow("Out high:", p.sliders["OutHigh"]);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -564,9 +564,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo LevelsNodeWidget::getNodeInfo()
+        render::NodeInfo LevelsNodeWidget::getClassNodeInfo()
         {
-            return render::LevelsNode::getNodeInfo();
+            return render::LevelsNode::getClassNodeInfo();
         }
 
         ftk::Size2I LevelsNodeWidget::getSizeHint() const
@@ -645,7 +645,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -706,9 +706,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo SoftClipNodeWidget::getNodeInfo()
+        render::NodeInfo SoftClipNodeWidget::getClassNodeInfo()
         {
-            return render::SoftClipNode::getNodeInfo();
+            return render::SoftClipNode::getClassNodeInfo();
         }
 
         ftk::Size2I SoftClipNodeWidget::getSizeHint() const

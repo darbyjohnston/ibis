@@ -26,40 +26,40 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNode::getNodeInfo().id] = &ImageFileNode::create;
-            p.info[ImageFileNode::getNodeInfo().id] = ImageFileNode::getNodeInfo();
-            p.nodes[ImageSequenceNode::getNodeInfo().id] = &ImageSequenceNode::create;
-            p.info[ImageSequenceNode::getNodeInfo().id] = ImageSequenceNode::getNodeInfo();
-            p.nodes[SVGFileNode::getNodeInfo().id] = &SVGFileNode::create;
-            p.info[SVGFileNode::getNodeInfo().id] = SVGFileNode::getNodeInfo();
+            p.nodes[ImageFileNode::getClassNodeInfo().id] = &ImageFileNode::create;
+            p.info[ImageFileNode::getClassNodeInfo().id] = ImageFileNode::getClassNodeInfo();
+            p.nodes[ImageSequenceNode::getClassNodeInfo().id] = &ImageSequenceNode::create;
+            p.info[ImageSequenceNode::getClassNodeInfo().id] = ImageSequenceNode::getClassNodeInfo();
+            p.nodes[SVGFileNode::getClassNodeInfo().id] = &SVGFileNode::create;
+            p.info[SVGFileNode::getClassNodeInfo().id] = SVGFileNode::getClassNodeInfo();
 
-            p.nodes[GradientNode::getNodeInfo().id] = &GradientNode::create;
-            p.info[GradientNode::getNodeInfo().id] = GradientNode::getNodeInfo();
-            p.nodes[NoiseNode::getNodeInfo().id] = &NoiseNode::create;
-            p.info[NoiseNode::getNodeInfo().id] = NoiseNode::getNodeInfo();
-            p.nodes[SolidColorNode::getNodeInfo().id] = &SolidColorNode::create;
-            p.info[SolidColorNode::getNodeInfo().id] = SolidColorNode::getNodeInfo();
+            p.nodes[GradientNode::getClassNodeInfo().id] = &GradientNode::create;
+            p.info[GradientNode::getClassNodeInfo().id] = GradientNode::getClassNodeInfo();
+            p.nodes[NoiseNode::getClassNodeInfo().id] = &NoiseNode::create;
+            p.info[NoiseNode::getClassNodeInfo().id] = NoiseNode::getClassNodeInfo();
+            p.nodes[SolidColorNode::getClassNodeInfo().id] = &SolidColorNode::create;
+            p.info[SolidColorNode::getClassNodeInfo().id] = SolidColorNode::getClassNodeInfo();
 
-            p.nodes[ArithmeticNode::getNodeInfo().id] = &ArithmeticNode::create;
-            p.info[ArithmeticNode::getNodeInfo().id] = ArithmeticNode::getNodeInfo();
+            p.nodes[ArithmeticNode::getClassNodeInfo().id] = &ArithmeticNode::create;
+            p.info[ArithmeticNode::getClassNodeInfo().id] = ArithmeticNode::getClassNodeInfo();
 
-            p.nodes[BrightnessNode::getNodeInfo().id] = &BrightnessNode::create;
-            p.info[BrightnessNode::getNodeInfo().id] = BrightnessNode::getNodeInfo();
-            p.nodes[ContrastNode::getNodeInfo().id] = &ContrastNode::create;
-            p.info[ContrastNode::getNodeInfo().id] = ContrastNode::getNodeInfo();
-            p.nodes[InvertNode::getNodeInfo().id] = &InvertNode::create;
-            p.info[InvertNode::getNodeInfo().id] = InvertNode::getNodeInfo();
-            p.nodes[LevelsNode::getNodeInfo().id] = &LevelsNode::create;
-            p.info[LevelsNode::getNodeInfo().id] = LevelsNode::getNodeInfo();
-            p.nodes[SaturationNode::getNodeInfo().id] = &SaturationNode::create;
-            p.info[SaturationNode::getNodeInfo().id] = SaturationNode::getNodeInfo();
-            p.nodes[SoftClipNode::getNodeInfo().id] = &SoftClipNode::create;
-            p.info[SoftClipNode::getNodeInfo().id] = SoftClipNode::getNodeInfo();
-            p.nodes[TintNode::getNodeInfo().id] = &TintNode::create;
-            p.info[TintNode::getNodeInfo().id] = TintNode::getNodeInfo();
+            p.nodes[BrightnessNode::getClassNodeInfo().id] = &BrightnessNode::create;
+            p.info[BrightnessNode::getClassNodeInfo().id] = BrightnessNode::getClassNodeInfo();
+            p.nodes[ContrastNode::getClassNodeInfo().id] = &ContrastNode::create;
+            p.info[ContrastNode::getClassNodeInfo().id] = ContrastNode::getClassNodeInfo();
+            p.nodes[InvertNode::getClassNodeInfo().id] = &InvertNode::create;
+            p.info[InvertNode::getClassNodeInfo().id] = InvertNode::getClassNodeInfo();
+            p.nodes[LevelsNode::getClassNodeInfo().id] = &LevelsNode::create;
+            p.info[LevelsNode::getClassNodeInfo().id] = LevelsNode::getClassNodeInfo();
+            p.nodes[SaturationNode::getClassNodeInfo().id] = &SaturationNode::create;
+            p.info[SaturationNode::getClassNodeInfo().id] = SaturationNode::getClassNodeInfo();
+            p.nodes[SoftClipNode::getClassNodeInfo().id] = &SoftClipNode::create;
+            p.info[SoftClipNode::getClassNodeInfo().id] = SoftClipNode::getClassNodeInfo();
+            p.nodes[TintNode::getClassNodeInfo().id] = &TintNode::create;
+            p.info[TintNode::getClassNodeInfo().id] = TintNode::getClassNodeInfo();
 
-            p.nodes[OverNode::getNodeInfo().id] = &OverNode::create;
-            p.info[OverNode::getNodeInfo().id] = OverNode::getNodeInfo();
+            p.nodes[OverNode::getClassNodeInfo().id] = &OverNode::create;
+            p.info[OverNode::getClassNodeInfo().id] = OverNode::getClassNodeInfo();
         }
 
         NodeFactory::NodeFactory() :

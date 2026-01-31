@@ -65,7 +65,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Path"] = "";
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         ImageFileNode::ImageFileNode() :
@@ -75,7 +75,7 @@ namespace ibis
         ImageFileNode::~ImageFileNode()
         {}
 
-        NodeInfo ImageFileNode::getNodeInfo()
+        NodeInfo ImageFileNode::getClassNodeInfo()
         {
             return { "ImageFile", "Image File", "Input" };
         }
@@ -236,8 +236,7 @@ namespace ibis
             attr["StartFrame"] = 0;
             attr["EndFrame"] = 0;
             attr["Loop"] = InputLoop::None;
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
-            FTK_P();
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         ImageSequenceNode::ImageSequenceNode() :
@@ -247,7 +246,7 @@ namespace ibis
         ImageSequenceNode::~ImageSequenceNode()
         {}
 
-        NodeInfo ImageSequenceNode::getNodeInfo()
+        NodeInfo ImageSequenceNode::getClassNodeInfo()
         {
             return { "ImageSequence", "Image Sequence", "Input" };
         }
@@ -363,8 +362,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Path"] = "";
-            INode::_init(context, getNodeInfo(), 0, 1, attr);
-            FTK_P();
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
 
         SVGFileNode::SVGFileNode() :
@@ -374,7 +372,7 @@ namespace ibis
         SVGFileNode::~SVGFileNode()
         {}
 
-        NodeInfo SVGFileNode::getNodeInfo()
+        NodeInfo SVGFileNode::getClassNodeInfo()
         {
             return { "SVGFile", "SVG File", "Input" };
         }

@@ -37,7 +37,7 @@ namespace ibis
             NodeAttr attr;
             attr["Mode"] = OverMode::Premult;
             attr["Offset"] = ftk::V2I();
-            INode::_init(context, getNodeInfo(), 2, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 2, 1, attr);
         }
 
         OverNode::OverNode() :
@@ -47,7 +47,7 @@ namespace ibis
         OverNode::~OverNode()
         {}
 
-        NodeInfo OverNode::getNodeInfo()
+        NodeInfo OverNode::getClassNodeInfo()
         {
             return { "Over", "Over", "Compositing" };
         }

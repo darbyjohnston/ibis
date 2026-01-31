@@ -136,13 +136,13 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         BrightnessNode::~BrightnessNode()
         {}
 
-        NodeInfo BrightnessNode::getNodeInfo()
+        NodeInfo BrightnessNode::getClassNodeInfo()
         {
             return { "Brightness", "Brightness", "Color" };
         }
@@ -165,13 +165,13 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         ContrastNode::~ContrastNode()
         {}
 
-        NodeInfo ContrastNode::getNodeInfo()
+        NodeInfo ContrastNode::getClassNodeInfo()
         {
             return { "Contrast", "Contrast", "Color" };
         }
@@ -194,13 +194,13 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         SaturationNode::~SaturationNode()
         {}
 
-        NodeInfo SaturationNode::getNodeInfo()
+        NodeInfo SaturationNode::getClassNodeInfo()
         {
             return { "Saturation", "Saturation", "Color" };
         }
@@ -223,13 +223,13 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 0.0;
-            IColorMatrixNode::_init(context, getNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         TintNode::~TintNode()
         {}
 
-        NodeInfo TintNode::getNodeInfo()
+        NodeInfo TintNode::getClassNodeInfo()
         {
             return { "Tint", "Tint", "Color" };
         }
@@ -255,7 +255,7 @@ namespace ibis
 
         void InvertNode::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            INode::_init(context, getNodeInfo(), 1);
+            INode::_init(context, getClassNodeInfo(), 1);
         }
 
         InvertNode::InvertNode() :
@@ -265,7 +265,7 @@ namespace ibis
         InvertNode::~InvertNode()
         {}
 
-        NodeInfo InvertNode::getNodeInfo()
+        NodeInfo InvertNode::getClassNodeInfo()
         {
             return { "Invert", "Invert", "Color" };
         }
@@ -389,8 +389,7 @@ namespace ibis
             attr["Gamma"] = 1.0;
             attr["OutLow"] = 0.0;
             attr["OutHigh"] = 1.0;
-            INode::_init(context, getNodeInfo(), 1, 1, attr);
-            FTK_P();
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         LevelsNode::LevelsNode() :
@@ -400,7 +399,7 @@ namespace ibis
         LevelsNode::~LevelsNode()
         {}
 
-        NodeInfo LevelsNode::getNodeInfo()
+        NodeInfo LevelsNode::getClassNodeInfo()
         {
             return { "Levels", "Levels", "Color" };
         }
@@ -550,8 +549,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Value"] = 0.0;
-            INode::_init(context, getNodeInfo(), 1, 1, attr);
-            FTK_P();
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
         }
 
         SoftClipNode::SoftClipNode() :
@@ -561,7 +559,7 @@ namespace ibis
         SoftClipNode::~SoftClipNode()
         {}
 
-        NodeInfo SoftClipNode::getNodeInfo()
+        NodeInfo SoftClipNode::getClassNodeInfo()
         {
             return { "SoftClip", "SoftClip", "Color" };
         }

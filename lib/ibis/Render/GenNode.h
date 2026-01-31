@@ -20,7 +20,7 @@ namespace ibis
         public:
             virtual ~SolidColorNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -44,7 +44,7 @@ namespace ibis
         public:
             virtual ~GradientNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);
@@ -68,7 +68,7 @@ namespace ibis
         public:
             virtual ~NoiseNode();
 
-            static NodeInfo getNodeInfo();
+            static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&);

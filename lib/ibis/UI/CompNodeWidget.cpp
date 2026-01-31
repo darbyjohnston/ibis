@@ -52,7 +52,7 @@ namespace ibis
             formLayout->addRow("Operator:", p.modeComboBox);
             formLayout->addRow("X offset:", p.xSlider);
             formLayout->addRow("Y offset:", p.ySlider);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -110,9 +110,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo OverNodeWidget::getNodeInfo()
+        render::NodeInfo OverNodeWidget::getClassNodeInfo()
         {
-            return render::OverNode::getNodeInfo();
+            return render::OverNode::getClassNodeInfo();
         }
 
         ftk::Size2I OverNodeWidget::getSizeHint() const

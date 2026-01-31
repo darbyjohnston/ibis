@@ -225,7 +225,7 @@ namespace ibis
                 p.outputs.push_back(NodeGraphOutput::create(context, node));
             }
 
-            auto label = ftk::Label::create(context, node->getInfo().name);
+            auto label = ftk::Label::create(context, node->getNodeInfo().name);
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginInside);
 

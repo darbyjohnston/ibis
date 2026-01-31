@@ -42,7 +42,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -86,9 +86,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo ImageFileNodeWidget::getNodeInfo()
+        render::NodeInfo ImageFileNodeWidget::getClassNodeInfo()
         {
-            return render::ImageFileNode::getNodeInfo();
+            return render::ImageFileNode::getClassNodeInfo();
         }
 
         ftk::Size2I ImageFileNodeWidget::getSizeHint() const
@@ -139,7 +139,7 @@ namespace ibis
             formLayout->addRow("Start frame:", p.startFrameEdit);
             formLayout->addRow("End frame:", p.endFrameEdit);
             formLayout->addRow("Loop:", p.loopComboBox);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -241,9 +241,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo ImageSequenceNodeWidget::getNodeInfo()
+        render::NodeInfo ImageSequenceNodeWidget::getClassNodeInfo()
         {
-            return render::ImageSequenceNode::getNodeInfo();
+            return render::ImageSequenceNode::getClassNodeInfo();
         }
 
         ftk::Size2I ImageSequenceNodeWidget::getSizeHint() const
@@ -279,7 +279,7 @@ namespace ibis
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Path:", p.fileEdit);
-            p.bellows = ftk::Bellows::create(context, getInfo().name, shared_from_this());
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
@@ -323,9 +323,9 @@ namespace ibis
             return out;
         }
 
-        render::NodeInfo SVGFileNodeWidget::getNodeInfo()
+        render::NodeInfo SVGFileNodeWidget::getClassNodeInfo()
         {
-            return render::SVGFileNode::getNodeInfo();
+            return render::SVGFileNode::getClassNodeInfo();
         }
 
         ftk::Size2I SVGFileNodeWidget::getSizeHint() const
