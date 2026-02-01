@@ -3,11 +3,14 @@
 
 #include "NodeBrowser.h"
 
+#include <ftk/UI/Bellows.h>
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/Label.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
 #include <ftk/UI/SearchBox.h>
+#include <ftk/UI/ToolButton.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
@@ -135,8 +138,10 @@ namespace ibis
 
         struct NodeBrowser::Private
         {
-            std::shared_ptr<ftk::VerticalLayout> itemLayout;
-            std::shared_ptr<ftk::ScrollWidget> scrollWidget;
+            std::vector<std::string> nodeGroups;
+            std::map<std::string, render::NodeInfo> nodeInfo;
+            std::map<std::string, std::shared_ptr<NodeBrowserItem> > items;
+            std::map<std::string, std::shared_ptr<ftk::Bellows> > bellows;
             std::shared_ptr<ftk::SearchBox> searchBox;
             std::shared_ptr<ftk::VerticalLayout> layout;
         };
@@ -149,29 +154,77 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeBrowser", parent);
             FTK_P();
 
-            p.itemLayout = ftk::VerticalLayout::create(context);
-            p.itemLayout->setSpacingRole(ftk::SizeRole::None);
-            for (const auto& i : factory->getInfo())
+            p.nodeGroups = factory->getGroups();
+            p.nodeInfo = factory->getInfo();
+
+            auto vLayout = ftk::VerticalLayout::create(context);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
+            for (const auto& group : p.nodeGroups)
             {
-                auto item = NodeBrowserItem::create(context, i.second, p.itemLayout);
+                auto bellows = ftk::Bellows::create(context, group, vLayout);
+                p.bellows[group] = bellows;
+                auto groupLayout = ftk::VerticalLayout::create(context);
+                groupLayout->setSpacingRole(ftk::SizeRole::None);
+                bellows->setWidget(groupLayout);
+                for (const auto& node : factory->getIDs(group))
+                {
+                    p.items[node] = NodeBrowserItem::create(
+                        context,
+                        factory->getInfo(node),
+                        groupLayout);
+                }
             }
 
-            p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both);
-            p.scrollWidget->setBorder(false);
-            p.scrollWidget->setVStretch(ftk::Stretch::Expanding);
-            p.scrollWidget->setWidget(p.itemLayout);
+            auto scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both);
+            scrollWidget->setBorder(false);
+            scrollWidget->setVStretch(ftk::Stretch::Expanding);
+            scrollWidget->setWidget(vLayout);
+
+            auto expandAllButton = ftk::ToolButton::create(context);
+            expandAllButton->setIcon("BellowsOpen");
+            expandAllButton->setTooltip("Expand all groups.");
+            auto closeAllButton = ftk::ToolButton::create(context);
+            closeAllButton->setIcon("BellowsClosed");
+            closeAllButton->setTooltip("Close all groups.");
 
             p.searchBox = ftk::SearchBox::create(context);
             p.searchBox->setHStretch(ftk::Stretch::Expanding);
 
             p.layout = ftk::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
-            p.scrollWidget->setParent(p.layout);
+            scrollWidget->setParent(p.layout);
             ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
             auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(ftk::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ftk::SizeRole::SpacingSmall);
+            hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            expandAllButton->setParent(hLayout);
+            closeAllButton->setParent(hLayout);
             p.searchBox->setParent(hLayout);
+
+            expandAllButton->setClickedCallback(
+                [this]
+                {
+                    FTK_P();
+                    for (const auto i : p.bellows)
+                    {
+                        i.second->setOpen(true);
+                    }
+                });
+            closeAllButton->setClickedCallback(
+                [this]
+                {
+                    FTK_P();
+                    for (const auto i : p.bellows)
+                    {
+                        i.second->setOpen(false);
+                    }
+                });
+
+            p.searchBox->setCallback(
+                [this](const std::string& value)
+                {
+                    _searchUpdate(value);
+                });
         }
 
         NodeBrowser::NodeBrowser() :
@@ -200,6 +253,46 @@ namespace ibis
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
+        }
+
+        void NodeBrowser::_searchUpdate(const std::string& value)
+        {
+            FTK_P();
+            std::map<std::string, bool> bellows;
+            for (const auto& group : p.nodeGroups)
+            {
+                bellows[group] = false;
+            }
+
+            for (const auto& i : p.nodeInfo)
+            {
+                const bool match = ftk::contains(
+                    i.second.name,
+                    value,
+                    ftk::CaseCompare::Insensitive);
+
+                const auto j = p.items.find(i.first);
+                if (j != p.items.end())
+                {
+                    j->second->setVisible(match);
+                }
+
+                const auto k = bellows.find(i.second.group);
+                if (k != bellows.end())
+                {
+                    k->second = k->second || match;
+                }
+            }
+
+            for (const auto& i : bellows)
+            {
+                const auto j = p.bellows.find(i.first);
+                if (j != p.bellows.end())
+                {
+                    j->second->setOpen(i.second);
+                    j->second->setVisible(i.second);
+                }
+            }
         }
     }
 }
