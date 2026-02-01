@@ -64,10 +64,8 @@ namespace ibis
                 // Current mouse position.
                 ftk::V2I pos;
 
-                // Mouse press position.
+                // Mouse press position in regular and canvas coordinates.
                 ftk::V2I press;
-
-                // Mouse press position in canvas coordinates.
                 ftk::V2I canvasPress;
 
                 // Data for moving nodes.
@@ -76,9 +74,6 @@ namespace ibis
 
                 // Data for connecting nodes.
                 std::optional<Connect> connect;
-
-                // Start position for scroll bars when panning.
-                ftk::V2I panStart;
 
                 // Auto-scroll timer.
                 std::shared_ptr<ftk::Timer> autoScrollTimer;
@@ -354,8 +349,7 @@ namespace ibis
             case Private::MouseMode::Pan:
                 if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
                 {
-                    const ftk::V2I offset = p.mouse.pos - p.mouse.press;
-                    scrollWidget->setScrollPos(p.mouse.panStart - offset);
+                    scrollWidget->setScrollPos(scrollWidget->getScrollPos() - (event.pos - event.prev));
                 }
                 break;
 
@@ -466,7 +460,6 @@ namespace ibis
                     if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
                     {
                         p.mouse.mode = Private::MouseMode::Pan;
-                        p.mouse.panStart = scrollWidget->getScrollPos();
                     }
                 }
             }
@@ -475,19 +468,6 @@ namespace ibis
             {
                 // Clear the selection.
                 p.document->clearSelection();
-            }
-
-            switch (p.mouse.mode)
-            {
-            case Private::MouseMode::MoveNodes:
-            case Private::MouseMode::ConnectNodes:
-            case Private::MouseMode::Select:
-                if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
-                {
-                    p.mouse.panStart = scrollWidget->getScrollPos();
-                }
-                break;
-            default: break;
             }
         }
 
