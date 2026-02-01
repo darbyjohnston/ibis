@@ -9,6 +9,8 @@
 #include "InputNode.h"
 #include "MathNode.h"
 
+#include <set>
+
 namespace ibis
 {
     namespace render
@@ -81,26 +83,52 @@ namespace ibis
             _p->nodes[id] = create;
         }
 
-        std::vector<NodeInfo> NodeFactory::getInfo() const
+        const std::map<std::string, NodeInfo>& NodeFactory::getInfo() const
+        {
+            return _p->info;
+        }
+
+        NodeInfo NodeFactory::getInfo(const std::string& id) const
         {
             FTK_P();
-            std::vector<NodeInfo> out;
-            for (auto i = p.info.begin(); i != p.info.end(); ++i)
-            {
-                out.push_back(i->second);
-            }
-            return out;
+            const auto i = p.info.find(id);
+            return i != p.info.end() ? i->second : NodeInfo();
         }
 
         std::vector<std::string> NodeFactory::getIDs() const
         {
             FTK_P();
             std::vector<std::string> out;
-            for (auto i = p.nodes.begin(); i != p.nodes.end(); ++i)
+            for (const auto& i : p.info)
             {
-                out.push_back(i->first);
+                out.push_back(i.first);
             }
             return out;
+        }
+
+        std::vector<std::string> NodeFactory::getIDs(const std::string& group) const
+        {
+            FTK_P();
+            std::vector<std::string> out;
+            for (const auto& i : p.info)
+            {
+                if (group == i.second.group)
+                {
+                    out.push_back(i.first);
+                }
+            }
+            return out;
+        }
+
+        std::vector<std::string> NodeFactory::getGroups() const
+        {
+            FTK_P();
+            std::set<std::string> groups;
+            for (const auto& i : p.info)
+            {
+                groups.insert(i.second.group);
+            }
+            return std::vector<std::string>(groups.begin(), groups.end());
         }
 
         std::shared_ptr<INode> NodeFactory::createNode(const std::string& id)

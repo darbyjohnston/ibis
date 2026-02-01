@@ -21,7 +21,8 @@ namespace ibis
     struct DocumentWidget::Private
     {
         std::shared_ptr<ui::Viewport> viewport;
-        std::shared_ptr<ui::NodeGraphCanvas> nodeGraphCanvas;
+        std::shared_ptr<ui::NodeGraphCanvas> canvas;
+        std::shared_ptr<ftk::ScrollWidget> canvasScrollWidget;
         std::shared_ptr<ui::TimelineWidget> timelineWidget;
         std::shared_ptr<ftk::Splitter> splitter;
         std::shared_ptr<ftk::VerticalLayout> layout;
@@ -30,17 +31,19 @@ namespace ibis
     void DocumentWidget::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
-        const std::shared_ptr<models::Document>& document)
+        const std::shared_ptr<models::Document>& document,
+        const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions)
     {
         ftk::IWidget::_init(context, "DocumentWidget", nullptr);
         FTK_P();
 
         p.viewport = ui::Viewport::create(context, document);
 
-        p.nodeGraphCanvas = ui::NodeGraphCanvas::create(
+        p.canvas = ui::NodeGraphCanvas::create(
             context,
+            app->getNodeFactory(),
             document,
-            app->getNodeFactory());
+            editActions);
 
         p.timelineWidget = ui::TimelineWidget::create(
             context,
@@ -52,9 +55,9 @@ namespace ibis
         p.splitter = ftk::Splitter::create(context, ftk::Orientation::Vertical, p.layout);
         p.splitter->setSplit(.6F);
         p.viewport->setParent(p.splitter);
-        auto scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, p.splitter);
-        scrollWidget->setBorder(false);
-        scrollWidget->setWidget(p.nodeGraphCanvas);
+        p.canvasScrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, p.splitter);
+        p.canvasScrollWidget->setBorder(false);
+        p.canvasScrollWidget->setWidget(p.canvas);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.timelineWidget->setParent(p.layout);
     }
@@ -69,16 +72,24 @@ namespace ibis
     std::shared_ptr<DocumentWidget> DocumentWidget::create(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
-        const std::shared_ptr<models::Document>& document)
+        const std::shared_ptr<models::Document>& document,
+        const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions)
     {
         auto out = std::shared_ptr<DocumentWidget>(new DocumentWidget);
-        out->_init(context, app, document);
+        out->_init(context, app, document, editActions);
         return out;
     }
 
     std::shared_ptr<ui::Viewport> DocumentWidget::getViewport() const
     {
         return _p->viewport;
+    }
+
+    ftk::Box2I DocumentWidget::getCanvasViewRect() const
+    {
+        FTK_P();
+        auto scrollArea = p.canvasScrollWidget->getScrollArea();
+        return ftk::Box2I(scrollArea->getScrollPos(), scrollArea->getGeometry().size());
     }
 
     ftk::Size2I DocumentWidget::getSizeHint() const

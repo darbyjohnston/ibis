@@ -8,6 +8,7 @@ set(HEADERS
     FileMenu.h
     FileToolBar.h
     MainWindow.h
+    NodeMenu.h
     SidePanel.h
     TimeActions.h
     TimeMenu.h
@@ -28,6 +29,7 @@ set(SOURCE
     FileMenu.cpp
     FileToolBar.cpp
     MainWindow.cpp
+    NodeMenu.cpp
     SidePanel.cpp
     TimeActions.cpp
     TimeMenu.cpp

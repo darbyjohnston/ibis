@@ -13,6 +13,7 @@
 #include <ibis/Render/NodeFactory.h>
 
 #include <ftk/UI/DrawUtil.h>
+#include <ftk/UI/Menu.h>
 #include <ftk/UI/ScrollWidget.h>
 #include <ftk/Core/Timer.h>
 
@@ -24,12 +25,14 @@ namespace ibis
         {
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::NodeFactory> nodeFactory;
+            std::map<std::string, std::shared_ptr<ftk::Action> > editActions;
             ftk::Size2I canvasSize = ftk::Size2I(4000, 4000);
             ftk::Size2I gridSize = ftk::Size2I(100, 100);
 
             std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
             std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
             std::map<std::shared_ptr<render::INode>, ftk::V2I> nodeToPos;
+            std::shared_ptr<ftk::Menu> menu;
 
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
@@ -85,8 +88,9 @@ namespace ibis
 
         void NodeGraphCanvas::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::NodeFactory>& nodeFactory,
+            const std::shared_ptr<models::Document>& document,
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::NodeGraphCanvas", parent);
@@ -96,6 +100,7 @@ namespace ibis
 
             p.document = document;
             p.nodeFactory = nodeFactory;
+            p.editActions = editActions;
 
             _graphUpdate();
 
@@ -143,12 +148,13 @@ namespace ibis
 
         std::shared_ptr<NodeGraphCanvas> NodeGraphCanvas::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::NodeFactory>& nodeFactory,
+            const std::shared_ptr<models::Document>& document,
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeGraphCanvas> out(new NodeGraphCanvas);
-            out->_init(context, document, nodeFactory, parent);
+            out->_init(context, nodeFactory, document, editActions, parent);
             return out;
         }
 
@@ -399,7 +405,7 @@ namespace ibis
             p.mouse.canvasPress = event.pos - getGeometry().min;
             takeKeyFocus();
 
-            // Check for a connection.
+            // Connect nodes.
             if (Private::MouseMode::None == p.mouse.mode)
             {
                 p.mouse.connect = _getConnect(event);
@@ -410,7 +416,7 @@ namespace ibis
                 }
             }
 
-            // Check for a move.
+            // Move nodes.
             if (Private::MouseMode::None == p.mouse.mode)
             {
                 p.mouse.move = _getMove(event);
@@ -427,7 +433,7 @@ namespace ibis
                 }
             }
 
-            // Check for selection.
+            // Selection.
             if (Private::MouseMode::None == p.mouse.mode)
             {
                 if (ftk::MouseButton::Left == event.button)
@@ -451,7 +457,7 @@ namespace ibis
                 }
             }
 
-            // Check for panning.
+            // Panning.
             if (Private::MouseMode::None == p.mouse.mode)
             {
                 if (ftk::MouseButton::Middle == event.button &&
@@ -464,10 +470,18 @@ namespace ibis
                 }
             }
 
+            // Popup menu or clear the selection.
             if (Private::MouseMode::None == p.mouse.mode)
             {
-                // Clear the selection.
-                p.document->clearSelection();
+                if (ftk::MouseButton::Right == event.button &&
+                    0 == event.modifiers)
+                {
+                    _popupMenu(event.pos);
+                }
+                else
+                {
+                    p.document->clearSelection();
+                }
             }
         }
 
@@ -776,6 +790,61 @@ namespace ibis
                 }
             }
             return out;
+        }
+
+        void NodeGraphCanvas::_popupMenu(const ftk::V2I& pos)
+        {
+            FTK_P();
+            p.menu = ftk::Menu::create(getContext());
+
+            auto nodeMenu = p.menu->addSubMenu("Node");
+            for (const auto& group : p.nodeFactory->getGroups())
+            {
+                auto groupMenu = nodeMenu->addSubMenu(group);
+                for (const auto& node : p.nodeFactory->getIDs(group))
+                {
+                    const auto info = p.nodeFactory->getInfo(node);
+                    auto action = ftk::Action::create(
+                        info.name,
+                        [this, info, pos]
+                        {
+                            FTK_P();
+                            if (auto node = p.nodeFactory->createNode(info.id))
+                            {
+                                const ftk::Box2I& g = getGeometry();
+                                p.document->command(
+                                    render::AddNodesCmd::create(
+                                        p.document->getGraph(),
+                                        { node },
+                                        { pos - g.min }));
+                            }
+                        });
+                    groupMenu->addAction(action);
+                }
+            }
+
+            auto editMenu = p.menu->addSubMenu("Edit");
+            editMenu->addAction(p.editActions["Undo"]);
+            editMenu->addAction(p.editActions["Redo"]);
+            editMenu->addDivider();
+            editMenu->addAction(p.editActions["SelectAll"]);
+            editMenu->addAction(p.editActions["SelectNone"]);
+            editMenu->addAction(p.editActions["SelectInvert"]);
+            editMenu->addDivider();
+            editMenu->addAction(p.editActions["Delete"]);
+
+            std::weak_ptr<NodeGraphCanvas> weak(std::dynamic_pointer_cast<NodeGraphCanvas>(shared_from_this()));
+            p.menu->setCloseCallback(
+                [weak]
+                {
+                    if (auto widget = weak.lock())
+                    {
+                        widget->_p->menu.reset();
+                    }
+                });
+            p.menu->open(
+                getWindow(),
+                ftk::Box2I(pos.x, pos.y, 0, 0));
         }
 
         void NodeGraphCanvas::_graphUpdate()

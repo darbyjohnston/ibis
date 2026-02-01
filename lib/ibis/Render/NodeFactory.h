@@ -30,10 +30,19 @@ namespace ibis
             void add(const std::string&, const NodeCreate&);
 
             //! Get node information.
-            std::vector<NodeInfo> getInfo() const;
+            const std::map<std::string, NodeInfo>& getInfo() const;
+
+            //! Get node information fo the given ID.
+            NodeInfo getInfo(const std::string& id) const;
 
             //! Get node IDs.
             std::vector<std::string> getIDs() const;
+
+            //! Get node IDs for the given group.
+            std::vector<std::string> getIDs(const std::string& group) const;
+
+            //! Get node groups.
+            std::vector<std::string> getGroups() const;
 
             //! Create a node.
             std::shared_ptr<INode> createNode(const std::string&);

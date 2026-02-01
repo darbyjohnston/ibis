@@ -11,6 +11,7 @@
 #include "FileActions.h"
 #include "FileMenu.h"
 #include "FileToolBar.h"
+#include "NodeMenu.h"
 #include "SidePanel.h"
 #include "TimeActions.h"
 #include "TimeMenu.h"
@@ -83,6 +84,7 @@ namespace ibis
         p.menuBar->addMenu("Time", TimeMenu::create(context, app, p.timeActions));
         p.menuBar->addMenu("Window", WindowMenu::create(context, app, p.windowActions));
         p.menuBar->addMenu("View", ViewMenu::create(context, app, p.viewActions));
+        p.menuBar->addMenu("Node", NodeMenu::create(context, app));
         setMenuBar(p.menuBar);
 
         auto fileToolBar = FileToolBar::create(context, app, p.fileActions);
@@ -160,7 +162,8 @@ namespace ibis
                         widget = DocumentWidget::create(
                             getContext(),
                             appWeak.lock(),
-                            document);
+                            document,
+                            p.editActions->getActions());
                     }
                     widgets[document] = widget;
                     widget->setParent(p.documentLayout);

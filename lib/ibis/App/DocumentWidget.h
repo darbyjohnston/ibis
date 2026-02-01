@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <ftk/UI/Action.h>
 #include <ftk/UI/IWidget.h>
 
 namespace ibis
@@ -28,7 +29,8 @@ namespace ibis
         void _init(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<models::Document>&);
+            const std::shared_ptr<models::Document>&,
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions);
 
         DocumentWidget();
 
@@ -38,9 +40,12 @@ namespace ibis
         static std::shared_ptr<DocumentWidget> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
-            const std::shared_ptr<models::Document>&);
+            const std::shared_ptr<models::Document>&,
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions);
 
         std::shared_ptr<ui::Viewport> getViewport() const;
+
+        ftk::Box2I getCanvasViewRect() const;
 
         ftk::Size2I getSizeHint() const override;
         void setGeometry(const ftk::Box2I&) override;

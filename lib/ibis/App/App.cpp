@@ -99,6 +99,11 @@ namespace ibis
         return _p->documentModel;
     }
 
+    const std::shared_ptr<MainWindow>& App::getMainWindow() const
+    {
+        return _p->window;
+    }
+
     void App::newDocument()
     {
         _p->documentModel->add(models::Document::create(_context));

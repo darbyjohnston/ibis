@@ -52,6 +52,8 @@ namespace ibis
         const std::shared_ptr<ui::NodeWidgetFactory>& getNodeWidgetFactory() const;
         const std::shared_ptr<models::DocumentModel>& getDocumentModel() const;
 
+        const std::shared_ptr<MainWindow>& getMainWindow() const;
+
         void newDocument();
         void open(const ftk::Path&);
         void open();

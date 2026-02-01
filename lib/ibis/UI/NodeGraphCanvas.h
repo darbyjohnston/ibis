@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <ftk/UI/Action.h>
 #include <ftk/UI/IWidget.h>
 
 #include <optional>
@@ -31,8 +32,9 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::NodeFactory>&,
+                const std::shared_ptr<models::Document>&,
+                const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             NodeGraphCanvas();
@@ -43,8 +45,9 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<NodeGraphCanvas> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::NodeFactory>&,
+                const std::shared_ptr<models::Document>&,
+                const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;
@@ -98,6 +101,8 @@ namespace ibis
             ftk::Box2I _getSelectionRect() const;
             std::shared_ptr<render::INode> _getNode(const ftk::V2I&) const;
             std::vector<std::shared_ptr<render::INode> > _getNodes(const ftk::Box2I&) const;
+
+            void _popupMenu(const ftk::V2I&);
 
             void _graphUpdate();
             void _autoScrollUpdate();

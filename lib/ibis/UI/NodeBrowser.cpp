@@ -151,9 +151,9 @@ namespace ibis
 
             p.itemLayout = ftk::VerticalLayout::create(context);
             p.itemLayout->setSpacingRole(ftk::SizeRole::None);
-            for (const auto& info : factory->getInfo())
+            for (const auto& i : factory->getInfo())
             {
-                auto item = NodeBrowserItem::create(context, info, p.itemLayout);
+                auto item = NodeBrowserItem::create(context, i.second, p.itemLayout);
             }
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both);

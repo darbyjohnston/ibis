@@ -394,9 +394,9 @@ namespace ibis
                 p.menu->setCloseCallback(
                     [weak]
                     {
-                        if (auto item = weak.lock())
+                        if (auto widget = weak.lock())
                         {
-                            item->_p->menu.reset();
+                            widget->_p->menu.reset();
                         }
                     });
                 p.menu->open(
