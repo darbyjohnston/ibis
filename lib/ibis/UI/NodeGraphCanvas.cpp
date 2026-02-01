@@ -57,16 +57,31 @@ namespace ibis
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
+
+                // Whether the mouse is inside the widget.
                 bool inside = false;
+
+                // Current mouse position.
                 ftk::V2I pos;
+
+                // Mouse press position.
                 ftk::V2I press;
+
+                // Mouse press position in canvas coordinates.
                 ftk::V2I canvasPress;
+
+                // Data for moving nodes.
                 std::optional<Move> move;
                 std::vector<std::shared_ptr<render::INode> > moveNodes;
+
+                // Data for connecting nodes.
                 std::optional<Connect> connect;
+
+                // Start position for scroll bars when panning.
                 ftk::V2I panStart;
-                ftk::V2I scrollEdge;
-                std::shared_ptr<ftk::Timer> timer;
+
+                // Auto-scroll timer.
+                std::shared_ptr<ftk::Timer> autoScrollTimer;
             };
             MouseData mouse;
 
@@ -315,7 +330,7 @@ namespace ibis
             switch (p.mouse.mode)
             {
             case Private::MouseMode::MoveNodes:
-                if (p.mouse.move.has_value() && !p.mouse.timer)
+                if (p.mouse.move.has_value() && !p.mouse.autoScrollTimer)
                 {
                     const ftk::V2I offset = event.pos - event.prev;
                     for (const auto i : p.mouse.moveNodes)
@@ -359,12 +374,11 @@ namespace ibis
                         -p.size.margin);
                     if (!ftk::contains(scrollBox, p.mouse.pos))
                     {
-                        if (!p.mouse.timer)
+                        if (!p.mouse.autoScrollTimer)
                         {
-                            p.mouse.scrollEdge = p.mouse.pos;
-                            p.mouse.timer = ftk::Timer::create(getContext());
-                            p.mouse.timer->setRepeating(true);
-                            p.mouse.timer->start(
+                            p.mouse.autoScrollTimer = ftk::Timer::create(getContext());
+                            p.mouse.autoScrollTimer->setRepeating(true);
+                            p.mouse.autoScrollTimer->start(
                                 std::chrono::milliseconds(16),
                                 [this]
                                 {
@@ -374,7 +388,7 @@ namespace ibis
                     }
                     else
                     {
-                        p.mouse.timer.reset();
+                        p.mouse.autoScrollTimer.reset();
                     }
                 }
                 break;
@@ -481,7 +495,7 @@ namespace ibis
         {
             FTK_P();
             event.accept = true;
-            p.mouse.timer.reset();
+            p.mouse.autoScrollTimer.reset();
 
             switch (p.mouse.mode)
             {
