@@ -100,6 +100,7 @@ namespace ibis
             std::vector<std::shared_ptr<render::INode> > _getNodes(const ftk::Box2I&) const;
 
             void _graphUpdate();
+            void _autoScrollUpdate();
 
             FTK_PRIVATE();
         };

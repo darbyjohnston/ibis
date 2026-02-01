@@ -14,6 +14,7 @@
 
 #include <ftk/UI/DrawUtil.h>
 #include <ftk/UI/ScrollWidget.h>
+#include <ftk/Core/Timer.h>
 
 namespace ibis
 {
@@ -38,6 +39,7 @@ namespace ibis
             {
                 ftk::Size2I canvas;
                 ftk::Size2I grid;
+                int margin = 0;
                 int border = 0;
                 int handle = 0;
                 int shadow = 0;
@@ -56,13 +58,15 @@ namespace ibis
             {
                 MouseMode mode = MouseMode::None;
                 bool inside = false;
-                ftk::V2I press;
                 ftk::V2I pos;
+                ftk::V2I press;
+                ftk::V2I canvasPress;
                 std::optional<Move> move;
-                std::map<std::shared_ptr<render::INode>, ftk::V2I> moveNodes;
+                std::vector<std::shared_ptr<render::INode> > moveNodes;
                 std::optional<Connect> connect;
                 ftk::V2I panStart;
-                ftk::V2I selectStart;
+                ftk::V2I scrollEdge;
+                std::shared_ptr<ftk::Timer> timer;
             };
             MouseData mouse;
 
@@ -105,15 +109,7 @@ namespace ibis
                         const auto j = std::find(selection.begin(), selection.end(), i.first);
                         i.second->setSelected(j != selection.end());
                     }
-                    p.mouse.moveNodes.clear();
-                    for (const auto& node : selection)
-                    {
-                        const auto i = p.nodeToPos.find(node);
-                        if (i != p.nodeToPos.end())
-                        {
-                            p.mouse.moveNodes[node] = i->second;
-                        }
-                    }
+                    p.mouse.moveNodes = selection;
                 });
 
             p.viewNodeObserver = ftk::Observer<std::shared_ptr<render::INode> >::create(
@@ -162,13 +158,11 @@ namespace ibis
                 const auto j = p.nodeToPos.find(i.first);
                 if (j != p.nodeToPos.end())
                 {
+                    j->second.x = ftk::clamp(j->second.x, 0, value.w() - sizeHint.w);
+                    j->second.y = ftk::clamp(j->second.y, 0, value.h() - sizeHint.h);
                     pos = j->second;
                 }
-                i.second->setGeometry(ftk::Box2I(
-                    value.min.x + pos.x,
-                    value.min.y + pos.y,
-                    sizeHint.w,
-                    sizeHint.h));
+                i.second->setGeometry(ftk::Box2I(pos + value.min, sizeHint));
             }
         }
 
@@ -177,6 +171,7 @@ namespace ibis
             FTK_P();
             p.size.canvas = p.canvasSize * event.displayScale;
             p.size.grid = p.gridSize * event.displayScale;
+            p.size.margin = event.style->getSizeRole(ftk::SizeRole::MarginLarge, event.displayScale);
             p.size.border = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
             p.size.shadow = event.style->getSizeRole(ftk::SizeRole::Shadow, event.displayScale);
@@ -316,20 +311,19 @@ namespace ibis
             FTK_P();
             event.accept = true;
             p.mouse.pos = event.pos;
-            const ftk::V2I offset = event.pos - p.mouse.press;
 
             switch (p.mouse.mode)
             {
             case Private::MouseMode::MoveNodes:
-                if (p.mouse.move.has_value())
+                if (p.mouse.move.has_value() && !p.mouse.timer)
                 {
-                    // Temporarily move the nodes.
+                    const ftk::V2I offset = event.pos - event.prev;
                     for (const auto i : p.mouse.moveNodes)
                     {
-                        const auto j = p.nodeToPos.find(i.first);
+                        const auto j = p.nodeToPos.find(i);
                         if (j != p.nodeToPos.end())
                         {
-                            j->second = i.second + offset;
+                            j->second = j->second + offset;
                         }
                     }
                     setSizeUpdate();
@@ -338,9 +332,6 @@ namespace ibis
                 break;
 
             case Private::MouseMode::ConnectNodes:
-                setDrawUpdate();
-                break;
-
             case Private::MouseMode::Select:
                 setDrawUpdate();
                 break;
@@ -348,10 +339,45 @@ namespace ibis
             case Private::MouseMode::Pan:
                 if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
                 {
+                    const ftk::V2I offset = p.mouse.pos - p.mouse.press;
                     scrollWidget->setScrollPos(p.mouse.panStart - offset);
                 }
                 break;
 
+            default: break;
+            }
+
+            switch (p.mouse.mode)
+            {
+            case Private::MouseMode::MoveNodes:
+            case Private::MouseMode::ConnectNodes:
+            case Private::MouseMode::Select:
+                if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
+                {
+                    const ftk::Box2I scrollBox = ftk::margin(
+                        scrollWidget->getScrollArea()->getGeometry(),
+                        -p.size.margin);
+                    if (!ftk::contains(scrollBox, p.mouse.pos))
+                    {
+                        if (!p.mouse.timer)
+                        {
+                            p.mouse.scrollEdge = p.mouse.pos;
+                            p.mouse.timer = ftk::Timer::create(getContext());
+                            p.mouse.timer->setRepeating(true);
+                            p.mouse.timer->start(
+                                std::chrono::milliseconds(16),
+                                [this]
+                                {
+                                    _autoScrollUpdate();
+                                });
+                        }
+                    }
+                    else
+                    {
+                        p.mouse.timer.reset();
+                    }
+                }
+                break;
             default: break;
             }
         }
@@ -362,6 +388,7 @@ namespace ibis
             event.accept = true;
             p.mouse.mode = Private::MouseMode::None;
             p.mouse.press = event.pos;
+            p.mouse.canvasPress = event.pos - getGeometry().min;
             takeKeyFocus();
 
             // Check for a connection.
@@ -389,14 +416,6 @@ namespace ibis
                     {
                         p.document->select({ p.mouse.move->node });
                     }
-                    for (auto& i : p.mouse.moveNodes)
-                    {
-                        const auto j = p.nodeToPos.find(i.first);
-                        if (j != p.nodeToPos.end())
-                        {
-                            i.second = j->second;
-                        }
-                    }
                 }
             }
 
@@ -406,8 +425,7 @@ namespace ibis
                 if (ftk::MouseButton::Left == event.button)
                 {
                     p.mouse.mode = Private::MouseMode::Select;
-                    p.mouse.selectStart = event.pos;
-                    if (auto node = _getNode(event.pos))
+                    if (auto node = _getNode(p.mouse.pos))
                     {
                         if (ftk::checkKeyModifier(ftk::KeyModifier::Shift, event.modifiers))
                         {
@@ -444,31 +462,46 @@ namespace ibis
                 // Clear the selection.
                 p.document->clearSelection();
             }
+
+            switch (p.mouse.mode)
+            {
+            case Private::MouseMode::MoveNodes:
+            case Private::MouseMode::ConnectNodes:
+            case Private::MouseMode::Select:
+                if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
+                {
+                    p.mouse.panStart = scrollWidget->getScrollPos();
+                }
+                break;
+            default: break;
+            }
         }
 
         void NodeGraphCanvas::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
             FTK_P();
             event.accept = true;
+            p.mouse.timer.reset();
+
             switch (p.mouse.mode)
             {
             case Private::MouseMode::MoveNodes:
                 if (p.mouse.move.has_value())
                 {
-                    const ftk::V2I offset = event.pos - p.mouse.press;
-                    if (ftk::length(offset) > 0.F)
+                    std::vector<std::shared_ptr<render::INode> > nodes;
+                    std::vector<ftk::V2I> pos;
+                    for (const auto i : p.mouse.moveNodes)
                     {
-                        std::vector<std::shared_ptr<render::INode> > nodes;
-                        std::vector<ftk::V2I> pos;
-                        for (const auto i : p.mouse.moveNodes)
+                        const auto j = p.nodeToPos.find(i);
+                        if (j != p.nodeToPos.end())
                         {
-                            nodes.push_back(i.first);
-                            pos.push_back(i.second + offset);
+                            nodes.push_back(i);
+                            pos.push_back(j->second);
                         }
-                        const auto& graph = p.document->getGraph();
-                        p.document->command(
-                            render::MoveNodesCmd::create(graph, nodes, pos));
                     }
+                    const auto& graph = p.document->getGraph();
+                    p.document->command(
+                        render::MoveNodesCmd::create(graph, nodes, pos));
                     p.mouse.move.reset();
                 }
                 break;
@@ -479,7 +512,7 @@ namespace ibis
                     const auto& graph = p.document->getGraph();
                     if (p.mouse.connect->input != -1)
                     {
-                        const auto output = _getOutput(event.pos);
+                        const auto output = _getOutput(p.mouse.pos);
                         if (output.has_value())
                         {
                             p.document->command(
@@ -493,7 +526,7 @@ namespace ibis
                     }
                     else if (p.mouse.connect->output != -1)
                     {
-                        const auto input = _getInput(event.pos);
+                        const auto input = _getInput(p.mouse.pos);
                         if (input.has_value())
                         {
                             p.document->command(
@@ -706,10 +739,11 @@ namespace ibis
         {
             FTK_P();
             ftk::Box2I out;
-            out.min.x = std::min(p.mouse.selectStart.x, p.mouse.pos.x);
-            out.min.y = std::min(p.mouse.selectStart.y, p.mouse.pos.y);
-            out.max.x = std::max(p.mouse.selectStart.x, p.mouse.pos.x);
-            out.max.y = std::max(p.mouse.selectStart.y, p.mouse.pos.y);
+            const ftk::Box2I& g = getGeometry();
+            out.min.x = std::min(g.min.x + p.mouse.canvasPress.x, p.mouse.pos.x);
+            out.min.y = std::min(g.min.y + p.mouse.canvasPress.y, p.mouse.pos.y);
+            out.max.x = std::max(g.min.x + p.mouse.canvasPress.x, p.mouse.pos.x);
+            out.max.y = std::max(g.min.y + p.mouse.canvasPress.y, p.mouse.pos.y);
             return out;
         }
 
@@ -823,6 +857,45 @@ namespace ibis
             p.nodeToPos = nodeToPos;
             setSizeUpdate();
             setDrawUpdate();
+        }
+
+        void NodeGraphCanvas::_autoScrollUpdate()
+        {
+            FTK_P();
+            if (auto scrollWidget = getParentT<ftk::ScrollWidget>())
+            {
+                const ftk::V2I scrollPosPrev = scrollWidget->getScrollPos();
+                const ftk::V2F v = ftk::normalize(ftk::V2F(
+                    p.mouse.pos.x - p.mouse.press.x,
+                    p.mouse.pos.y - p.mouse.press.y)) * p.size.margin;
+                scrollWidget->setScrollPos(scrollPosPrev + ftk::V2I(v.x, v.y));
+
+                switch (p.mouse.mode)
+                {
+                case Private::MouseMode::MoveNodes:
+                    if (p.mouse.move.has_value())
+                    {
+                        const ftk::V2I offset = scrollWidget->getScrollPos() - scrollPosPrev;
+                        for (const auto i : p.mouse.moveNodes)
+                        {
+                            const auto j = p.nodeToPos.find(i);
+                            if (j != p.nodeToPos.end())
+                            {
+                                j->second.x += offset.x;
+                                j->second.y += offset.y;
+                            }
+                        }
+                        setSizeUpdate();
+                        setDrawUpdate();
+                    }
+                    break;
+                case Private::MouseMode::ConnectNodes:
+                case Private::MouseMode::Select:
+                    setDrawUpdate();
+                    break;
+                default: break;
+                }
+            }
         }
     }
 }
