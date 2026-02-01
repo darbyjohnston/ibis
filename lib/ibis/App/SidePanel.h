@@ -13,8 +13,22 @@ namespace ibis
 {
     class App;
 
-    //! Side panel.
-    class SidePanel : public ftk::IWidget
+    //! Side panels.
+    enum class SidePanel
+    {
+        NodeBrowser,
+        NodeEditor,
+        Settings,
+        Diag,
+        SysLog,
+
+        Count,
+        First = NodeBrowser
+    };
+    FTK_ENUM(SidePanel);
+
+    //! Side panel widget.
+    class SidePanelWidget : public ftk::IWidget
     {
     protected:
         void _init(
@@ -22,22 +36,25 @@ namespace ibis
             const std::shared_ptr<App>&,
             const std::shared_ptr<ftk::IWidget>& parent);
 
-        SidePanel();
+        SidePanelWidget();
 
     public:
-        virtual ~SidePanel();
+        virtual ~SidePanelWidget();
 
         //! Create a new widget.
-        static std::shared_ptr<SidePanel> create(
+        static std::shared_ptr<SidePanelWidget> create(
             const std::shared_ptr<ftk::Context>&,
             const std::shared_ptr<App>&,
             const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+        void setSidePanel(SidePanel);
+        void setCallback(const std::function<void(SidePanel)>&);
 
         ftk::Size2I getSizeHint() const override;
         void setGeometry(const ftk::Box2I&) override;
 
     private:
-        void _widgetUpdate(int);
+        void _widgetUpdate(SidePanel);
 
         FTK_PRIVATE();
     };

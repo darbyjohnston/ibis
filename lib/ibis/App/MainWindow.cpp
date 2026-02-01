@@ -39,7 +39,8 @@ namespace ibis
 {
     struct MainWindow::Private
     {
-        std::shared_ptr<ftk::Observable<std::shared_ptr<DocumentWidget> > > currentWidget;
+        std::shared_ptr<ftk::Observable<std::shared_ptr<DocumentWidget> > > documentWidget;
+        std::shared_ptr<ftk::Observable<std::pair<SidePanel, bool> > > sidePanel;
 
         std::shared_ptr<FileActions> fileActions;
         std::shared_ptr<EditActions> editActions;
@@ -50,7 +51,7 @@ namespace ibis
         std::shared_ptr<ftk::MenuBar> menuBar;
         std::shared_ptr<ftk::TabBar> documentTabBar;
         std::shared_ptr<ftk::StackLayout> documentLayout;
-        std::shared_ptr<SidePanel> sidePanel;
+        std::shared_ptr<SidePanelWidget> sidePanelWidget;
         std::shared_ptr<ftk::Splitter> splitter;
         std::shared_ptr<ftk::VerticalLayout> layout;
 
@@ -69,7 +70,12 @@ namespace ibis
         auto iconSystem = context->getSystem<ftk::IconSystem>();
         setIcon(iconSystem->get("ibis", 1.0));
 
-        p.currentWidget = ftk::Observable<std::shared_ptr<DocumentWidget> >::create();
+        p.documentWidget = ftk::Observable<std::shared_ptr<DocumentWidget> >::create();
+
+        p.sidePanel = ftk::Observable<std::pair<SidePanel, bool> >::create(
+            std::make_pair(SidePanel::NodeBrowser, true));
+
+        p.sidePanelWidget = SidePanelWidget::create(context, app);
 
         auto mainWindow = std::dynamic_pointer_cast<MainWindow>(shared_from_this());
         p.fileActions = FileActions::create(context, app, mainWindow);
@@ -98,8 +104,6 @@ namespace ibis
         p.documentLayout = ftk::StackLayout::create(context);
         p.documentLayout->setVStretch(ftk::Stretch::Expanding);
 
-        p.sidePanel = SidePanel::create(context, app);
-
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);
         auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
@@ -118,7 +122,7 @@ namespace ibis
         p.documentTabBar->setParent(vLayout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.documentLayout->setParent(vLayout);
-        p.sidePanel->setParent(p.splitter);
+        p.sidePanelWidget->setParent(p.splitter);
 
         setWidget(p.layout);
 
@@ -178,9 +182,8 @@ namespace ibis
             [this](const std::shared_ptr<models::Document>& value)
             {
                 FTK_P();
-                std::shared_ptr<DocumentWidget> currentWidget;
                 const auto i = p.widgets.find(value);
-                p.currentWidget->setIfChanged(i != p.widgets.end() ? i->second : nullptr);
+                p.documentWidget->setIfChanged(i != p.widgets.end() ? i->second : nullptr);
             });
 
         p.currentIndexObserver = ftk::Observer<int>::create(
@@ -190,6 +193,15 @@ namespace ibis
                 FTK_P();
                 p.documentTabBar->setCurrentTab(value);
                 p.documentLayout->setCurrentIndex(value);
+            });
+
+        p.sidePanelWidget->setCallback(
+            [this](SidePanel value)
+            {
+                FTK_P();
+                auto pair = p.sidePanel->get();
+                pair.first = value;
+                p.sidePanel->setIfChanged(pair);
             });
     }
 
@@ -216,12 +228,35 @@ namespace ibis
 
     std::shared_ptr<DocumentWidget> MainWindow::getDocumentWidget() const
     {
-        return _p->currentWidget->get();
+        return _p->documentWidget->get();
     }
 
     std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > MainWindow::observeDocumentWidget() const
     {
-        return _p->currentWidget;
+        return _p->documentWidget;
+    }
+
+    std::shared_ptr<ftk::IObservable<std::pair<SidePanel, bool> > > MainWindow::observeSidePanel() const
+    {
+        return _p->sidePanel;
+    }
+
+    void MainWindow::setSidePanel(SidePanel value)
+    {
+        FTK_P();
+        const auto prev = p.sidePanel->get();
+        bool visible = p.sidePanelWidget->isVisible(false);
+        if (value == prev.first)
+        {
+            visible = !visible;
+        }
+        else
+        {
+            visible = true;
+        }
+        p.sidePanel->setIfChanged(std::make_pair(value, visible));
+        p.sidePanelWidget->setVisible(visible);
+        p.sidePanelWidget->setSidePanel(value);
     }
 
     void MainWindow::dropEvent(ftk::DragDropEvent& event)

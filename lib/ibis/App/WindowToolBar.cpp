@@ -23,6 +23,7 @@ namespace ibis
 
         auto actions = windowActions->getActions();
         addAction(actions["FullScreen"]);
+        addAction(actions["SidePanel"]);
     }
 
     WindowToolBar::WindowToolBar() :

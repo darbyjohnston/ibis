@@ -14,77 +14,104 @@
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/TabBar.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
-    struct SidePanel::Private
+    FTK_ENUM_IMPL(
+        SidePanel,
+        "Node Browser",
+        "Node Editor",
+        "Settings",
+        "Diagnostics",
+        "System Log");
+
+    struct SidePanelWidget::Private
     {
         std::weak_ptr<App> app;
         std::shared_ptr<ftk::TabBar> tabBar;
         std::shared_ptr<ftk::IWidget> currentWidget;
         std::shared_ptr<ftk::VerticalLayout> layout;
+        std::function<void(SidePanel)> callback;
     };
 
-    void SidePanel::_init(
+    void SidePanelWidget::_init(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
         const std::shared_ptr<ftk::IWidget>& parent)
     {
-        IWidget::_init(context, "ibis::SidePanel", parent);
+        IWidget::_init(context, "ibis::SidePanelWidget", parent);
         FTK_P();
         
         p.app = app;
 
         p.tabBar = ftk::TabBar::create(context);
-        p.tabBar->addTab("Node Browser");
-        p.tabBar->addTab("Node Editor");
-        p.tabBar->addTab("Settings");
-        p.tabBar->addTab("Diagnostics");
-        p.tabBar->addTab("System Log");
+        for (const auto& i : getSidePanelLabels())
+        {
+            p.tabBar->addTab(i);
+        }
 
         p.layout = ftk::VerticalLayout::create(context, shared_from_this());
         p.layout->setSpacingRole(ftk::SizeRole::None);
         p.tabBar->setParent(p.layout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
 
-        _widgetUpdate(0);
+        _widgetUpdate(SidePanel::First);
 
         p.tabBar->setCurrentTabCallback(
             [this](int index)
             {
-                _widgetUpdate(index);
+                FTK_P();
+                _widgetUpdate(static_cast<SidePanel>(index));
+                if (p.callback)
+                {
+                    p.callback(static_cast<SidePanel>(index));
+                }
             });
     }
 
-    SidePanel::SidePanel() :
+    SidePanelWidget::SidePanelWidget() :
         _p(new Private)
     {}
 
-    SidePanel::~SidePanel()
+    SidePanelWidget::~SidePanelWidget()
     {}
 
-    std::shared_ptr<SidePanel> SidePanel::create(
+    std::shared_ptr<SidePanelWidget> SidePanelWidget::create(
         const std::shared_ptr<ftk::Context>& context,
         const std::shared_ptr<App>& app,
         const std::shared_ptr<ftk::IWidget>& parent)
     {
-        std::shared_ptr<SidePanel> out(new SidePanel);
+        std::shared_ptr<SidePanelWidget> out(new SidePanelWidget);
         out->_init(context, app, parent);
         return out;
     }
 
-    ftk::Size2I SidePanel::getSizeHint() const
+    void SidePanelWidget::setSidePanel(SidePanel value)
+    {
+        _p->tabBar->setCurrentTab(static_cast<int>(value));
+        _widgetUpdate(value);
+    }
+
+    void SidePanelWidget::setCallback(const std::function<void(SidePanel)>& value)
+    {
+        _p->callback = value;
+    }
+
+    ftk::Size2I SidePanelWidget::getSizeHint() const
     {
         return _p->layout->getSizeHint();
     }
 
-    void SidePanel::setGeometry(const ftk::Box2I& value)
+    void SidePanelWidget::setGeometry(const ftk::Box2I& value)
     {
         IWidget::setGeometry(value);
         _p->layout->setGeometry(value);
     }
 
-    void SidePanel::_widgetUpdate(int index)
+    void SidePanelWidget::_widgetUpdate(SidePanel value)
     {
         FTK_P();
         if (p.currentWidget)
@@ -94,28 +121,28 @@ namespace ibis
         }
         auto context = getContext();
         auto app = p.app.lock();
-        switch (index)
+        switch (value)
         {
-        case 0:
+        case SidePanel::NodeBrowser:
             p.currentWidget = ui::NodeBrowser::create(
                 context,
                 app->getNodeFactory(),
                 p.layout);
             break;
-        case 1:
+        case SidePanel::NodeEditor:
             p.currentWidget = ui::NodeEditor::create(
                 context,
                 app->getNodeWidgetFactory(),
                 app->getDocumentModel(),
                 p.layout);
             break;
-        case 2:
+        case SidePanel::Settings:
             p.currentWidget = ui::SettingsWidget::create(context, p.layout);
             break;
-        case 3:
+        case SidePanel::Diag:
             p.currentWidget = ui::DiagWidget::create(context, p.layout);
             break;
-        case 4:
+        case SidePanel::SysLog:
             p.currentWidget = ui::SysLogWidget::create(context, p.layout);
             break;
         default: break;

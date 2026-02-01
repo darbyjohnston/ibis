@@ -4,6 +4,7 @@
 #include "WindowMenu.h"
 
 #include "App.h"
+#include "SidePanel.h"
 #include "WindowActions.h"
 
 namespace ibis
@@ -23,7 +24,13 @@ namespace ibis
         FTK_P();
         auto actions = windowActions->getActions();
         addAction(actions["FullScreen"]);
+        addDivider();
         p.resizeMenu = addSubMenu("Resize");
+        addDivider();
+        for (const auto& i : getSidePanelLabels())
+        {
+            addAction(actions[i]);
+        }
     }
 
     WindowMenu::WindowMenu() :

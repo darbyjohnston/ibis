@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <ibis/App/SidePanel.h>
+
 #include <ftk/UI/MainWindow.h>
 
 namespace ibis
@@ -30,9 +32,11 @@ namespace ibis
             const std::shared_ptr<App>&);
 
         int getCurrentTab() const;
-
         std::shared_ptr<DocumentWidget> getDocumentWidget() const;
         std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > observeDocumentWidget() const;
+
+        std::shared_ptr<ftk::IObservable<std::pair<SidePanel, bool> > > observeSidePanel() const;
+        void setSidePanel(SidePanel);
 
         void dropEvent(ftk::DragDropEvent&) override;
 
