@@ -11,6 +11,7 @@
 
 #include <ftk/UI/Bellows.h>
 #include <ftk/UI/CheckBox.h>
+#include <ftk/UI/FloatEditSlider.h>
 #include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
@@ -309,6 +310,83 @@ namespace ibis
         void MirrorNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
+            _p->bellows->setGeometry(value);
+        }
+
+        struct RotateNodeWidget::Private
+        {
+            std::shared_ptr<ftk::FloatEditSlider> rotateEdit;
+            std::shared_ptr<ftk::Bellows> bellows;
+
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
+        };
+
+        void RotateNodeWidget::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            IInteractionNodeWidget::_init(context, document, node, parent);
+            FTK_P();
+
+            p.rotateEdit = ftk::FloatEditSlider::create(context);
+            p.rotateEdit->setRange(0.F, 360.F);
+
+            auto formLayout = ftk::FormLayout::create(context);
+            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            formLayout->addRow("Rotate:", p.rotateEdit);
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(formLayout);
+
+            p.rotateEdit->setPressedCallback(
+                [this](float value, bool pressed)
+                {
+                    _callback({ { "Rotate", value } }, pressed);
+                });
+
+            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+                _node->observeAttr(),
+                [this](const std::map<std::string, nlohmann::json>& value)
+                {
+                    FTK_P();
+                    auto tmp = value;
+                    p.rotateEdit->setValue(tmp["Rotate"]);
+                });
+        }
+
+        RotateNodeWidget::RotateNodeWidget() :
+            _p(new Private)
+        {}
+
+        RotateNodeWidget::~RotateNodeWidget()
+        {}
+
+        std::shared_ptr<RotateNodeWidget> RotateNodeWidget::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            std::shared_ptr<RotateNodeWidget> out(new RotateNodeWidget);
+            out->_init(context, document, node, parent);
+            return out;
+        }
+
+        render::NodeInfo RotateNodeWidget::getClassNodeInfo()
+        {
+            return render::RotateNode::getClassNodeInfo();
+        }
+
+        ftk::Size2I RotateNodeWidget::getSizeHint() const
+        {
+            return _p->bellows->getSizeHint();
+        }
+
+        void RotateNodeWidget::setGeometry(const ftk::Box2I& value)
+        {
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
     }

@@ -320,5 +320,92 @@ namespace ibis
             }
             _textureInfo->setItemOnlyIfChanged(0, info);
         }
+
+        struct RotateNode::Private
+        {};
+
+        void RotateNode::_init(const std::shared_ptr<ftk::Context>& context)
+        {
+            NodeAttr attr;
+            attr["Rotate"] = 90.F;
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+        }
+
+        RotateNode::RotateNode() :
+            _p(new Private)
+        {}
+
+        RotateNode::~RotateNode()
+        {}
+
+        NodeInfo RotateNode::getClassNodeInfo()
+        {
+            return { "Rotate", "Rotate", "Transform" };
+        }
+
+        std::shared_ptr<INode> RotateNode::create(
+            const std::shared_ptr<ftk::Context>& context)
+        {
+            std::shared_ptr<RotateNode> out(new RotateNode);
+            out->_init(context);
+            return out;
+        }
+
+        void RotateNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
+        {
+            INode::exec(render, time);
+            FTK_P();
+
+            ftk::gl::TextureInfo info;
+            if (_inputs->getItem(0).node)
+            {
+                const float rotate = _attr->getItem("Rotate");
+                const ftk::M44F m = ftk::rotateZ(rotate);
+                const auto& input0 = _inputs->getItem(0).node->getOutputs();
+                ftk::Size2I input0Size;
+                if (!input0.empty() && input0.front())
+                {
+                    input0Size = input0.front()->getSize();
+                    std::vector<ftk::V3F> pts;
+                    pts.push_back(ftk::V3F(0.F, 0.F, 0.F));
+                    pts.push_back(ftk::V3F(input0Size.w, 0.F, 0.F));
+                    pts.push_back(ftk::V3F(input0Size.w, input0Size.h, 0.F));
+                    pts.push_back(ftk::V3F(0.F, input0Size.h, 0.F));
+                    std::vector<ftk::V3F> pts2;
+                    for (const auto& pt : pts)
+                    {
+                        pts2.push_back(m * pt);
+                    }
+                    const ftk::Box3F bbox = ftk::bbox(pts2);
+                    info.size.w = bbox.w();
+                    info.size.h = bbox.h();
+                    info.type = input0.front()->getType();
+                }
+                if (info.isValid())
+                {
+                    if (ftk::gl::doCreate(_outputs[0], info))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    render->setRenderSize(info.size);
+                    render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    const ftk::M44F m2 =
+                        ftk::translate(ftk::V3F(info.size.w / 2, info.size.h / 2, 0.F)) *
+                        m *
+                        ftk::translate(ftk::V3F(-input0Size.w / 2, -input0Size.h / 2, 0.F));
+                    render->setTransform(_getProjection(info.size) * m2);
+                    render->drawTexture(input0.front()->getColorID(), ftk::Box2I(0, 0, input0Size.w, input0Size.h), true);
+                }
+            }
+            if (!_inputs->getItem(0).node || !info.isValid())
+            {
+                _outputs[0].reset();
+            }
+            _textureInfo->setItemOnlyIfChanged(0, info);
+        }
     }
 }

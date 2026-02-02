@@ -56,6 +56,7 @@ namespace ibis
             p.nodes[CropNodeWidget::getClassNodeInfo().id] = &CropNodeWidget::create;
             p.nodes[MirrorNodeWidget::getClassNodeInfo().id] = &MirrorNodeWidget::create;
             p.nodes[ResizeNodeWidget::getClassNodeInfo().id] = &ResizeNodeWidget::create;
+            p.nodes[RotateNodeWidget::getClassNodeInfo().id] = &RotateNodeWidget::create;
 
             p.nodes[OverNodeWidget::getClassNodeInfo().id] = &OverNodeWidget::create;
         }
