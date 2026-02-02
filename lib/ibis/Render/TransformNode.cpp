@@ -51,40 +51,36 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            ftk::Size2I size;
+            ftk::gl::TextureInfo info;
             if (_inputs->getItem(0).node)
             {
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 if (!input0.empty() && input0.front())
                 {
-                    size.w = _attr->getItem("Width");
-                    size.h = _attr->getItem("Height");
+                    info.size.w = _attr->getItem("Width");
+                    info.size.h = _attr->getItem("Height");
+                    info.type = input0.front()->getType();
                 }
-                if (size.isValid())
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    const ftk::Box2I vp(0, 0, size.w, size.h);
+                    render->setRenderSize(info.size);
+                    const ftk::Box2I vp(0, 0, info.size.w, info.size.h);
                     render->setViewport(vp);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
                     render->drawTexture(input0.front()->getColorID(), vp, true);
                 }
             }
-            if (!_inputs->getItem(0).node || !size.isValid())
+            if (!_inputs->getItem(0).node || !info.isValid())
             {
                 _outputs[0].reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct CropNode::Private
@@ -127,47 +123,43 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            ftk::Size2I size;
+            ftk::gl::TextureInfo info;
             if (_inputs->getItem(0).node)
             {
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 ftk::Size2I inputSize;
                 if (!input0.empty() && input0.front())
                 {
-                    size.w = _attr->getItem("Width");
-                    size.h = _attr->getItem("Height");
+                    info.size.w = _attr->getItem("Width");
+                    info.size.h = _attr->getItem("Height");
+                    info.type = input0.front()->getType();
                     inputSize = input0.front()->getSize();
                 }
-                if (size.isValid())
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->setRenderSize(info.size);
+                    render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
 
                     const int x = _attr->getItem("X");
                     const int y = _attr->getItem("Y");
                     const ftk::Box2I rect(
-                        -ftk::V2I(x, inputSize.h - 1 - y - size.h),
+                        -ftk::V2I(x, inputSize.h - 1 - y - info.size.h),
                         inputSize);
                     render->drawTexture(input0.front()->getColorID(), rect, true);
                 }
             }
-            if (!_inputs->getItem(0).node || !size.isValid())
+            if (!_inputs->getItem(0).node || !info.isValid())
             {
                 _outputs[0].reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct MirrorNode::Private
@@ -285,27 +277,27 @@ namespace ibis
                 p.shader = ftk::gl::Shader::create(mirrorVertex, mirrorFragment);
             }
 
-            ftk::Size2I size;
+            ftk::gl::TextureInfo info;
             if (_inputs->getItem(0).node)
             {
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 if (!input0.empty() && input0.front())
                 {
-                    size = input0.front()->getSize();
+                    info = input0.front()->getInfo();
                 }
-                if (size.isValid())
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    const ftk::Box2I rect(0, 0, size.w, size.h);
+                    render->setRenderSize(info.size);
+                    const ftk::Box2I rect(0, 0, info.size.w, info.size.h);
                     render->setViewport(rect);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     p.shader->bind();
-                    p.shader->setUniform("transform.mvp", _getProjection(size));
+                    p.shader->setUniform("transform.mvp", _getProjection(info.size));
                     p.shader->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -315,23 +307,18 @@ namespace ibis
                     const bool horizontal = _attr->getItem("Horizontal");
                     const bool vertical = _attr->getItem("Vertical");
                     vbo->copy(
-                        convert(mesh(ftk::Box2I(0, 0, size.w, size.h), horizontal, !vertical),
+                        convert(mesh(ftk::Box2I(0, 0, info.size.w, info.size.h), horizontal, !vertical),
                         vbo->getType()));
                     auto vao = ftk::gl::VAO::create(vbo->getType(), vbo->getID());
                     vao->bind();
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());
                 }
             }
-            if (!_inputs->getItem(0).node || !size.isValid())
+            if (!_inputs->getItem(0).node || !info.isValid())
             {
                 _outputs[0].reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }

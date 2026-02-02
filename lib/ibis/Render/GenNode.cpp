@@ -52,24 +52,20 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
-            const ftk::Size2I size = _attr->getItem("Size");
-            if (size.isValid())
+
+            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            if (info.isValid())
             {
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], info))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                render->setRenderSize(size);
-                render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                render->setRenderSize(info.size);
+                render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                 render->clearViewport(_attr->getItem("Color"));
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct GradientNode::Private
@@ -111,24 +107,25 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
-            const ftk::Size2I size = _attr->getItem("Size");
-            if (size.isValid())
+
+            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            if (info.isValid())
             {
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], info))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                render->setRenderSize(size);
-                render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                render->setRenderSize(info.size);
+                render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                 render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                render->setTransform(_getProjection(size));
+                render->setTransform(_getProjection(info.size));
 
                 ftk::TriMesh2F mesh;
                 mesh.v.push_back(ftk::V2F(0.F, 0.F));
-                mesh.v.push_back(ftk::V2F(size.w, 0.F));
-                mesh.v.push_back(ftk::V2F(size.w, size.h));
-                mesh.v.push_back(ftk::V2F(0.F, size.h));
+                mesh.v.push_back(ftk::V2F(info.size.w, 0.F));
+                mesh.v.push_back(ftk::V2F(info.size.w, info.size.h));
+                mesh.v.push_back(ftk::V2F(0.F, info.size.h));
                 const ftk::Color4F color0 = _attr->getItem("Color0");
                 const ftk::Color4F color1 = _attr->getItem("Color1");
                 switch (static_cast<ftk::Orientation>(_attr->getItem("Orientation")))
@@ -161,19 +158,14 @@ namespace ibis
                     });
                 render->drawColorMesh(mesh);
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct NoiseNode::Private
         {
             ftk::Noise noise;
             float scale = 0.F;
-            ftk::Size2I size;
+            ftk::gl::TextureInfo info;
             std::shared_ptr<ftk::Image> image;
         };
 
@@ -211,20 +203,21 @@ namespace ibis
         {
             INode::exec(render, time);
             FTK_P();
-            const ftk::Size2I size = _attr->getItem("Size");
-            if (size.isValid())
+
+            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            if (info.isValid())
             {
                 const float scale = _attr->getItem("Scale");
-                if (scale != p.scale || size != p.size)
+                if (scale != p.scale || info != p.info)
                 {
                     p.scale = scale;
-                    p.size = size;
-                    p.image = ftk::Image::create(size, ftk::ImageType::L_U8);
-                    for (int y = 0; y < size.h; ++y)
+                    p.info = info;
+                    p.image = ftk::Image::create(info.size, ftk::ImageType::L_U8);
+                    for (int y = 0; y < info.size.h; ++y)
                     {
-                        uint8_t* dataP = p.image->getData() + size.w * y;
+                        uint8_t* dataP = p.image->getData() + info.size.w * y;
                         const float v = y / 100.F;
-                        for (int x = 0; x < size.w; ++x)
+                        for (int x = 0; x < info.size.w; ++x)
                         {
                             const float u = x / 100.F;
                             const float w = 0.F;
@@ -236,27 +229,22 @@ namespace ibis
                     }
                 }
 
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], info))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                render->setRenderSize(size);
-                render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                render->setRenderSize(info.size);
+                render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                 render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                render->setTransform(_getProjection(size));
-                render->drawImage(p.image, ftk::Box2I(0, 0, size.w, size.h));
+                render->setTransform(_getProjection(info.size));
+                render->drawImage(p.image, ftk::Box2I(0, 0, info.size.w, info.size.h));
             }
             else
             {
                 p.image.reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }

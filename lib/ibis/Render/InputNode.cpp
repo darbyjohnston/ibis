@@ -197,33 +197,29 @@ namespace ibis
                 }
             }
 
+            ftk::gl::TextureInfo info;
             if (p.image)
             {
-                const ftk::Size2I size = p.image->getSize();
-                if (size.isValid())
+                info.size = p.image->getSize();
+                info.type = ftk::gl::getTextureType(p.image->getType());
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    const ftk::Size2I size = p.image->getSize();
-                    const ftk::Box2I g(0, 0, size.w, size.h);
-                    render->setRenderSize(size);
+                    const ftk::Box2I g(0, 0, info.size.w, info.size.h);
+                    render->setRenderSize(info.size);
                     render->setViewport(g);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
                     ftk::ImageOptions imageOptions;
                     imageOptions.cache = false;
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct ImageSequenceNode::Private
@@ -330,33 +326,29 @@ namespace ibis
                 }
             }
 
+            ftk::gl::TextureInfo info;
             if (p.image)
             {
-                const ftk::Size2I size = p.image->getSize();
-                if (size.isValid())
+                info.size = p.image->getSize();
+                info.type = ftk::gl::getTextureType(p.image->getType());
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    const ftk::Size2I size = p.image->getSize();
-                    const ftk::Box2I g(0, 0, size.w, size.h);
-                    render->setRenderSize(size);
+                    const ftk::Box2I g(0, 0, info.size.w, info.size.h);
+                    render->setRenderSize(info.size);
                     render->setViewport(g);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
                     ftk::ImageOptions imageOptions;
                     imageOptions.cache = false;
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct SVGFileNode::Private
@@ -434,14 +426,16 @@ namespace ibis
                 }
             }
 
+            ftk::gl::TextureInfo info;
             if (p.image)
             {
-                const ftk::Size2I size = p.image->getSize();
-                if (size.isValid())
+                info.size = p.image->getSize();
+                info.type = ftk::gl::getTextureType(p.image->getType());
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();

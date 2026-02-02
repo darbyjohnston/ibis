@@ -193,7 +193,7 @@ namespace ibis
                 p.shader = ftk::gl::Shader::create(vertexSource, fragmentSource);
             }
 
-            ftk::Size2I size;
+            ftk::gl::TextureInfo info;
             if (_inputs->getItem(0).node &&
                 !_inputs->getItem(0).node->getOutputs().empty() &&
                 _inputs->getItem(0).node->getOutputs().front() &&
@@ -210,36 +210,37 @@ namespace ibis
                 const ftk::Box2I bounds0(0, 0, size0.w, size0.h);
                 const ftk::Box2I bounds1(pos0.x, pos0.y, size1.w, size1.h);
                 const ftk::Box2I bounds = ftk::expand(bounds0, bounds1);
-                size = bounds.size();                
-                if (size.isValid())
+                info.size = bounds.size();                
+                info.type = input0.front()->getType();
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->setRenderSize(info.size);
+                    render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     p.shader->bind();
-                    p.shader->setUniform("transform.mvp", _getProjection(size));
+                    p.shader->setUniform("transform.mvp", _getProjection(info.size));
                     p.shader->setUniform("overMode", static_cast<int>(_attr->getItem("Mode")));
 
                     p.shader->setUniform("textureSampler", 0);
                     p.shader->setUniform("textureSamplerU", ftk::V2F(
-                        (bounds0.min.x - bounds.min.x) / static_cast<float>(size.w),
-                        (bounds0.min.x - bounds.min.x + size0.w) / static_cast<float>(size.w)));
+                        (bounds0.min.x - bounds.min.x) / static_cast<float>(info.size.w),
+                        (bounds0.min.x - bounds.min.x + size0.w) / static_cast<float>(info.size.w)));
                     p.shader->setUniform("textureSamplerV", ftk::V2F(
-                        (bounds0.min.y - bounds.min.y) / static_cast<float>(size.h),
-                        (bounds0.min.y - bounds.min.y + size0.h) / static_cast<float>(size.h)));
+                        (bounds0.min.y - bounds.min.y) / static_cast<float>(info.size.h),
+                        (bounds0.min.y - bounds.min.y + size0.h) / static_cast<float>(info.size.h)));
 
                     p.shader->setUniform("textureSampler2", 1);
                     p.shader->setUniform("textureSampler2U", ftk::V2F(
-                        (bounds1.min.x - bounds.min.x) / static_cast<float>(size.w),
-                        (bounds1.min.x - bounds.min.x + size1.w) / static_cast<float>(size.w)));
+                        (bounds1.min.x - bounds.min.x) / static_cast<float>(info.size.w),
+                        (bounds1.min.x - bounds.min.x + size1.w) / static_cast<float>(info.size.w)));
                     p.shader->setUniform("textureSampler2V", ftk::V2F(
-                        (bounds1.min.y - bounds.min.y) / static_cast<float>(size.h),
-                        (bounds1.min.y - bounds.min.y + size1.h) / static_cast<float>(size.h)));
+                        (bounds1.min.y - bounds.min.y) / static_cast<float>(info.size.h),
+                        (bounds1.min.y - bounds.min.y + size1.h) / static_cast<float>(info.size.h)));
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                     glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
@@ -247,7 +248,7 @@ namespace ibis
                     glBindTexture(GL_TEXTURE_2D, input1.front()->getColorID());
 
                     auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(convert(mesh(ftk::Box2I(0, 0, size.w, size.h), true), vbo->getType()));
+                    vbo->copy(convert(mesh(ftk::Box2I(0, 0, info.size.w, info.size.h), true), vbo->getType()));
                     auto vao = ftk::gl::VAO::create(vbo->getType(), vbo->getID());
                     vao->bind();
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());
@@ -258,21 +259,21 @@ namespace ibis
                 _inputs->getItem(0).node->getOutputs().front())
             {
                 const auto& input = _inputs->getItem(0).node->getOutputs();
-                size = input.front()->getSize();
-                if (size.isValid())
+                info = input.front()->getInfo();
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->setRenderSize(info.size);
+                    render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
                     render->drawTexture(
                         input.front()->getColorID(),
-                        ftk::Box2I(0, 0, size.w, size.h),
+                        ftk::Box2I(0, 0, info.size.w, info.size.h),
                         true);
                 }
             }
@@ -281,21 +282,21 @@ namespace ibis
                 _inputs->getItem(1).node->getOutputs().front())
             {
                 const auto& input = _inputs->getItem(1).node->getOutputs();
-                size = input.front()->getSize();
-                if (size.isValid())
+                info = input.front()->getInfo();
+                if (info.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], info))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    render->setRenderSize(size);
-                    render->setViewport(ftk::Box2I(0, 0, size.w, size.h));
+                    render->setRenderSize(info.size);
+                    render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(size));
+                    render->setTransform(_getProjection(info.size));
                     render->drawTexture(
                         input.front()->getColorID(),
-                        ftk::Box2I(0, 0, size.w, size.h),
+                        ftk::Box2I(0, 0, info.size.w, info.size.h),
                         true);
                 }
             }
@@ -303,16 +304,11 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            if (!size.isValid())
+            if (!info.isValid())
             {
                 _outputs[0].reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(
-                0,
-                _outputs[0] ?
-                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::gl::TextureInfo());
+            _textureInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }
