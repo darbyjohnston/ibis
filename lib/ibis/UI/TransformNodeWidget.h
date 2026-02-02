@@ -39,5 +39,36 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+
+        //! Crop node widget.
+        class CropNodeWidget : public IInteractionNodeWidget
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ibis::models::Document>&,
+                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent);
+
+            CropNodeWidget();
+
+        public:
+            virtual ~CropNodeWidget();
+
+            //! Create a new widget.
+            static std::shared_ptr<CropNodeWidget> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ibis::models::Document>&,
+                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+            static render::NodeInfo getClassNodeInfo();
+
+            ftk::Size2I getSizeHint() const override;
+            void setGeometry(const ftk::Box2I&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
     }
 }

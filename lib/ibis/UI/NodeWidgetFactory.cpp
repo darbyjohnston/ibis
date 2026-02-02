@@ -53,6 +53,7 @@ namespace ibis
             p.nodes[SoftClipNodeWidget::getClassNodeInfo().id] = &SoftClipNodeWidget::create;
             p.nodes[TintNodeWidget::getClassNodeInfo().id] = &TintNodeWidget::create;
 
+            p.nodes[CropNodeWidget::getClassNodeInfo().id] = &CropNodeWidget::create;
             p.nodes[ResizeNodeWidget::getClassNodeInfo().id] = &ResizeNodeWidget::create;
 
             p.nodes[OverNodeWidget::getClassNodeInfo().id] = &OverNodeWidget::create;
