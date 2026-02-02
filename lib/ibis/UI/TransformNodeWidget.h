@@ -9,8 +9,8 @@ namespace ibis
 {
     namespace ui
     {
-        //! Over node widget.
-        class OverNodeWidget : public IInteractionNodeWidget
+        //! Resize node widget.
+        class ResizeNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -19,13 +19,13 @@ namespace ibis
                 const std::shared_ptr<ibis::render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            OverNodeWidget();
+            ResizeNodeWidget();
 
         public:
-            virtual ~OverNodeWidget();
+            virtual ~ResizeNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<OverNodeWidget> create(
+            static std::shared_ptr<ResizeNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<ibis::models::Document>&,
                 const std::shared_ptr<ibis::render::INode>&,

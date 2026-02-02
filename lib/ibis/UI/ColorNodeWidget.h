@@ -10,7 +10,7 @@ namespace ibis
     namespace ui
     {
         //! Brightness node widget.
-        class BrightnessNodeWidget : public INodeWidget
+        class BrightnessNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -41,7 +41,7 @@ namespace ibis
         };
 
         //! Contrast node widget.
-        class ContrastNodeWidget : public INodeWidget
+        class ContrastNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -72,7 +72,7 @@ namespace ibis
         };
 
         //! Saturation node widget.
-        class SaturationNodeWidget : public INodeWidget
+        class SaturationNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -103,7 +103,7 @@ namespace ibis
         };
 
         //! Tint node widget.
-        class TintNodeWidget : public INodeWidget
+        class TintNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -134,7 +134,7 @@ namespace ibis
         };
 
         //! Levels node widget.
-        class LevelsNodeWidget : public INodeWidget
+        class LevelsNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -161,19 +161,11 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
 
         private:
-            void _callback(
-                float inLow,
-                float inHigh,
-                float gamma,
-                float outLow,
-                float outHigh,
-                bool pressed);
-
             FTK_PRIVATE();
         };
 
         //! Soft clip node widget.
-        class SoftClipNodeWidget : public INodeWidget
+        class SoftClipNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(

@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "MathNodeWidget.h"
+#include "TransformNodeWidget.h"
 
 #include <ibis/Models/Document.h>
 
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
-#include <ibis/Render/MathNode.h>
+#include <ibis/Render/TransformNode.h>
 
 #include <ftk/UI/Bellows.h>
-#include <ftk/UI/ComboBox.h>
-#include <ftk/UI/DoubleEditSlider.h>
+#include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -19,16 +18,18 @@ namespace ibis
 {
     namespace ui
     {
-        struct ArithmeticNodeWidget::Private
+        struct ResizeNodeWidget::Private
         {
-            std::shared_ptr<ftk::ComboBox> operatorComboBox;
-            std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
+            std::shared_ptr<render::NodeAttrCmd> cmd;
+
+            std::shared_ptr<ftk::IntEditSlider> widthEdit;
+            std::shared_ptr<ftk::IntEditSlider> heightEdit;
             std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void ArithmeticNodeWidget::_init(
+        void ResizeNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
@@ -37,30 +38,30 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.operatorComboBox = ftk::ComboBox::create(context, render::getArithmeticOperatorLabels());
+            p.widthEdit = ftk::IntEditSlider::create(context);
+            p.widthEdit->setRange(1, 8192);
 
-            p.valueSlider = ftk::DoubleEditSlider::create(context);
-            p.valueSlider->setRange(0.0, 2.0);
+            p.heightEdit = ftk::IntEditSlider::create(context);
+            p.heightEdit->setRange(1, 8192);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Operator:", p.operatorComboBox);
-            formLayout->addRow("Value:", p.valueSlider);
+            formLayout->addRow("Width:", p.widthEdit);
+            formLayout->addRow("Height:", p.heightEdit);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
-            p.operatorComboBox->setIndexCallback(
-                [this](int value)
+            p.widthEdit->setPressedCallback(
+                [this](int value, bool pressed)
                 {
-                    _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Operator", value));
+                    _callback({ { "Width", value } }, pressed);
                 });
 
-            p.valueSlider->setPressedCallback(
-                [this](double value, bool pressed)
+            p.heightEdit->setPressedCallback(
+                [this](int value, bool pressed)
                 {
-                    _callback({ { "Value", value } }, pressed);
+                    _callback({ { "Height", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -69,40 +70,40 @@ namespace ibis
                 {
                     FTK_P();
                     auto tmp = value;
-                    p.operatorComboBox->setCurrentIndex(static_cast<int>(tmp["Operator"]));
-                    p.valueSlider->setValue(tmp["Value"]);
+                    p.widthEdit->setValue(tmp["Width"]);
+                    p.heightEdit->setValue(tmp["Height"]);
                 });
         }
 
-        ArithmeticNodeWidget::ArithmeticNodeWidget() :
+        ResizeNodeWidget::ResizeNodeWidget() :
             _p(new Private)
         {}
 
-        ArithmeticNodeWidget::~ArithmeticNodeWidget()
+        ResizeNodeWidget::~ResizeNodeWidget()
         {}
 
-        std::shared_ptr<ArithmeticNodeWidget> ArithmeticNodeWidget::create(
+        std::shared_ptr<ResizeNodeWidget> ResizeNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ibis::models::Document>& document,
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<ArithmeticNodeWidget> out(new ArithmeticNodeWidget);
+            std::shared_ptr<ResizeNodeWidget> out(new ResizeNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo ArithmeticNodeWidget::getClassNodeInfo()
+        render::NodeInfo ResizeNodeWidget::getClassNodeInfo()
         {
-            return render::ArithmeticNode::getClassNodeInfo();
+            return render::ResizeNode::getClassNodeInfo();
         }
 
-        ftk::Size2I ArithmeticNodeWidget::getSizeHint() const
+        ftk::Size2I ResizeNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void ArithmeticNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ResizeNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

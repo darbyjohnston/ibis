@@ -8,7 +8,8 @@ set(HEADERS
     InputNode.h
     MathNode.h
     NodeFactory.h
-    RenderUtil.h)
+    RenderUtil.h
+    TransformNode.h)
 
 set(SOURCE
     ColorNode.cpp
@@ -20,7 +21,8 @@ set(SOURCE
     InputNode.cpp
     MathNode.cpp
     NodeFactory.cpp
-    RenderUtil.cpp)
+    RenderUtil.cpp
+    TransformNode.cpp)
 
 set(LIBRARIES ibisCore ftk::ftkUI ftk::ftkGL)
 set(LIBRARIES_PRIVATE)

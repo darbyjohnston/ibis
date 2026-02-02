@@ -8,6 +8,7 @@
 #include "GenNode.h"
 #include "InputNode.h"
 #include "MathNode.h"
+#include "TransformNode.h"
 
 #include <set>
 
@@ -59,6 +60,9 @@ namespace ibis
             p.info[SoftClipNode::getClassNodeInfo().id] = SoftClipNode::getClassNodeInfo();
             p.nodes[TintNode::getClassNodeInfo().id] = &TintNode::create;
             p.info[TintNode::getClassNodeInfo().id] = TintNode::getClassNodeInfo();
+
+            p.nodes[ResizeNode::getClassNodeInfo().id] = &ResizeNode::create;
+            p.info[ResizeNode::getClassNodeInfo().id] = ResizeNode::getClassNodeInfo();
 
             p.nodes[OverNode::getClassNodeInfo().id] = &OverNode::create;
             p.info[OverNode::getClassNodeInfo().id] = OverNode::getClassNodeInfo();

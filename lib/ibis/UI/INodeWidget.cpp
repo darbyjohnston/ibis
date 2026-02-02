@@ -3,6 +3,9 @@
 
 #include "INodeWidget.h"
 
+#include <ibis/Models/Document.h>
+
+#include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/INode.h>
 
 namespace ibis
@@ -31,6 +34,54 @@ namespace ibis
         const std::shared_ptr<ibis::render::INode>& INodeWidget::getNode() const
         {
             return _node;
+        }
+
+        struct IInteractionNodeWidget::Private
+        {
+            std::shared_ptr<render::NodeAttrCmd> cmd;
+        };
+
+        void IInteractionNodeWidget::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            INodeWidget::_init(context, document, node, parent);
+        }
+
+        IInteractionNodeWidget::IInteractionNodeWidget() :
+            _p(new Private)
+        {}
+
+        IInteractionNodeWidget::~IInteractionNodeWidget()
+        {}
+
+        void IInteractionNodeWidget::_callback(
+            const std::vector<std::pair<std::string, nlohmann::json> >&attr,
+            bool pressed)
+        {
+            FTK_P();
+            if (pressed)
+            {
+                if (!p.cmd)
+                {
+                    p.cmd = render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, attr);
+                }
+                _document->getGraph()->setAttr(_node, attr);
+            }
+            else if (p.cmd)
+            {
+                p.cmd->set(attr);
+                _document->command(p.cmd);
+                p.cmd.reset();
+            }
+            else
+            {
+                _document->command(render::NodeAttrCmd::create(
+                    _document->getGraph(), _node, attr));
+            }
         }
     }
 }

@@ -8,6 +8,7 @@
 #include "GenNodeWidget.h"
 #include "InputNodeWidget.h"
 #include "MathNodeWidget.h"
+#include "TransformNodeWidget.h"
 
 #include <ibis/Render/INode.h>
 
@@ -51,6 +52,8 @@ namespace ibis
             p.nodes[SaturationNodeWidget::getClassNodeInfo().id] = &SaturationNodeWidget::create;
             p.nodes[SoftClipNodeWidget::getClassNodeInfo().id] = &SoftClipNodeWidget::create;
             p.nodes[TintNodeWidget::getClassNodeInfo().id] = &TintNodeWidget::create;
+
+            p.nodes[ResizeNodeWidget::getClassNodeInfo().id] = &ResizeNodeWidget::create;
 
             p.nodes[OverNodeWidget::getClassNodeInfo().id] = &OverNodeWidget::create;
         }

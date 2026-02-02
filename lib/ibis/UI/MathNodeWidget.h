@@ -10,7 +10,7 @@ namespace ibis
     namespace ui
     {
         //! Arithmetic node widget.
-        class ArithmeticNodeWidget : public INodeWidget
+        class ArithmeticNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(

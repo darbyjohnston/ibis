@@ -10,7 +10,7 @@ namespace ibis
     namespace ui
     {
         //! Solid color node widget.
-        class SolidColorNodeWidget : public INodeWidget
+        class SolidColorNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -37,15 +37,11 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
 
         private:
-            void _callback(
-                const std::vector<std::pair<std::string, nlohmann::json> >&,
-                bool pressed);
-
             FTK_PRIVATE();
         };
 
         //! Gradient node widget.
-        class GradientNodeWidget : public INodeWidget
+        class GradientNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -72,15 +68,11 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
 
         private:
-            void _callback(
-                const std::vector<std::pair<std::string, nlohmann::json> >&,
-                bool pressed);
-
             FTK_PRIVATE();
         };
 
         //! Noise node widget.
-        class NoiseNodeWidget : public INodeWidget
+        class NoiseNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -107,10 +99,6 @@ namespace ibis
             void setGeometry(const ftk::Box2I&) override;
 
         private:
-            void _callback(
-                const std::vector<std::pair<std::string, nlohmann::json> >&,
-                bool pressed);
-
             FTK_PRIVATE();
         };
     }

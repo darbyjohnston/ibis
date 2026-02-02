@@ -23,8 +23,6 @@ namespace ibis
     {
         struct SolidColorNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
@@ -39,7 +37,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.widthSlider = ftk::IntEditSlider::create(context);
@@ -129,40 +127,12 @@ namespace ibis
 
         void SolidColorNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
-        }
-
-        void SolidColorNodeWidget::_callback(
-            const std::vector<std::pair<std::string, nlohmann::json> >& attr,
-            bool pressed)
-        {
-            FTK_P();
-            if (pressed)
-            {
-                if (!p.cmd)
-                {
-                    p.cmd = render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, attr);
-                }
-                _document->getGraph()->setAttr(_node, attr);
-            }
-            else if (p.cmd)
-            {
-                p.cmd->set(attr);
-                _document->command(p.cmd);
-                p.cmd.reset();
-            }
-            else
-            {
-                _document->command(render::NodeAttrCmd::create(
-                    _document->getGraph(), _node, attr));
-            }
         }
 
         struct GradientNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ColorSwatch> color0Swatch;
@@ -179,7 +149,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.widthSlider = ftk::IntEditSlider::create(context);
@@ -291,40 +261,12 @@ namespace ibis
 
         void GradientNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
-        }
-
-        void GradientNodeWidget::_callback(
-            const std::vector<std::pair<std::string, nlohmann::json> >& attr,
-            bool pressed)
-        {
-            FTK_P();
-            if (pressed)
-            {
-                if (!p.cmd)
-                {
-                    p.cmd = render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, attr);
-                }
-                _document->getGraph()->setAttr(_node, attr);
-            }
-            else if (p.cmd)
-            {
-                p.cmd->set(attr);
-                _document->command(p.cmd);
-                p.cmd.reset();
-            }
-            else
-            {
-                _document->command(render::NodeAttrCmd::create(
-                    _document->getGraph(), _node, attr));
-            }
         }
 
         struct NoiseNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::FloatEditSlider> scaleSlider;
@@ -339,7 +281,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.widthSlider = ftk::IntEditSlider::create(context);
@@ -429,35 +371,8 @@ namespace ibis
 
         void NoiseNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
-        }
-
-        void NoiseNodeWidget::_callback(
-            const std::vector<std::pair<std::string, nlohmann::json> >& attr,
-            bool pressed)
-        {
-            FTK_P();
-            if (pressed)
-            {
-                if (!p.cmd)
-                {
-                    p.cmd = render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, attr);
-                }
-                _document->getGraph()->setAttr(_node, attr);
-            }
-            else if (p.cmd)
-            {
-                p.cmd->set(attr);
-                _document->command(p.cmd);
-                p.cmd.reset();
-            }
-            else
-            {
-                _document->command(render::NodeAttrCmd::create(
-                    _document->getGraph(), _node, attr));
-            }
         }
     }
 }

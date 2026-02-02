@@ -20,8 +20,6 @@ namespace ibis
     {
         struct BrightnessNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -34,7 +32,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
@@ -51,27 +49,7 @@ namespace ibis
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Value", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Value", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value", value));
-                    }
+                    _callback({ { "Value", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -79,11 +57,8 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    const auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        p.valueSlider->setValue(i->second);
-                    }
+                    auto tmp = value;
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 
@@ -117,14 +92,12 @@ namespace ibis
 
         void BrightnessNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
 
         struct ContrastNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -137,7 +110,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
@@ -154,27 +127,7 @@ namespace ibis
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Value", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Value", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value", value));
-                    }
+                    _callback({ { "Value", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -182,11 +135,8 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    const auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        p.valueSlider->setValue(i->second);
-                    }
+                    auto tmp = value;
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 
@@ -220,14 +170,12 @@ namespace ibis
 
         void ContrastNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
 
         struct SaturationNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -240,7 +188,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
@@ -257,27 +205,7 @@ namespace ibis
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Value", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Value", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value", value));
-                    }
+                    _callback({ { "Value", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -285,11 +213,8 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    const auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        p.valueSlider->setValue(i->second);
-                    }
+                    auto tmp = value;
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 
@@ -323,14 +248,12 @@ namespace ibis
 
         void SaturationNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
 
         struct TintNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -343,7 +266,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
@@ -360,27 +283,7 @@ namespace ibis
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Value", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Value", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value", value));
-                    }
+                    _callback({ { "Value", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -388,11 +291,8 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    const auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        p.valueSlider->setValue(i->second);
-                    }
+                    auto tmp = value;
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 
@@ -426,14 +326,12 @@ namespace ibis
 
         void TintNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
 
         struct LevelsNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::map<std::string, std::shared_ptr<ftk::DoubleEditSlider> > sliders;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -446,7 +344,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.sliders["InLow"] = ftk::DoubleEditSlider::create(context);
@@ -480,55 +378,65 @@ namespace ibis
                 [this](double value, bool pressed)
                 {
                     _callback(
-                        value,
-                        _node->getAttr("InHigh"),
-                        _node->getAttr("Gamma"),
-                        _node->getAttr("OutLow"),
-                        _node->getAttr("OutHigh"),
+                        {
+                            { "InLow", value },
+                            { "InHigh", _node->getAttr("InHigh") },
+                            { "Gamma", _node->getAttr("Gamma") },
+                            { "OutLow", _node->getAttr("OutLow") },
+                            { "OutHigh", _node->getAttr("OutHigh") }
+                        },
                         pressed);
                 });
             p.sliders["InHigh"]->setPressedCallback(
                 [this](double value, bool pressed)
                 {
                     _callback(
-                        _node->getAttr("InLow"),
-                        value,
-                        _node->getAttr("Gamma"),
-                        _node->getAttr("OutLow"),
-                        _node->getAttr("OutHigh"),
+                        {
+                            { "InLow", _node->getAttr("InLow") },
+                            { "InHigh", value },
+                            { "Gamma", _node->getAttr("Gamma") },
+                            { "OutLow", _node->getAttr("OutLow") },
+                            { "OutHigh", _node->getAttr("OutHigh") }
+                        },
                         pressed);
                 });
             p.sliders["Gamma"]->setPressedCallback(
                 [this](double value, bool pressed)
                 {
                     _callback(
-                        _node->getAttr("InLow"),
-                        _node->getAttr("InHigh"),
-                        value,
-                        _node->getAttr("OutLow"),
-                        _node->getAttr("OutHigh"),
+                        {
+                            { "InLow", _node->getAttr("InLow") },
+                            { "InHigh", _node->getAttr("InHigh") },
+                            { "Gamma", value },
+                            { "OutLow", _node->getAttr("OutLow") },
+                            { "OutHigh", _node->getAttr("OutHigh") }
+                        },
                         pressed);
                 });
             p.sliders["OutLow"]->setPressedCallback(
                 [this](double value, bool pressed)
                 {
                     _callback(
-                        _node->getAttr("InLow"),
-                        _node->getAttr("InHigh"),
-                        _node->getAttr("Gamma"),
-                        value,
-                        _node->getAttr("OutHigh"),
+                        {
+                            { "InLow", _node->getAttr("InLow") },
+                            { "InHigh", _node->getAttr("InHigh") },
+                            { "Gamma", _node->getAttr("Gamma") },
+                            { "OutLow", value },
+                            { "OutHigh", _node->getAttr("OutHigh") }
+                        },
                         pressed);
                 });
             p.sliders["OutHigh"]->setPressedCallback(
                 [this](double value, bool pressed)
                 {
                     _callback(
-                        _node->getAttr("InLow"),
-                        _node->getAttr("InHigh"),
-                        _node->getAttr("Gamma"),
-                        _node->getAttr("OutLow"),
-                        value,
+                        {
+                            { "InLow", _node->getAttr("InLow") },
+                            { "InHigh", _node->getAttr("InHigh") },
+                            { "Gamma", _node->getAttr("Gamma") },
+                            { "OutLow", _node->getAttr("OutLow") },
+                            { "OutHigh", value }
+                        },
                         pressed);
                 });
 
@@ -576,53 +484,12 @@ namespace ibis
 
         void LevelsNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
-        }
-
-        void LevelsNodeWidget::_callback(
-            float inLow,
-            float inHigh,
-            float gamma,
-            float outLow,
-            float outHigh,
-            bool pressed)
-        {
-            FTK_P();
-            const std::vector<std::pair<std::string, nlohmann::json> > attr =
-            {
-                { "InLow", inLow },
-                { "InHigh", inHigh },
-                { "Gamma", gamma },
-                { "OutLow", outLow },
-                { "OutHigh", outHigh }
-            };
-            if (pressed)
-            {
-                if (!p.cmd)
-                {
-                    p.cmd = render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, attr);
-                }
-                _document->getGraph()->setAttr(_node, attr);
-            }
-            else if (p.cmd)
-            {
-                p.cmd->set(attr);
-                _document->command(p.cmd);
-                p.cmd.reset();
-            }
-            else
-            {
-                _document->command(render::NodeAttrCmd::create(
-                    _document->getGraph(), _node, attr));
-            }
         }
 
         struct SoftClipNodeWidget::Private
         {
-            std::shared_ptr<render::NodeAttrCmd> cmd;
-
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -635,7 +502,7 @@ namespace ibis
             const std::shared_ptr<ibis::render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            INodeWidget::_init(context, document, node, parent);
+            IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
@@ -652,27 +519,8 @@ namespace ibis
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
-                    FTK_P();
-                    if (pressed)
-                    {
-                        if (!p.cmd)
-                        {
-                            p.cmd = render::NodeAttrCmd::create(
-                                _document->getGraph(), _node, "Value", value);
-                        }
-                        _document->getGraph()->setAttr(_node, "Value", value);
-                    }
-                    else if (p.cmd)
-                    {
-                        p.cmd->set("Value", value);
-                        _document->command(p.cmd);
-                        p.cmd.reset();
-                    }
-                    else
-                    {
-                        _document->command(render::NodeAttrCmd::create(
-                            _document->getGraph(), _node, "Value", value));
-                    }
+
+                    _callback({ { "Value", value } }, pressed);
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -680,11 +528,8 @@ namespace ibis
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    const auto i = value.find("Value");
-                    if (i != value.end())
-                    {
-                        p.valueSlider->setValue(i->second);
-                    }
+                    auto tmp = value;
+                    p.valueSlider->setValue(tmp["Value"]);
                 });
         }
 
@@ -718,7 +563,7 @@ namespace ibis
 
         void SoftClipNodeWidget::setGeometry(const ftk::Box2I& value)
         {
-            INodeWidget::setGeometry(value);
+            IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
     }

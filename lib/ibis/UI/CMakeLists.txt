@@ -23,6 +23,7 @@ set(HEADERS
     TimeSlider.h
     TimeUnitsWidget.h
     TimelineWidget.h
+    TransformNodeWidget.h
     Viewport.h)
 
 set(SOURCE
@@ -50,6 +51,7 @@ set(SOURCE
     TimeSlider.cpp
     TimeUnitsWidget.cpp
     TimelineWidget.cpp
+    TransformNodeWidget.cpp
     Viewport.cpp)
 
 set(LIBRARIES ibisModels)
@@ -60,7 +62,7 @@ set_target_properties(ibisUI PROPERTIES FOLDER lib)
 set_target_properties(ibisUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS ibisUI
-    ARCHIVE DESTINATION lib
+    ARCHIVE DESTINATION libs
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/ibis/ibisUI)
