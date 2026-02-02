@@ -10,6 +10,7 @@
 #include <ibis/Render/TransformNode.h>
 
 #include <ftk/UI/Bellows.h>
+#include <ftk/UI/CheckBox.h>
 #include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
@@ -217,6 +218,97 @@ namespace ibis
         void CropNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
+            _p->bellows->setGeometry(value);
+        }
+
+        struct MirrorNodeWidget::Private
+        {
+            std::shared_ptr<ftk::CheckBox> hCheckBox;
+            std::shared_ptr<ftk::CheckBox> vCheckBox;
+            std::shared_ptr<ftk::Bellows> bellows;
+
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
+        };
+
+        void MirrorNodeWidget::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            INodeWidget::_init(context, document, node, parent);
+            FTK_P();
+
+            p.hCheckBox = ftk::CheckBox::create(context);
+            p.hCheckBox->setHStretch(ftk::Stretch::Expanding);
+
+            p.vCheckBox = ftk::CheckBox::create(context);
+            p.vCheckBox->setHStretch(ftk::Stretch::Expanding);
+
+            auto formLayout = ftk::FormLayout::create(context);
+            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            formLayout->addRow("Horizontal:", p.hCheckBox);
+            formLayout->addRow("Vertical:", p.vCheckBox);
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(formLayout);
+
+            p.hCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Horizontal", value));
+                });
+
+            p.vCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Vertical", value));
+                });
+
+            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+                _node->observeAttr(),
+                [this](const std::map<std::string, nlohmann::json>& value)
+                {
+                    FTK_P();
+                    auto tmp = value;
+                    p.hCheckBox->setChecked(tmp["Horizontal"]);
+                    p.vCheckBox->setChecked(tmp["Vertical"]);
+                });
+        }
+
+        MirrorNodeWidget::MirrorNodeWidget() :
+            _p(new Private)
+        {}
+
+        MirrorNodeWidget::~MirrorNodeWidget()
+        {}
+
+        std::shared_ptr<MirrorNodeWidget> MirrorNodeWidget::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            std::shared_ptr<MirrorNodeWidget> out(new MirrorNodeWidget);
+            out->_init(context, document, node, parent);
+            return out;
+        }
+
+        render::NodeInfo MirrorNodeWidget::getClassNodeInfo()
+        {
+            return render::MirrorNode::getClassNodeInfo();
+        }
+
+        ftk::Size2I MirrorNodeWidget::getSizeHint() const
+        {
+            return _p->bellows->getSizeHint();
+        }
+
+        void MirrorNodeWidget::setGeometry(const ftk::Box2I& value)
+        {
+            INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
     }

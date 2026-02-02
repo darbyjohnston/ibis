@@ -54,6 +54,7 @@ namespace ibis
             p.nodes[TintNodeWidget::getClassNodeInfo().id] = &TintNodeWidget::create;
 
             p.nodes[CropNodeWidget::getClassNodeInfo().id] = &CropNodeWidget::create;
+            p.nodes[MirrorNodeWidget::getClassNodeInfo().id] = &MirrorNodeWidget::create;
             p.nodes[ResizeNodeWidget::getClassNodeInfo().id] = &ResizeNodeWidget::create;
 
             p.nodes[OverNodeWidget::getClassNodeInfo().id] = &OverNodeWidget::create;

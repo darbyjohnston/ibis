@@ -6,8 +6,6 @@
 #include <ibis/Models/Document.h>
 
 #include <ibis/Render/ColorNode.h>
-#include <ibis/Render/Graph.h>
-#include <ibis/Render/GraphCmd.h>
 
 #include <ftk/UI/Bellows.h>
 #include <ftk/UI/DoubleEditSlider.h>

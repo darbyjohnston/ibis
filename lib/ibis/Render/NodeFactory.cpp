@@ -63,6 +63,8 @@ namespace ibis
 
             p.nodes[CropNode::getClassNodeInfo().id] = &CropNode::create;
             p.info[CropNode::getClassNodeInfo().id] = CropNode::getClassNodeInfo();
+            p.nodes[MirrorNode::getClassNodeInfo().id] = &MirrorNode::create;
+            p.info[MirrorNode::getClassNodeInfo().id] = MirrorNode::getClassNodeInfo();
             p.nodes[ResizeNode::getClassNodeInfo().id] = &ResizeNode::create;
             p.info[ResizeNode::getClassNodeInfo().id] = ResizeNode::getClassNodeInfo();
 

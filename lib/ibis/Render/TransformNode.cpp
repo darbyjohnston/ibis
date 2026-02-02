@@ -169,5 +169,169 @@ namespace ibis
                 ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
                 ftk::ImageInfo());
         }
+
+        struct MirrorNode::Private
+        {
+            std::shared_ptr<ftk::gl::Shader> shader;
+        };
+
+        void MirrorNode::_init(const std::shared_ptr<ftk::Context>& context)
+        {
+            NodeAttr attr;
+            attr["Horizontal"] = true;
+            attr["Vertical"] = false;
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+        }
+
+        MirrorNode::MirrorNode() :
+            _p(new Private)
+        {}
+
+        MirrorNode::~MirrorNode()
+        {}
+
+        NodeInfo MirrorNode::getClassNodeInfo()
+        {
+            return { "Mirror", "Mirror", "Transform" };
+        }
+
+        std::shared_ptr<INode> MirrorNode::create(
+            const std::shared_ptr<ftk::Context>& context)
+        {
+            std::shared_ptr<MirrorNode> out(new MirrorNode);
+            out->_init(context);
+            return out;
+        }
+
+        namespace
+        {
+            const std::string mirrorVertex =
+                "#version 410\n"
+                "\n"
+                "in vec3 vPos;\n"
+                "in vec2 vTexture;\n"
+                "out vec2 fTexture;\n"
+                "\n"
+                "struct Transform\n"
+                "{\n"
+                "    mat4 mvp;\n"
+                "};\n"
+                "\n"
+                "uniform Transform transform;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                "    fTexture = vTexture;\n"
+                "}\n";
+
+            const std::string mirrorFragment =
+                "#version 410\n"
+                "\n"
+                "in vec2 fTexture;\n"
+                "out vec4 outColor;\n"
+                "\n"
+                "uniform sampler2D textureSampler;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    outColor = texture(textureSampler, fTexture);\n"
+                "}\n";
+
+            ftk::TriMesh2F mesh(const ftk::Box2I& box, bool mirrorH, bool mirrorV)
+            {
+                ftk::TriMesh2F out;
+
+                const auto& min = box.min;
+                const auto& max = box.max;
+                out.v.push_back(ftk::V2F(min.x, min.y));
+                out.v.push_back(ftk::V2F(max.x + 1, min.y));
+                out.v.push_back(ftk::V2F(max.x + 1, max.y + 1));
+                out.v.push_back(ftk::V2F(min.x, max.y + 1));
+                out.t.push_back(ftk::V2F(mirrorH ? 1.F : 0.F, mirrorV ? 1.F : 0.F));
+                out.t.push_back(ftk::V2F(mirrorH ? 0.F : 1.F, mirrorV ? 1.F : 0.F));
+                out.t.push_back(ftk::V2F(mirrorH ? 0.F : 1.F, mirrorV ? 0.F : 1.F));
+                out.t.push_back(ftk::V2F(mirrorH ? 1.F : 0.F, mirrorV ? 0.F : 1.F));
+
+                ftk::Triangle2 triangle;
+                triangle.v[0].v = 1;
+                triangle.v[1].v = 3;
+                triangle.v[2].v = 2;
+                triangle.v[0].t = 1;
+                triangle.v[1].t = 3;
+                triangle.v[2].t = 2;
+                out.triangles.push_back(triangle);
+                triangle.v[0].v = 3;
+                triangle.v[1].v = 1;
+                triangle.v[2].v = 4;
+                triangle.v[0].t = 3;
+                triangle.v[1].t = 1;
+                triangle.v[2].t = 4;
+                out.triangles.push_back(triangle);
+
+                return out;
+            }
+        }
+
+        void MirrorNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
+        {
+            INode::exec(render, time);
+            FTK_P();
+
+            if (!p.shader)
+            {
+                p.shader = ftk::gl::Shader::create(mirrorVertex, mirrorFragment);
+            }
+
+            ftk::Size2I size;
+            if (_inputs->getItem(0).node)
+            {
+                const auto& input0 = _inputs->getItem(0).node->getOutputs();
+                if (!input0.empty() && input0.front())
+                {
+                    size = input0.front()->getSize();
+                }
+                if (size.isValid())
+                {
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    {
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                    }
+                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                    render->setRenderSize(size);
+                    const ftk::Box2I rect(0, 0, size.w, size.h);
+                    render->setViewport(rect);
+                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    p.shader->bind();
+                    p.shader->setUniform("transform.mvp", _getProjection(size));
+                    p.shader->setUniform("textureSampler", 0);
+
+                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
+                    glBindTexture(GL_TEXTURE_2D, input0.front()->getColorID());
+
+                    auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
+                    const bool horizontal = _attr->getItem("Horizontal");
+                    const bool vertical = _attr->getItem("Vertical");
+                    vbo->copy(
+                        convert(mesh(ftk::Box2I(0, 0, size.w, size.h), horizontal, !vertical),
+                        vbo->getType()));
+                    auto vao = ftk::gl::VAO::create(vbo->getType(), vbo->getID());
+                    vao->bind();
+                    vao->draw(GL_TRIANGLES, 0, vbo->getSize());
+                }
+            }
+            if (!_inputs->getItem(0).node || !size.isValid())
+            {
+                _outputs[0].reset();
+            }
+
+            _imageInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::ImageInfo());
+        }
     }
 }
