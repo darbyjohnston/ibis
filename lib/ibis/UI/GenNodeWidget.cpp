@@ -25,6 +25,7 @@ namespace ibis
         {
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -50,6 +51,8 @@ namespace ibis
             p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
+            p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
+
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
@@ -57,6 +60,7 @@ namespace ibis
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Width:", p.widthSlider);
             formLayout->addRow("Height:", p.heightSlider);
+            formLayout->addRow("Type:", p.typeComboBox);
             formLayout->addRow("Color:", p.colorSwatch);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
@@ -78,6 +82,13 @@ namespace ibis
                     _callback({ { "Size", size } }, pressed);
                 });
 
+            p.typeComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
+                });
+
             p.colorSwatch->setPressedCallback(
                 [this](const ftk::Color4F& value, bool pressed)
                 {
@@ -93,6 +104,8 @@ namespace ibis
                     const ftk::Size2I size = tmp["Size"];
                     p.widthSlider->setValue(size.w);
                     p.heightSlider->setValue(size.h);
+                    const ftk::gl::TextureType type = tmp["Type"];
+                    p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.colorSwatch->setColor(tmp["Color"]);
                 });
         }
@@ -135,6 +148,7 @@ namespace ibis
         {
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::ColorSwatch> color0Swatch;
             std::shared_ptr<ftk::ColorSwatch> color1Swatch;
             std::shared_ptr<ftk::ComboBox> orientationComboBox;
@@ -162,6 +176,8 @@ namespace ibis
             p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
+            p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
+
             p.color0Swatch = ftk::ColorSwatch::create(context);
             p.color0Swatch->setEditable(true);
 
@@ -174,6 +190,7 @@ namespace ibis
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Width:", p.widthSlider);
             formLayout->addRow("Height:", p.heightSlider);
+            formLayout->addRow("Type:", p.typeComboBox);
             formLayout->addRow("Color 0:", p.color0Swatch);
             formLayout->addRow("Color 1:", p.color1Swatch);
             formLayout->addRow("Orientation:", p.orientationComboBox);
@@ -195,6 +212,13 @@ namespace ibis
                     ftk::Size2I size = _node->getAttr("Size");
                     size.h = value;
                     _callback({ { "Size", size } }, pressed);
+                });
+
+            p.typeComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
                 });
 
             p.color0Swatch->setPressedCallback(
@@ -225,6 +249,8 @@ namespace ibis
                     const ftk::Size2I size = tmp["Size"];
                     p.widthSlider->setValue(size.w);
                     p.heightSlider->setValue(size.h);
+                    const ftk::gl::TextureType type = tmp["Type"];
+                    p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.color0Swatch->setColor(tmp["Color0"]);
                     p.color1Swatch->setColor(tmp["Color1"]);
                     p.orientationComboBox->setCurrentIndex(static_cast<int>(tmp["Orientation"]));
@@ -269,6 +295,7 @@ namespace ibis
         {
             std::shared_ptr<ftk::IntEditSlider> widthSlider;
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::FloatEditSlider> scaleSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
@@ -294,6 +321,8 @@ namespace ibis
             p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
+            p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
+
             p.scaleSlider = ftk::FloatEditSlider::create(context);
             p.scaleSlider->setRange(.001F, 100.F);
 
@@ -301,6 +330,7 @@ namespace ibis
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Width:", p.widthSlider);
             formLayout->addRow("Height:", p.heightSlider);
+            formLayout->addRow("Type:", p.typeComboBox);
             formLayout->addRow("Scale:", p.scaleSlider);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
@@ -322,6 +352,13 @@ namespace ibis
                     _callback({ { "Size", size } }, pressed);
                 });
 
+            p.typeComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
+                });
+
             p.scaleSlider->setPressedCallback(
                 [this](float value, bool pressed)
                 {
@@ -337,6 +374,8 @@ namespace ibis
                     const ftk::Size2I size = tmp["Size"];
                     p.widthSlider->setValue(size.w);
                     p.heightSlider->setValue(size.h);
+                    const ftk::gl::TextureType type = tmp["Type"];
+                    p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.scaleSlider->setValue(tmp["Scale"]);
                 });
         }

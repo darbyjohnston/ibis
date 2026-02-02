@@ -22,6 +22,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
+            attr["Type"] = ftk::gl::TextureType::RGBA_F32;
             attr["Color"] = ftk::Color4F(1.F, .7F, 0.F);
             INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
@@ -53,7 +54,7 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            const ftk::gl::TextureInfo info(_attr->getItem("Size"), _attr->getItem("Type"));
             if (info.isValid())
             {
                 if (ftk::gl::doCreate(_outputs[0], info))
@@ -75,6 +76,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
+            attr["Type"] = ftk::gl::TextureType::RGBA_F32;
             attr["Color0"] = ftk::Color4F(0.F, 0.F, 0.F);
             attr["Color1"] = ftk::Color4F(1.F, 1.F, 1.F);
             attr["Orientation"] = ftk::Orientation::Vertical;
@@ -108,7 +110,7 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            const ftk::gl::TextureInfo info(_attr->getItem("Size"), _attr->getItem("Type"));
             if (info.isValid())
             {
                 if (ftk::gl::doCreate(_outputs[0], info))
@@ -173,6 +175,7 @@ namespace ibis
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
+            attr["Type"] = ftk::gl::TextureType::RGBA_F32;
             attr["Scale"] = 1.F;
             INode::_init(context, getClassNodeInfo(), 0, 1, attr);
         }
@@ -204,7 +207,7 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            ftk::gl::TextureInfo info(_attr->getItem("Size"), ftk::gl::TextureType::RGBA_F32);
+            const ftk::gl::TextureInfo info(_attr->getItem("Size"), _attr->getItem("Type"));
             if (info.isValid())
             {
                 const float scale = _attr->getItem("Scale");
