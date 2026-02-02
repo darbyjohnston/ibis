@@ -46,7 +46,8 @@ namespace ibis
                 "OpenGL Memory",
                 {
                     { ftk::ColorRole::Cyan, "Meshes: {0}MB" },
-                    { ftk::ColorRole::Magenta, "Textures: {0}MB" }
+                    { ftk::ColorRole::Magenta, "Textures: {0}MB" },
+                    { ftk::ColorRole::Yellow, "Buffers: {0}MB" }
                 });
 
             p.graphs["Objects"] = ftk::GraphWidget::create(
@@ -136,6 +137,9 @@ namespace ibis
             p.graphs["GLMemory"]->addSample(
                 ftk::ColorRole::Magenta,
                 ftk::gl::Texture::getTotalByteCount() / ftk::megabyte);
+            p.graphs["GLMemory"]->addSample(
+                ftk::ColorRole::Yellow,
+                ftk::gl::OffscreenBuffer::getTotalByteCount() / ftk::megabyte);
 
             p.graphs["Objects"]->addSample(
                 ftk::ColorRole::Cyan,
