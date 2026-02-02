@@ -205,7 +205,7 @@ namespace ibis
 
             std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
 
-            std::shared_ptr<ftk::ListObserver<ftk::ImageInfo> > imageInfoObserver;
+            std::shared_ptr<ftk::ListObserver<ftk::gl::TextureInfo> > textureInfoObserver;
         };
 
         void NodeGraphWidget::_init(
@@ -261,15 +261,15 @@ namespace ibis
                 i->setParent(vLayout);
             }
 
-            p.imageInfoObserver = ftk::ListObserver<ftk::ImageInfo>::create(
-                node->observeImageInfo(),
-                [this](const std::vector<ftk::ImageInfo>& value)
+            p.textureInfoObserver = ftk::ListObserver<ftk::gl::TextureInfo>::create(
+                node->observeTextureInfo(),
+                [this](const std::vector<ftk::gl::TextureInfo>& value)
                 {
                     FTK_P();
                     std::string text;
-                    if (!value.empty() && value.front().type != ftk::ImageType::None)
+                    if (!value.empty() && value.front().type != ftk::gl::TextureType::None)
                     {
-                        text = ftk::getLabel(value.front());
+                        text = ftk::gl::getLabel(value.front());
                     }
                     p.imageInfoLabel->setText(text);
                 });

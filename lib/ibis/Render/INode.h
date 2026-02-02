@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/Core/Context.h>
-#include <ftk/Core/Image.h>
 #include <ftk/Core/Observable.h>
 #include <ftk/Core/ObservableList.h>
 #include <ftk/Core/ObservableMap.h>
@@ -17,11 +17,6 @@
 namespace ftk
 {
     class IRender;
-
-    namespace gl
-    {
-        class OffscreenBuffer;
-    }
 }
 
 namespace ibis
@@ -88,11 +83,11 @@ namespace ibis
             //! Get the outputs.
             const std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> >& getOutputs() const;
 
-            //! Get the image information.
-            ftk::ImageInfo getImageInfo(int) const;
+            //! Get the texture information.
+            ftk::gl::TextureInfo getTextureInfo(int) const;
 
-            //! Observe the image information.
-            std::shared_ptr<ftk::IObservableList<ftk::ImageInfo> > observeImageInfo() const;
+            //! Observe the texture information.
+            std::shared_ptr<ftk::IObservableList<ftk::gl::TextureInfo> > observeTextureInfo() const;
 
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
@@ -120,7 +115,7 @@ namespace ibis
             NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
-            std::shared_ptr<ftk::ObservableList<ftk::ImageInfo> > _imageInfo;
+            std::shared_ptr<ftk::ObservableList<ftk::gl::TextureInfo> > _textureInfo;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;
         };
     }

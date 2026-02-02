@@ -62,9 +62,9 @@ namespace ibis
                 }
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -80,11 +80,11 @@ namespace ibis
                 _outputs[0].reset();
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct CropNode::Private
@@ -140,9 +140,9 @@ namespace ibis
                 }
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -163,11 +163,11 @@ namespace ibis
                 _outputs[0].reset();
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct MirrorNode::Private
@@ -295,9 +295,9 @@ namespace ibis
                 }
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     render->setRenderSize(size);
@@ -327,11 +327,11 @@ namespace ibis
                 _outputs[0].reset();
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
     }
 }

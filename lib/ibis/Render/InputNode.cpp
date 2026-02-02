@@ -6,7 +6,6 @@
 #include <ibis/Core/Time.h>
 
 #include <ftk/GL/GL.h>
-#include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/IRender.h>
@@ -203,9 +202,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();
@@ -220,7 +219,11 @@ namespace ibis
                 }
             }
 
-            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
+            _textureInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct ImageSequenceNode::Private
@@ -332,9 +335,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();
@@ -349,7 +352,11 @@ namespace ibis
                 }
             }
 
-            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
+            _textureInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct SVGFileNode::Private
@@ -432,9 +439,9 @@ namespace ibis
                 const ftk::Size2I size = p.image->getSize();
                 if (size.isValid())
                 {
-                    if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                    if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                     {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                        _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                     const ftk::Size2I size = p.image->getSize();
@@ -449,7 +456,11 @@ namespace ibis
                 }
             }
 
-            _imageInfo->setItemOnlyIfChanged(0, p.image ? p.image->getInfo() : ftk::ImageInfo());
+            _textureInfo->setItemOnlyIfChanged(
+                0,
+                _outputs[0] ?
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
     }
 }

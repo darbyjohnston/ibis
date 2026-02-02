@@ -7,7 +7,6 @@
 
 #include <ftk/UI/WidgetOptions.h>
 #include <ftk/GL/GL.h>
-#include <ftk/GL/OffscreenBuffer.h>
 #include <ftk/Core/IRender.h>
 #include <ftk/Core/Color.h>
 #include <ftk/Core/Noise.h>
@@ -56,9 +55,9 @@ namespace ibis
             const ftk::Size2I size = _attr->getItem("Size");
             if (size.isValid())
             {
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                 render->setRenderSize(size);
@@ -66,11 +65,11 @@ namespace ibis
                 render->clearViewport(_attr->getItem("Color"));
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct GradientNode::Private
@@ -115,9 +114,9 @@ namespace ibis
             const ftk::Size2I size = _attr->getItem("Size");
             if (size.isValid())
             {
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                 render->setRenderSize(size);
@@ -163,11 +162,11 @@ namespace ibis
                 render->drawColorMesh(mesh);
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
 
         struct NoiseNode::Private
@@ -237,9 +236,9 @@ namespace ibis
                     }
                 }
 
-                if (ftk::gl::doCreate(_outputs[0], size, ftk::ImageType::RGBA_F32))
+                if (ftk::gl::doCreate(_outputs[0], size, ftk::gl::TextureType::RGBA_F32))
                 {
-                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::ImageType::RGBA_F32);
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(size, ftk::gl::TextureType::RGBA_F32);
                 }
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                 render->setRenderSize(size);
@@ -253,11 +252,11 @@ namespace ibis
                 p.image.reset();
             }
 
-            _imageInfo->setItemOnlyIfChanged(
+            _textureInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
-                ftk::ImageInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
-                ftk::ImageInfo());
+                ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
+                ftk::gl::TextureInfo());
         }
     }
 }

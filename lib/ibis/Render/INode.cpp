@@ -33,8 +33,8 @@ namespace ibis
             _inputs = ftk::ObservableList<NodeConnection>::create(
                 std::vector<NodeConnection>(inputCount));
             _outputs.resize(outputCount);
-            _imageInfo = ftk::ObservableList<ftk::ImageInfo>::create(
-                std::vector<ftk::ImageInfo>(outputCount));
+            _textureInfo = ftk::ObservableList<ftk::gl::TextureInfo>::create(
+                std::vector<ftk::gl::TextureInfo>(outputCount));
             _attr = ftk::ObservableMap<std::string, nlohmann::json>::create(attr);
         }
 
@@ -72,14 +72,14 @@ namespace ibis
             return _outputs;
         }
 
-        ftk::ImageInfo INode::getImageInfo(int index) const
+        ftk::gl::TextureInfo INode::getTextureInfo(int index) const
         {
-            return _imageInfo->getItem(index);
+            return _textureInfo->getItem(index);
         }
 
-        std::shared_ptr<ftk::IObservableList<ftk::ImageInfo> > INode::observeImageInfo() const
+        std::shared_ptr<ftk::IObservableList<ftk::gl::TextureInfo> > INode::observeTextureInfo() const
         {
-            return _imageInfo;
+            return _textureInfo;
         }
 
         std::vector<std::string> INode::getAttrKeys() const

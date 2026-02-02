@@ -9,7 +9,7 @@ namespace ibis
 {
     namespace render
     {
-        //! Arithmetic operator.
+        //! Arithmetic operators.
         enum class ArithmeticOperator
         {
             Add,
