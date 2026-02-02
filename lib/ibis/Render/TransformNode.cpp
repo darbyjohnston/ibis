@@ -150,10 +150,10 @@ namespace ibis
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     render->setTransform(_getProjection(size));
 
+                    const int x = _attr->getItem("X");
+                    const int y = _attr->getItem("Y");
                     const ftk::Box2I rect(
-                        -ftk::V2I(
-                            _attr->getItem("X"),
-                            inputSize.h - 1 - _attr->getItem("Y") - size.h),
+                        -ftk::V2I(x, inputSize.h - 1 - y - size.h),
                         inputSize);
                     render->drawTexture(input0.front()->getColorID(), rect, true);
                 }
