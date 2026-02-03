@@ -80,7 +80,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct CropNode::Private
@@ -159,7 +159,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct MirrorNode::Private
@@ -318,7 +318,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct RotateNode::Private
@@ -405,7 +405,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }

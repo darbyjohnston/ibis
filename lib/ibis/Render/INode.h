@@ -83,11 +83,11 @@ namespace ibis
             //! Get the outputs.
             const std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> >& getOutputs() const;
 
-            //! Get the texture information.
-            ftk::gl::TextureInfo getTextureInfo(int) const;
+            //! Get the output information.
+            ftk::gl::TextureInfo getOutputInfo(int) const;
 
             //! Observe the texture information.
-            std::shared_ptr<ftk::IObservableList<ftk::gl::TextureInfo> > observeTextureInfo() const;
+            std::shared_ptr<ftk::IObservableList<ftk::gl::TextureInfo> > observeOutputInfo() const;
 
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
@@ -115,7 +115,7 @@ namespace ibis
             NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;
-            std::shared_ptr<ftk::ObservableList<ftk::gl::TextureInfo> > _textureInfo;
+            std::shared_ptr<ftk::ObservableList<ftk::gl::TextureInfo> > _outputInfo;
             std::shared_ptr<ftk::ObservableMap<std::string, nlohmann::json> > _attr;
         };
     }

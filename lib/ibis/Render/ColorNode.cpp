@@ -120,7 +120,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         void BrightnessNode::_init(const std::shared_ptr<ftk::Context>& context)
@@ -356,7 +356,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct LevelsNode::Private
@@ -512,7 +512,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct SoftClipNode::Private
@@ -645,8 +645,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }

@@ -797,6 +797,16 @@ namespace ibis
             FTK_P();
             p.menu = ftk::Menu::create(getContext());
 
+            auto editMenu = p.menu->addSubMenu("Edit");
+            editMenu->addAction(p.editActions["Undo"]);
+            editMenu->addAction(p.editActions["Redo"]);
+            editMenu->addDivider();
+            editMenu->addAction(p.editActions["SelectAll"]);
+            editMenu->addAction(p.editActions["SelectNone"]);
+            editMenu->addAction(p.editActions["SelectInvert"]);
+            editMenu->addDivider();
+            editMenu->addAction(p.editActions["Delete"]);
+
             auto nodeMenu = p.menu->addSubMenu("Node");
             for (const auto& group : p.nodeFactory->getGroups())
             {
@@ -822,16 +832,6 @@ namespace ibis
                     groupMenu->addAction(action);
                 }
             }
-
-            auto editMenu = p.menu->addSubMenu("Edit");
-            editMenu->addAction(p.editActions["Undo"]);
-            editMenu->addAction(p.editActions["Redo"]);
-            editMenu->addDivider();
-            editMenu->addAction(p.editActions["SelectAll"]);
-            editMenu->addAction(p.editActions["SelectNone"]);
-            editMenu->addAction(p.editActions["SelectInvert"]);
-            editMenu->addDivider();
-            editMenu->addAction(p.editActions["Delete"]);
 
             std::weak_ptr<NodeGraphCanvas> weak(std::dynamic_pointer_cast<NodeGraphCanvas>(shared_from_this()));
             p.menu->setCloseCallback(

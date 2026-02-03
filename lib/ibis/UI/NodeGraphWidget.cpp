@@ -12,7 +12,7 @@
 #include <ftk/UI/Menu.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/GL/GL.h>
-#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/Core/Format.h>
 
 namespace ibis
 {
@@ -168,7 +168,7 @@ namespace ibis
         void NodeGraphThumbnail::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             FTK_P();
-            p.thumbnailSize = 100 * event.displayScale;
+            p.thumbnailSize = 60 * event.displayScale;
         }
         
         void NodeGraphThumbnail::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
@@ -199,13 +199,12 @@ namespace ibis
             std::shared_ptr<ftk::HorizontalLayout> layout;
             std::shared_ptr<ftk::Menu> menu;
 
-            int thumbnailSize = 0;
             int borderSize = 0;
             int keyFocusSize = 0;
 
             std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
 
-            std::shared_ptr<ftk::ListObserver<ftk::gl::TextureInfo> > textureInfoObserver;
+            std::shared_ptr<ftk::ListObserver<ftk::gl::TextureInfo> > outputInfoObserver;
         };
 
         void NodeGraphWidget::_init(
@@ -235,6 +234,8 @@ namespace ibis
             p.thumbnail = NodeGraphThumbnail::create(context, node);
 
             p.imageInfoLabel = ftk::Label::create(context);
+            p.imageInfoLabel->setFontInfo(ftk::FontInfo(ftk::getFont(ftk::Font::Mono), 10));
+            p.imageInfoLabel->setMarginRole(ftk::SizeRole::MarginInside);
 
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
@@ -261,15 +262,19 @@ namespace ibis
                 i->setParent(vLayout);
             }
 
-            p.textureInfoObserver = ftk::ListObserver<ftk::gl::TextureInfo>::create(
-                node->observeTextureInfo(),
+            p.outputInfoObserver = ftk::ListObserver<ftk::gl::TextureInfo>::create(
+                node->observeOutputInfo(),
                 [this](const std::vector<ftk::gl::TextureInfo>& value)
                 {
                     FTK_P();
                     std::string text;
                     if (!value.empty() && value.front().type != ftk::gl::TextureType::None)
                     {
-                        text = ftk::gl::getLabel(value.front());
+                        const auto& info = value.front();
+                        text = ftk::Format("{0}x{1} {3}").
+                            arg(info.size.w).
+                            arg(info.size.h).
+                            arg(info.type);
                     }
                     p.imageInfoLabel->setText(text);
                 });
@@ -346,7 +351,6 @@ namespace ibis
         void NodeGraphWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             FTK_P();
-            p.thumbnailSize = 100 * event.displayScale;
             p.borderSize = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
             p.keyFocusSize = event.style->getSizeRole(ftk::SizeRole::KeyFocus, event.displayScale);
         }

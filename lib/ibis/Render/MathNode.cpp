@@ -174,7 +174,7 @@ namespace ibis
             {
                 _outputs[0].reset();
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
     }
 }

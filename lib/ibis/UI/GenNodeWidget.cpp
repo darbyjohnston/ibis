@@ -45,12 +45,10 @@ namespace ibis
 
             p.widthSlider = ftk::IntEditSlider::create(context);
             p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setStep(10);
             p.widthSlider->setLargeStep(100);
 
             p.heightSlider = ftk::IntEditSlider::create(context);
             p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
@@ -170,12 +168,10 @@ namespace ibis
 
             p.widthSlider = ftk::IntEditSlider::create(context);
             p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setStep(10);
             p.widthSlider->setLargeStep(100);
 
             p.heightSlider = ftk::IntEditSlider::create(context);
             p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
@@ -315,12 +311,10 @@ namespace ibis
 
             p.widthSlider = ftk::IntEditSlider::create(context);
             p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setStep(10);
             p.widthSlider->setLargeStep(100);
 
             p.heightSlider = ftk::IntEditSlider::create(context);
             p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setStep(10);
             p.heightSlider->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());

@@ -220,7 +220,7 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct ImageSequenceNode::Private
@@ -350,7 +350,7 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
-            _textureInfo->setItemOnlyIfChanged(0, info);
+            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
         struct SVGFileNode::Private
@@ -453,8 +453,7 @@ namespace ibis
                     render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
                 }
             }
-
-            _textureInfo->setItemOnlyIfChanged(
+            _outputInfo->setItemOnlyIfChanged(
                 0,
                 _outputs[0] ?
                 ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
