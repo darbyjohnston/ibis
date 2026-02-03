@@ -377,7 +377,8 @@ namespace ibis
                         const auto& output = outputs.front();
                         event.render->drawTexture(
                             output->getColorID(),
-                            ftk::Box2I(ftk::V2I(0, 0), output->getSize()));
+                            ftk::Box2I(ftk::V2I(0, 0), output->getSize()),
+                            true);
                     }
                 }
                 else if (!p.node)

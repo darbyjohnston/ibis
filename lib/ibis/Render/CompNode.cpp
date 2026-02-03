@@ -109,13 +109,13 @@ namespace ibis
                 "{\n"
                 "    vec2 bgUV = fTexture;\n"
                 "    bgUV.x = (bgUV.x - textureSamplerU.x) / (textureSamplerU.y - textureSamplerU.x);\n"
-                "    bgUV.y = (bgUV.y - textureSamplerV.x) / (textureSamplerV.y - textureSamplerV.x);\n"
+                "    bgUV.y = 1.0 - (bgUV.y - textureSamplerV.x) / (textureSamplerV.y - textureSamplerV.x);\n"
                 "    vec4 bg = vec4(0.0, 0.0, 0.0, 0.0);\n"
                 "    if (bgUV.x >= 0.0 && bgUV.x <= 1.0 && bgUV.y >= 0.0 && bgUV.y <= 1.0)\n"
                 "        bg = texture(textureSampler, bgUV);\n"
                 "    vec2 fgUV = fTexture;\n"
                 "    fgUV.x = (fgUV.x - textureSampler2U.x) / (textureSampler2U.y - textureSampler2U.x);\n"
-                "    fgUV.y = (fgUV.y - textureSampler2V.x) / (textureSampler2V.y - textureSampler2V.x);\n"
+                "    fgUV.y = 1.0 - (fgUV.y - textureSampler2V.x) / (textureSampler2V.y - textureSampler2V.x);\n"
                 "    vec4 fg = vec4(0.0, 0.0, 0.0, 0.0);\n"
                 "    if (fgUV.x >= 0.0 && fgUV.x <= 1.0 && fgUV.y >= 0.0 && fgUV.y <= 1.0)\n"
                 "        fg = texture(textureSampler2, fgUV);\n"
@@ -248,7 +248,7 @@ namespace ibis
                     glBindTexture(GL_TEXTURE_2D, input1.front()->getColorID());
 
                     auto vbo = ftk::gl::VBO::create(2 * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
-                    vbo->copy(convert(mesh(ftk::Box2I(0, 0, info.size.w, info.size.h), true), vbo->getType()));
+                    vbo->copy(convert(mesh(ftk::Box2I(0, 0, info.size.w, info.size.h)), vbo->getType()));
                     auto vao = ftk::gl::VAO::create(vbo->getType(), vbo->getID());
                     vao->bind();
                     vao->draw(GL_TRIANGLES, 0, vbo->getSize());

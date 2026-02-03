@@ -150,7 +150,7 @@ namespace ibis
                     const int x = _attr->getItem("X");
                     const int y = _attr->getItem("Y");
                     const ftk::Box2I rect(
-                        -ftk::V2I(x, inputSize.h - 1 - y - info.size.h),
+                        -ftk::V2I(x, y),
                         inputSize);
                     render->drawTexture(input0.front()->getColorID(), rect, true);
                 }
@@ -362,7 +362,7 @@ namespace ibis
             if (_inputs->getItem(0).node)
             {
                 const float rotate = _attr->getItem("Rotate");
-                const ftk::M44F m = ftk::rotateZ(rotate);
+                const ftk::M44F m = ftk::rotateZ(-rotate);
                 const auto& input0 = _inputs->getItem(0).node->getOutputs();
                 ftk::Size2I input0Size;
                 if (!input0.empty() && input0.front())

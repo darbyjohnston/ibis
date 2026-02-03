@@ -42,6 +42,8 @@ namespace ibis
             p.info[NoiseNode::getClassNodeInfo().id] = NoiseNode::getClassNodeInfo();
             p.nodes[SolidColorNode::getClassNodeInfo().id] = &SolidColorNode::create;
             p.info[SolidColorNode::getClassNodeInfo().id] = SolidColorNode::getClassNodeInfo();
+            p.nodes[TextNode::getClassNodeInfo().id] = &TextNode::create;
+            p.info[TextNode::getClassNodeInfo().id] = TextNode::getClassNodeInfo();
 
             p.nodes[ArithmeticNode::getClassNodeInfo().id] = &ArithmeticNode::create;
             p.info[ArithmeticNode::getClassNodeInfo().id] = ArithmeticNode::getClassNodeInfo();

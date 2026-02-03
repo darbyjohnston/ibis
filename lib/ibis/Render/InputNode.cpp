@@ -177,7 +177,8 @@ namespace ibis
                         ss << "Unsupported file: " << path;
                         throw std::runtime_error(ss.str());
                     }
-                    const ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                    ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                    imageInfo.layout.mirror.y = true;
                     p.image = ftk::Image::create(imageInfo);
                     if (!oiioInput->read_image(
                         0,
@@ -306,6 +307,7 @@ namespace ibis
                             throw std::runtime_error(ss.str());
                         }
                         ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                        imageInfo.layout.mirror.y = true;
                         p.image = ftk::Image::create(imageInfo);
                         if (!oiioInput->read_image(
                             0,
@@ -405,7 +407,9 @@ namespace ibis
                     auto bitmap = svg->renderToBitmap(w, h, 0x00000000);
                     if (!bitmap.isNull())
                     {
-                        p.image = ftk::Image::create(w, h, ftk::ImageType::RGBA_U8);
+                        ftk::ImageInfo imageInfo(w, h, ftk::ImageType::RGBA_U8);
+                        imageInfo.layout.mirror.y = true;
+                        p.image = ftk::Image::create(imageInfo);
                         for (int y = 0; y < h; ++y)
                         {
                             uint8_t* imageP = reinterpret_cast<uint8_t*>(p.image->getData()) + y * w * 4;

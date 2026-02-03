@@ -43,6 +43,7 @@ namespace ibis
             p.nodes[GradientNodeWidget::getClassNodeInfo().id] = &GradientNodeWidget::create;
             p.nodes[NoiseNodeWidget::getClassNodeInfo().id] = &NoiseNodeWidget::create;
             p.nodes[SolidColorNodeWidget::getClassNodeInfo().id] = &SolidColorNodeWidget::create;
+            p.nodes[TextNodeWidget::getClassNodeInfo().id] = &TextNodeWidget::create;
 
             p.nodes[ArithmeticNodeWidget::getClassNodeInfo().id] = &ArithmeticNodeWidget::create;
 

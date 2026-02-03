@@ -182,7 +182,7 @@ namespace ibis
                 const auto& output = p.node->getOutputs().front();
                 const float aspect = ftk::aspectRatio(output->getSize());
                 const ftk::Box2I g2 = render::getBox(aspect, g);
-                event.render->drawTexture(output->getColorID(), g2);
+                event.render->drawTexture(output->getColorID(), g2, true);
             }
         }
 

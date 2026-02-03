@@ -16,6 +16,8 @@
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/TextEdit.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
@@ -409,6 +411,132 @@ namespace ibis
         }
 
         void NoiseNodeWidget::setGeometry(const ftk::Box2I& value)
+        {
+            IInteractionNodeWidget::setGeometry(value);
+            _p->bellows->setGeometry(value);
+        }
+
+        struct TextNodeWidget::Private
+        {
+            std::shared_ptr<ftk::TextEdit> textEdit;
+            std::shared_ptr<ftk::ComboBox> fontComboBox;
+            std::shared_ptr<ftk::IntEditSlider> fontSizeEdit;
+            std::shared_ptr<ftk::ColorSwatch> colorSwatch;
+            std::shared_ptr<ftk::Bellows> bellows;
+
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
+        };
+
+        void TextNodeWidget::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            IInteractionNodeWidget::_init(context, document, node, parent);
+            FTK_P();
+
+            p.textEdit = ftk::TextEdit::create(context);
+
+            p.fontComboBox = ftk::ComboBox::create(context, ftk::getFontLabels());
+
+            p.fontSizeEdit = ftk::IntEditSlider::create(context);
+            p.fontSizeEdit->setRange(1, 512);
+
+            p.colorSwatch = ftk::ColorSwatch::create(context);
+            p.colorSwatch->setEditable(true);
+
+            auto formLayout = ftk::FormLayout::create(context);
+            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            formLayout->addRow("Text:", p.textEdit);
+            formLayout->addRow("Font:", p.fontComboBox);
+            formLayout->addRow("Font size:", p.fontSizeEdit);
+            formLayout->addRow("Color:", p.colorSwatch);
+            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
+            p.bellows->setOpen(true);
+            p.bellows->setWidget(formLayout);
+
+            p.textEdit->setTextCallback(
+                [this](const std::vector<std::string>& text)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(), _node, "Text", ftk::join(text, '\n')));
+                });
+
+            p.fontComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    _document->command(render::NodeAttrCmd::create(
+                        _document->getGraph(),
+                        _node,
+                        "Font",
+                        ftk::getFont(static_cast<ftk::Font>(value))));
+                });
+
+            p.fontSizeEdit->setPressedCallback(
+                [this](int value, bool pressed)
+                {
+                    _callback({ { "FontSize", value } }, pressed);
+                });
+
+            p.colorSwatch->setPressedCallback(
+                [this](const ftk::Color4F& value, bool pressed)
+                {
+                    _callback({ { "Color", value } }, pressed);
+                });
+
+            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+                _node->observeAttr(),
+                [this](const std::map<std::string, nlohmann::json>& value)
+                {
+                    FTK_P();
+                    auto tmp = value;
+                    p.textEdit->setText(ftk::split(tmp["Text"], '\n', ftk::SplitOptions::KeepEmpty));
+                    const std::string fontText = tmp["Font"];
+                    int index = 0;
+                    for (const auto font : ftk::getFontEnums())
+                    {
+                        if (fontText == ftk::getFont(font))
+                        {
+                            break;
+                        }
+                        ++index;
+                    }
+                    p.fontComboBox->setCurrentIndex(index);
+                    p.fontSizeEdit->setValue(tmp["FontSize"]);
+                    p.colorSwatch->setColor(tmp["Color"]);
+                });
+        }
+
+        TextNodeWidget::TextNodeWidget() :
+            _p(new Private)
+        {}
+
+        TextNodeWidget::~TextNodeWidget()
+        {}
+
+        std::shared_ptr<TextNodeWidget> TextNodeWidget::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ibis::models::Document>& document,
+            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            std::shared_ptr<TextNodeWidget> out(new TextNodeWidget);
+            out->_init(context, document, node, parent);
+            return out;
+        }
+
+        render::NodeInfo TextNodeWidget::getClassNodeInfo()
+        {
+            return render::TextNode::getClassNodeInfo();
+        }
+
+        ftk::Size2I TextNodeWidget::getSizeHint() const
+        {
+            return _p->bellows->getSizeHint();
+        }
+
+        void TextNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

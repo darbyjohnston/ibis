@@ -139,10 +139,10 @@ namespace ibis
                     mesh.c.push_back(ftk::V4F(color0.r, color0.g, color0.b, color0.a));
                     break;
                 case ftk::Orientation::Vertical:
-                    mesh.c.push_back(ftk::V4F(color1.r, color1.g, color1.b, color1.a));
-                    mesh.c.push_back(ftk::V4F(color1.r, color1.g, color1.b, color1.a));
                     mesh.c.push_back(ftk::V4F(color0.r, color0.g, color0.b, color0.a));
                     mesh.c.push_back(ftk::V4F(color0.r, color0.g, color0.b, color0.a));
+                    mesh.c.push_back(ftk::V4F(color1.r, color1.g, color1.b, color1.a));
+                    mesh.c.push_back(ftk::V4F(color1.r, color1.g, color1.b, color1.a));
                     break;
                 default: break;
                 }
@@ -246,6 +246,76 @@ namespace ibis
             else
             {
                 p.image.reset();
+            }
+            _textureInfo->setItemOnlyIfChanged(0, info);
+        }
+
+        struct TextNode::Private
+        {
+            std::shared_ptr<ftk::FontSystem> fontSystem;
+        };
+
+        void TextNode::_init(const std::shared_ptr<ftk::Context>& context)
+        {
+            NodeAttr attr;
+            attr["Text"] = "Hello world";
+            attr["Font"] = ftk::getFont(ftk::Font::Regular);
+            attr["FontSize"] = 64;
+            attr["Color"] = ftk::Color4F(1.F, 1.F, 1.F);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
+            FTK_P();
+            p.fontSystem = context->getSystem<ftk::FontSystem>();
+        }
+
+        TextNode::TextNode() :
+            _p(new Private)
+        {}
+
+        TextNode::~TextNode()
+        {}
+
+        NodeInfo TextNode::getClassNodeInfo()
+        {
+            return { "Text", "Text", "Generator" };
+        }
+
+        std::shared_ptr<INode> TextNode::create(
+            const std::shared_ptr<ftk::Context>& context)
+        {
+            std::shared_ptr<TextNode> out(new TextNode);
+            out->_init(context);
+            return out;
+        }
+
+        void TextNode::exec(
+            const std::shared_ptr<ftk::IRender>& render,
+            const OTIO_NS::RationalTime& time)
+        {
+            INode::exec(render, time);
+            FTK_P();
+
+            const ftk::FontInfo fontInfo(_attr->getItem("Font"), _attr->getItem("FontSize"));
+            const ftk::FontMetrics fontMetrics = p.fontSystem->getMetrics(fontInfo);
+            const std::string text = _attr->getItem("Text");
+            const ftk::Size2I textSize = p.fontSystem->getSize(text, fontInfo);
+
+            const ftk::gl::TextureInfo info(textSize, ftk::gl::TextureType::RGBA_U8);
+            if (info.isValid())
+            {
+                if (ftk::gl::doCreate(_outputs[0], info))
+                {
+                    _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
+                }
+                ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                render->setRenderSize(info.size);
+                render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
+                render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                render->setTransform(_getProjection(info.size));
+                render->drawText(
+                    p.fontSystem->getGlyphs(text, fontInfo),
+                    fontMetrics,
+                    ftk::V2I(),
+                    _attr->getItem("Color"));
             }
             _textureInfo->setItemOnlyIfChanged(0, info);
         }
