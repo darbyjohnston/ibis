@@ -107,6 +107,38 @@ namespace ibis
                 return out;
             }
 
+            std::string getName(const std::vector<std::string>& value)
+            {
+                std::string out;
+                std::vector<std::string> prefixes;
+                std::vector<std::string> channels;
+                for (const auto& i : value)
+                {
+                    if (i.size() > 2 && '.' == i[i.size() - 2])
+                    {
+                        prefixes.push_back(i.substr(0, i.size() - 2));
+                        channels.push_back(i.substr(i.size() - 1, 1));
+                    }
+                    else
+                    {
+                        channels.push_back(i);
+                    }
+                }
+                if (!prefixes.empty())
+                {
+                    out = prefixes.front();
+                }
+                if (!channels.empty())
+                {
+                    if (!out.empty())
+                    {
+                        out += ".";
+                    }
+                    out += ftk::join(channels, "");
+                }
+                return out;
+            }
+
             bool parse(const OIIO::ImageSpec& oiioSpec, int& c, ChannelGroup& group)
             {
                 bool out = false;
@@ -119,14 +151,13 @@ namespace ibis
                     oiioSpec.channelformat(c + 3) == oiioSpec.channelformat(c) &&
                     fromOIIO(oiioSpec.channelformat(c), 4) != ftk::ImageType::None)
                 {
-                    group.name = ftk::join(
+                    group.name = getName(
                         {
                             oiioSpec.channel_name(c),
                             oiioSpec.channel_name(c + 1),
                             oiioSpec.channel_name(c + 2),
                             oiioSpec.channel_name(c + 3)
-                        },
-                        ',');
+                        });
                     group.size.w = oiioSpec.width;
                     group.size.h = oiioSpec.height;
                     group.type = fromOIIO(oiioSpec.channelformat(c), 4);
@@ -142,13 +173,12 @@ namespace ibis
                     oiioSpec.channelformat(c + 2) == oiioSpec.channelformat(c) &&
                     fromOIIO(oiioSpec.channelformat(c), 3) != ftk::ImageType::None)
                 {
-                    group.name = ftk::join(
+                    group.name = getName(
                         {
                             oiioSpec.channel_name(c),
                             oiioSpec.channel_name(c + 1),
                             oiioSpec.channel_name(c + 2)
-                        },
-                        ',');
+                        });
                     group.size.w = oiioSpec.width;
                     group.size.h = oiioSpec.height;
                     group.type = fromOIIO(oiioSpec.channelformat(c), 3);
