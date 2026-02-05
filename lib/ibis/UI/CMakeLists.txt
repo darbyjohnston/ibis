@@ -53,6 +53,11 @@ set(SOURCE
     TimelineWidget.cpp
     TransformNodeWidget.cpp
     Viewport.cpp)
+if(ibis_OIIO)
+    list(APPEND SOURCE InputNodeWidgetOIIO.cpp)
+else()
+    list(APPEND SOURCE InputNodeWidgetPNG.cpp)
+endif()
 
 set(LIBRARIES ibisModels)
 

@@ -3,7 +3,6 @@
 
 #include "Graph.h"
 
-#include "INode.h"
 #include "NodeFactory.h"
 
 #include <set>
@@ -47,15 +46,10 @@ namespace ibis
                     {
                         if (i.contains("ID"))
                         {
-                            if (auto node = nodeFactory->createNode(i["ID"]))
+                            if (auto node = nodeFactory->createNode(
+                                i["ID"],
+                                i.contains("Attr") ? i["Attr"] : nlohmann::json()))
                             {
-                                if (i.contains("Attr"))
-                                {
-                                    for (const auto& j : i["Attr"].items())
-                                    {
-                                        node->setAttr(j.key(), j.value());
-                                    }
-                                }
                                 ftk::V2I pos;
                                 if (i.contains("Pos"))
                                 {
@@ -314,11 +308,15 @@ namespace ibis
 
         void Graph::setAttr(
             const std::shared_ptr<INode>& node,
-            const std::string& key,
-            const nlohmann::json& value)
+            const NodeAttr& attr)
         {
             FTK_P();
-            if (node->setAttr(key, value))
+            auto tmp = node->getAttr();
+            for (const auto& i : attr)
+            {
+                tmp[i.first] = i.second;
+            }
+            if (node->setAttr(tmp))
             {
                 p.changed->setAlways(true);
             }
@@ -326,15 +324,11 @@ namespace ibis
 
         void Graph::setAttr(
             const std::shared_ptr<INode>& node,
-            const std::vector<std::pair<std::string, nlohmann::json > >& attr)
+            const std::string& key,
+            const nlohmann::json& value)
         {
             FTK_P();
-            bool changed = false;
-            for (const auto& i : attr)
-            {
-                changed |= node->setAttr(i.first, i.second);
-            }
-            if (changed)
+            if (node->setAttr(key, value))
             {
                 p.changed->setAlways(true);
             }

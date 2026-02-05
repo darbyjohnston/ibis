@@ -15,8 +15,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             OverNodeWidget();
@@ -27,8 +27,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<OverNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();

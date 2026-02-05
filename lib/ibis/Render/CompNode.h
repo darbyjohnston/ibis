@@ -30,7 +30,9 @@ namespace ibis
         class OverNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             OverNode();
 
@@ -40,7 +42,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,

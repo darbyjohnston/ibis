@@ -50,7 +50,9 @@ namespace ibis
         typedef std::map<std::string, nlohmann::json> NodeAttr;
 
         //! Node create function.
-        typedef std::function<std::shared_ptr<INode>(const std::shared_ptr<ftk::Context>&)> NodeCreate;
+        typedef std::function<std::shared_ptr<INode>(
+            const std::shared_ptr<ftk::Context>&,
+            const nlohmann::json&)> NodeCreate;
 
         //! Base class for nodes.
         class INode : public std::enable_shared_from_this<INode>
@@ -60,8 +62,9 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const NodeInfo&,
                 int inputCount,
-                int outputCount = 1,
-                const NodeAttr& = {});
+                int outputCount,
+                const NodeAttr&,
+                const nlohmann::json&);
 
             INode();
 
@@ -89,6 +92,9 @@ namespace ibis
             //! Observe the texture information.
             std::shared_ptr<ftk::IObservableList<ftk::gl::TextureInfo> > observeOutputInfo() const;
 
+            //! Get the attributes.
+            const NodeAttr& getAttr() const;
+
             //! Get the attribute keys.
             std::vector<std::string> getAttrKeys() const;
 
@@ -101,8 +107,11 @@ namespace ibis
             //! Observe attributes.
             std::shared_ptr<ftk::IObservableMap<std::string, nlohmann::json> > observeAttr() const;
 
+            //! Set the attributes.
+            virtual bool setAttr(const NodeAttr&);
+
             //! Set an attribute.
-            virtual bool setAttr(const std::string&, const nlohmann::json&);
+            bool setAttr(const std::string&, const nlohmann::json&);
 
             //! Execute the node.
             virtual void exec(
@@ -112,6 +121,7 @@ namespace ibis
         protected:
             ftk::M44F _getProjection(const ftk::Size2I&) const;
 
+            std::weak_ptr<ftk::Context> _context;
             NodeInfo _nodeInfo;
             std::shared_ptr<ftk::ObservableList<NodeConnection> > _inputs;
             std::vector<std::shared_ptr<ftk::gl::OffscreenBuffer> > _outputs;

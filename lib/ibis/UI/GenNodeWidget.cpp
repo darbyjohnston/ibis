@@ -36,8 +36,8 @@ namespace ibis
 
         void SolidColorNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -86,7 +86,10 @@ namespace ibis
                 [this](int value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
+                        _document->getGraph(),
+                        _node,
+                        "Type",
+                        static_cast<ftk::gl::TextureType>(value)));
                 });
 
             p.colorSwatch->setPressedCallback(
@@ -119,8 +122,8 @@ namespace ibis
 
         std::shared_ptr<SolidColorNodeWidget> SolidColorNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<SolidColorNodeWidget> out(new SolidColorNodeWidget);
@@ -159,8 +162,8 @@ namespace ibis
 
         void GradientNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -216,7 +219,10 @@ namespace ibis
                 [this](int value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
+                        _document->getGraph(),
+                        _node,
+                        "Type",
+                        static_cast<ftk::gl::TextureType>(value)));
                 });
 
             p.color0Swatch->setPressedCallback(
@@ -235,7 +241,10 @@ namespace ibis
                 [this](int value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Orientation", static_cast<ftk::Orientation>(value)));
+                        _document->getGraph(),
+                        _node,
+                        "Orientation",
+                        static_cast<ftk::Orientation>(value)));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -264,8 +273,8 @@ namespace ibis
 
         std::shared_ptr<GradientNodeWidget> GradientNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<GradientNodeWidget> out(new GradientNodeWidget);
@@ -302,8 +311,8 @@ namespace ibis
 
         void NoiseNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -352,7 +361,10 @@ namespace ibis
                 [this](int value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Type", static_cast<ftk::gl::TextureType>(value)));
+                        _document->getGraph(),
+                        _node,
+                        "Type",
+                        static_cast<ftk::gl::TextureType>(value)));
                 });
 
             p.scaleSlider->setPressedCallback(
@@ -385,8 +397,8 @@ namespace ibis
 
         std::shared_ptr<NoiseNodeWidget> NoiseNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NoiseNodeWidget> out(new NoiseNodeWidget);
@@ -423,8 +435,8 @@ namespace ibis
 
         void TextNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -454,7 +466,10 @@ namespace ibis
                 [this](const std::vector<std::string>& text)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Text", ftk::join(text, '\n')));
+                        _document->getGraph(),
+                        _node,
+                        "Text",
+                        ftk::join(text, '\n')));
                 });
 
             p.fontComboBox->setIndexCallback(
@@ -511,8 +526,8 @@ namespace ibis
 
         std::shared_ptr<TextNodeWidget> TextNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<TextNodeWidget> out(new TextNodeWidget);

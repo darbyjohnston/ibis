@@ -27,15 +27,26 @@ namespace ibis
             const NodeInfo& nodeInfo,
             int inputCount,
             int outputCount,
-            const NodeAttr& attr)
+            const NodeAttr& attr,
+            const nlohmann::json& json)
         {
+            NodeAttr attr2 = attr;
+            if (!json.empty())
+            {
+                for (const auto& j : json.items())
+                {
+                    attr2[j.key()] = j.value();
+                }
+            }
+
+            _context = context;
             _nodeInfo = nodeInfo;
             _inputs = ftk::ObservableList<NodeConnection>::create(
                 std::vector<NodeConnection>(inputCount));
             _outputs.resize(outputCount);
             _outputInfo = ftk::ObservableList<ftk::gl::TextureInfo>::create(
                 std::vector<ftk::gl::TextureInfo>(outputCount));
-            _attr = ftk::ObservableMap<std::string, nlohmann::json>::create(attr);
+            _attr = ftk::ObservableMap<std::string, nlohmann::json>::create(attr2);
         }
 
         INode::INode()
@@ -82,6 +93,11 @@ namespace ibis
             return _outputInfo;
         }
 
+        const NodeAttr& INode::getAttr() const
+        {
+            return _attr->get();
+        }
+
         std::vector<std::string> INode::getAttrKeys() const
         {
             return _attr->getKeys();
@@ -100,6 +116,11 @@ namespace ibis
         std::shared_ptr<ftk::IObservableMap<std::string, nlohmann::json> > INode::observeAttr() const
         {
             return _attr;
+        }
+        
+        bool INode::setAttr(const NodeAttr& attr)
+        {
+            return _attr->setIfChanged(attr);
         }
 
         bool INode::setAttr(const std::string& key, const nlohmann::json& value)

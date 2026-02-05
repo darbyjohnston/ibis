@@ -31,8 +31,8 @@ namespace ibis
 
         void ResizeNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -84,8 +84,8 @@ namespace ibis
 
         std::shared_ptr<ResizeNodeWidget> ResizeNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<ResizeNodeWidget> out(new ResizeNodeWidget);
@@ -122,8 +122,8 @@ namespace ibis
 
         void CropNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -197,8 +197,8 @@ namespace ibis
 
         std::shared_ptr<CropNodeWidget> CropNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<CropNodeWidget> out(new CropNodeWidget);
@@ -233,8 +233,8 @@ namespace ibis
 
         void MirrorNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             INodeWidget::_init(context, document, node, parent);
@@ -258,14 +258,20 @@ namespace ibis
                 [this](bool value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Horizontal", value));
+                        _document->getGraph(),
+                        _node,
+                        "Horizontal",
+                        value));
                 });
 
             p.vCheckBox->setCheckedCallback(
                 [this](bool value)
                 {
                     _document->command(render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, "Vertical", value));
+                        _document->getGraph(),
+                        _node,
+                        "Vertical",
+                        value));
                 });
 
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
@@ -288,8 +294,8 @@ namespace ibis
 
         std::shared_ptr<MirrorNodeWidget> MirrorNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<MirrorNodeWidget> out(new MirrorNodeWidget);
@@ -323,8 +329,8 @@ namespace ibis
 
         void RotateNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -365,8 +371,8 @@ namespace ibis
 
         std::shared_ptr<RotateNodeWidget> RotateNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<RotateNodeWidget> out(new RotateNodeWidget);

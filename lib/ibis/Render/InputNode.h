@@ -31,7 +31,9 @@ namespace ibis
         class ImageFileNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             ImageFileNode();
 
@@ -41,7 +43,13 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
+
+            std::shared_ptr<ftk::IObservableList<std::string> > observeSubImages() const;
+            std::shared_ptr<ftk::IObservableList<std::string> > observeChannels() const;
+
+            bool setAttr(const NodeAttr&) override;
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
@@ -55,7 +63,9 @@ namespace ibis
         class ImageSequenceNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             ImageSequenceNode();
 
@@ -65,7 +75,13 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
+
+            std::shared_ptr<ftk::IObservableList<std::string> > observeSubImages() const;
+            std::shared_ptr<ftk::IObservableList<std::string> > observeChannels() const;
+
+            bool setAttr(const NodeAttr&) override;
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
@@ -79,7 +95,9 @@ namespace ibis
         class SVGFileNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             SVGFileNode();
 
@@ -89,7 +107,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,

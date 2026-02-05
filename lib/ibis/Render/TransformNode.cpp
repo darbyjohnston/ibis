@@ -16,12 +16,14 @@ namespace ibis
         struct ResizeNode::Private
         {};
 
-        void ResizeNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void ResizeNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Width"] = 1920;
             attr["Height"] = 1080;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         ResizeNode::ResizeNode() :
@@ -37,10 +39,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> ResizeNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<ResizeNode> out(new ResizeNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -86,14 +89,16 @@ namespace ibis
         struct CropNode::Private
         {};
 
-        void CropNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void CropNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["X"] = 200;
             attr["Y"] = 200;
             attr["Width"] = 400;
             attr["Height"] = 400;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         CropNode::CropNode() :
@@ -109,10 +114,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> CropNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<CropNode> out(new CropNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -167,12 +173,14 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void MirrorNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void MirrorNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Horizontal"] = true;
             attr["Vertical"] = false;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         MirrorNode::MirrorNode() :
@@ -188,10 +196,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> MirrorNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<MirrorNode> out(new MirrorNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -324,11 +333,13 @@ namespace ibis
         struct RotateNode::Private
         {};
 
-        void RotateNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void RotateNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Rotate"] = 90.F;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         RotateNode::RotateNode() :
@@ -344,10 +355,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> RotateNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<RotateNode> out(new RotateNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 

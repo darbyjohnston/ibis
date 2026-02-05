@@ -15,8 +15,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             BrightnessNodeWidget();
@@ -27,8 +27,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<BrightnessNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();
@@ -46,8 +46,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             ContrastNodeWidget();
@@ -58,8 +58,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<ContrastNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();
@@ -77,8 +77,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             SaturationNodeWidget();
@@ -89,8 +89,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<SaturationNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();
@@ -108,8 +108,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             TintNodeWidget();
@@ -120,8 +120,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<TintNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();
@@ -139,8 +139,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             LevelsNodeWidget();
@@ -151,8 +151,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<LevelsNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();
@@ -170,8 +170,8 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             SoftClipNodeWidget();
@@ -182,8 +182,8 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<SoftClipNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ibis::models::Document>&,
-                const std::shared_ptr<ibis::render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             static render::NodeInfo getClassNodeInfo();

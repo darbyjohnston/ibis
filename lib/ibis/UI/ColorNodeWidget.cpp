@@ -26,8 +26,8 @@ namespace ibis
 
         void BrightnessNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -69,8 +69,8 @@ namespace ibis
 
         std::shared_ptr<BrightnessNodeWidget> BrightnessNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<BrightnessNodeWidget> out(new BrightnessNodeWidget);
@@ -104,8 +104,8 @@ namespace ibis
 
         void ContrastNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -147,8 +147,8 @@ namespace ibis
 
         std::shared_ptr<ContrastNodeWidget> ContrastNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<ContrastNodeWidget> out(new ContrastNodeWidget);
@@ -182,8 +182,8 @@ namespace ibis
 
         void SaturationNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -225,8 +225,8 @@ namespace ibis
 
         std::shared_ptr<SaturationNodeWidget> SaturationNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<SaturationNodeWidget> out(new SaturationNodeWidget);
@@ -260,8 +260,8 @@ namespace ibis
 
         void TintNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -303,8 +303,8 @@ namespace ibis
 
         std::shared_ptr<TintNodeWidget> TintNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<TintNodeWidget> out(new TintNodeWidget);
@@ -338,8 +338,8 @@ namespace ibis
 
         void LevelsNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -461,8 +461,8 @@ namespace ibis
 
         std::shared_ptr<LevelsNodeWidget> LevelsNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<LevelsNodeWidget> out(new LevelsNodeWidget);
@@ -496,8 +496,8 @@ namespace ibis
 
         void SoftClipNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -540,8 +540,8 @@ namespace ibis
 
         std::shared_ptr<SoftClipNodeWidget> SoftClipNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<SoftClipNodeWidget> out(new SoftClipNodeWidget);

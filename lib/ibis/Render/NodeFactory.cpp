@@ -143,14 +143,16 @@ namespace ibis
             return std::vector<std::string>(groups.begin(), groups.end());
         }
 
-        std::shared_ptr<INode> NodeFactory::createNode(const std::string& id)
+        std::shared_ptr<INode> NodeFactory::createNode(
+            const std::string& id,
+            const nlohmann::json& json)
         {
             FTK_P();
             std::shared_ptr<INode> out;
             const auto i = p.nodes.find(id);
             if (i != p.nodes.end())
             {
-                out = i->second(p.context.lock());
+                out = i->second(p.context.lock(), json);
             }
             return out;
         }

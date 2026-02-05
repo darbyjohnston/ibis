@@ -31,8 +31,8 @@ namespace ibis
 
         void OverNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IInteractionNodeWidget::_init(context, document, node, parent);
@@ -101,8 +101,8 @@ namespace ibis
 
         std::shared_ptr<OverNodeWidget> OverNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ibis::models::Document>& document,
-            const std::shared_ptr<ibis::render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<OverNodeWidget> out(new OverNodeWidget);

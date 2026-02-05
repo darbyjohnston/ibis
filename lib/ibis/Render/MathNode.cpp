@@ -28,12 +28,14 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void ArithmeticNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void ArithmeticNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 0.5;
             attr["Operator"] = ArithmeticOperator::Add;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         ArithmeticNode::ArithmeticNode() :
@@ -49,10 +51,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> ArithmeticNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<ArithmeticNode> out(new ArithmeticNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 

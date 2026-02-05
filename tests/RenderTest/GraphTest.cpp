@@ -31,9 +31,11 @@ namespace ibis
             class TestNode : public render::INode
             {
             protected:
-                void _init(const std::shared_ptr<ftk::Context>& context)
+                void _init(
+                    const std::shared_ptr<ftk::Context>& context,
+                    const nlohmann::json& json)
                 {
-                    INode::_init(context, getNodeInfo(), 1);
+                    INode::_init(context, getNodeInfo(), 1, 1, {}, json);
                 }
 
                 TestNode() = default;
@@ -44,10 +46,11 @@ namespace ibis
                 static render::NodeInfo getNodeInfo() { return { "TestNode", "Test Node", "Test" }; }
 
                 static std::shared_ptr<INode> create(
-                    const std::shared_ptr<ftk::Context>& context)
+                    const std::shared_ptr<ftk::Context>& context,
+                    const nlohmann::json& json = {})
                 {
                     std::shared_ptr<TestNode> out(new TestNode);
-                    out->_init(context);
+                    out->_init(context, json);
                     return out;
                 }
             };

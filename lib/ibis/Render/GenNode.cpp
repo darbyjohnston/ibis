@@ -18,13 +18,15 @@ namespace ibis
         struct SolidColorNode::Private
         {};
 
-        void SolidColorNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void SolidColorNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
             attr["Type"] = ftk::gl::TextureType::RGBA_F32;
             attr["Color"] = ftk::Color4F(1.F, .7F, 0.F);
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
         }
 
         SolidColorNode::SolidColorNode() :
@@ -40,10 +42,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> SolidColorNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<SolidColorNode> out(new SolidColorNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -72,7 +75,9 @@ namespace ibis
         struct GradientNode::Private
         {};
 
-        void GradientNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void GradientNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
@@ -80,7 +85,7 @@ namespace ibis
             attr["Color0"] = ftk::Color4F(0.F, 0.F, 0.F);
             attr["Color1"] = ftk::Color4F(1.F, 1.F, 1.F);
             attr["Orientation"] = ftk::Orientation::Vertical;
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
         }
 
         GradientNode::GradientNode() :
@@ -96,10 +101,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> GradientNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<GradientNode> out(new GradientNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -171,13 +177,15 @@ namespace ibis
             std::shared_ptr<ftk::Image> image;
         };
 
-        void NoiseNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void NoiseNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Size"] = ftk::Size2I(256, 256);
             attr["Type"] = ftk::gl::TextureType::RGBA_F32;
             attr["Scale"] = 1.F;
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
         }
 
         NoiseNode::NoiseNode() :
@@ -193,10 +201,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> NoiseNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<NoiseNode> out(new NoiseNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -255,14 +264,16 @@ namespace ibis
             std::shared_ptr<ftk::FontSystem> fontSystem;
         };
 
-        void TextNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void TextNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Text"] = "Hello world";
             attr["Font"] = ftk::getFont(ftk::Font::Regular);
             attr["FontSize"] = 64;
             attr["Color"] = ftk::Color4F(1.F, 1.F, 1.F);
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
             FTK_P();
             p.fontSystem = context->getSystem<ftk::FontSystem>();
         }
@@ -280,10 +291,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> TextNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<TextNode> out(new TextNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 

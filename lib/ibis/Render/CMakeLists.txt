@@ -23,6 +23,11 @@ set(SOURCE
     NodeFactory.cpp
     RenderUtil.cpp
     TransformNode.cpp)
+if(ibis_OIIO)
+    list(APPEND SOURCE InputNodeOIIO.cpp)
+else()
+    list(APPEND SOURCE InputNodePNG.cpp)
+endif()
 
 set(LIBRARIES ibisCore ftk::ftkUI ftk::ftkGL)
 set(LIBRARIES_PRIVATE)

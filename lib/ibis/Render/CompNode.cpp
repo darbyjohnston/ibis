@@ -31,12 +31,14 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void OverNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void OverNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Mode"] = OverMode::Premult;
             attr["Offset"] = ftk::V2I();
-            INode::_init(context, getClassNodeInfo(), 2, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 2, 1, attr, json);
         }
 
         OverNode::OverNode() :
@@ -52,10 +54,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> OverNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<OverNode> out(new OverNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 

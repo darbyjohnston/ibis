@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <ibis/Render/INode.h>
+
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Vector.h>
 
@@ -10,7 +12,6 @@ namespace ibis
 {
     namespace render
     {
-        class INode;
         class NodeFactory;
 
         //! Graph connection.
@@ -87,16 +88,16 @@ namespace ibis
             std::vector<ftk::V2I> getPos(
                 const std::vector<std::shared_ptr<INode> >&) const;
 
+            //! Set node attributes.
+            void setAttr(
+                const std::shared_ptr<INode>&,
+                const NodeAttr&);
+
             //! Set a node attribute.
             void setAttr(
                 const std::shared_ptr<INode>&,
                 const std::string&,
                 const nlohmann::json&);
-
-            //! Set node attributes.
-            void setAttr(
-                const std::shared_ptr<INode>&,
-                const std::vector<std::pair<std::string, nlohmann::json > >&);
 
             //! Connect nodes.
             void connect(

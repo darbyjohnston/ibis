@@ -62,25 +62,34 @@ namespace ibis
             bool pressed)
         {
             FTK_P();
+            render::NodeAttr tmp = _node->getAttr();
+            for (const auto& i : attr)
+            {
+                tmp[i.first] = i.second;
+            }
             if (pressed)
             {
                 if (!p.cmd)
                 {
                     p.cmd = render::NodeAttrCmd::create(
-                        _document->getGraph(), _node, attr);
+                        _document->getGraph(),
+                        _node,
+                        tmp);
                 }
-                _document->getGraph()->setAttr(_node, attr);
+                _document->getGraph()->setAttr(_node, tmp);
             }
             else if (p.cmd)
             {
-                p.cmd->set(attr);
+                p.cmd->set(tmp);
                 _document->command(p.cmd);
                 p.cmd.reset();
             }
             else
             {
                 _document->command(render::NodeAttrCmd::create(
-                    _document->getGraph(), _node, attr));
+                    _document->getGraph(),
+                    _node,
+                    tmp));
             }
         }
     }

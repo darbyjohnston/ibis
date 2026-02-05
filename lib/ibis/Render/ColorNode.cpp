@@ -59,9 +59,10 @@ namespace ibis
             const NodeInfo& info,
             int inputCount,
             int outputCount,
-            const NodeAttr& attr)
+            const NodeAttr& attr,
+            const nlohmann::json& json)
         {
-            INode::_init(context, info, inputCount, outputCount, attr);
+            INode::_init(context, info, inputCount, outputCount, attr, json);
         }
 
         IColorMatrixNode::IColorMatrixNode() :
@@ -123,11 +124,13 @@ namespace ibis
             _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
-        void BrightnessNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void BrightnessNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         BrightnessNode::~BrightnessNode()
@@ -139,10 +142,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> BrightnessNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<BrightnessNode> out(new BrightnessNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -152,11 +156,13 @@ namespace ibis
             return ftk::brightness(ftk::V3F(v, v, v));
         }
 
-        void ContrastNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void ContrastNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         ContrastNode::~ContrastNode()
@@ -168,10 +174,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> ContrastNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<ContrastNode> out(new ContrastNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -181,11 +188,13 @@ namespace ibis
             return ftk::contrast(ftk::V3F(v, v, v));
         }
 
-        void SaturationNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void SaturationNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 1.0;
-            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         SaturationNode::~SaturationNode()
@@ -197,10 +206,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> SaturationNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<SaturationNode> out(new SaturationNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -210,11 +220,13 @@ namespace ibis
             return ftk::saturation(ftk::V3F(v, v, v));
         }
 
-        void TintNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void TintNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 0.0;
-            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         TintNode::~TintNode()
@@ -226,10 +238,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> TintNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<TintNode> out(new TintNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -244,9 +257,11 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void InvertNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void InvertNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
-            INode::_init(context, getClassNodeInfo(), 1);
+            INode::_init(context, getClassNodeInfo(), 1, 1, {}, json);
         }
 
         InvertNode::InvertNode() :
@@ -262,10 +277,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> InvertNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<InvertNode> out(new InvertNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -364,7 +380,9 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void LevelsNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void LevelsNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["InLow"] = 0.0;
@@ -372,7 +390,7 @@ namespace ibis
             attr["Gamma"] = 1.0;
             attr["OutLow"] = 0.0;
             attr["OutHigh"] = 1.0;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         LevelsNode::LevelsNode() :
@@ -388,10 +406,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> LevelsNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<LevelsNode> out(new LevelsNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 
@@ -520,11 +539,13 @@ namespace ibis
             std::shared_ptr<ftk::gl::Shader> shader;
         };
 
-        void SoftClipNode::_init(const std::shared_ptr<ftk::Context>& context)
+        void SoftClipNode::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             NodeAttr attr;
             attr["Value"] = 0.0;
-            INode::_init(context, getClassNodeInfo(), 1, 1, attr);
+            INode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
         SoftClipNode::SoftClipNode() :
@@ -540,10 +561,11 @@ namespace ibis
         }
 
         std::shared_ptr<INode> SoftClipNode::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const nlohmann::json& json)
         {
             std::shared_ptr<SoftClipNode> out(new SoftClipNode);
-            out->_init(context);
+            out->_init(context, json);
             return out;
         }
 

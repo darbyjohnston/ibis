@@ -45,7 +45,7 @@ namespace ibis
             std::vector<std::string> getGroups() const;
 
             //! Create a node.
-            std::shared_ptr<INode> createNode(const std::string&);
+            std::shared_ptr<INode> createNode(const std::string&, const nlohmann::json& = {});
 
         private:
             FTK_PRIVATE();

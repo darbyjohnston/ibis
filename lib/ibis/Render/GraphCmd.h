@@ -136,7 +136,7 @@ namespace ibis
             void _init(
                 const std::shared_ptr<Graph>&,
                 const std::shared_ptr<INode>&,
-                const std::vector<std::pair<std::string, nlohmann::json > >&);
+                const NodeAttr&);
 
             NodeAttrCmd() = default;
 
@@ -147,7 +147,7 @@ namespace ibis
             static std::shared_ptr<NodeAttrCmd> create(
                 const std::shared_ptr<Graph>&,
                 const std::shared_ptr<INode>&,
-                const std::vector<std::pair<std::string, nlohmann::json > >&);
+                const NodeAttr&);
 
             //! Create a new command.
             static std::shared_ptr<NodeAttrCmd> create(
@@ -156,8 +156,7 @@ namespace ibis
                 const std::string&,
                 const nlohmann::json&);
 
-            void set(const std::vector<std::pair<std::string, nlohmann::json > >&);
-            void set(const std::string&, const nlohmann::json&);
+            void set(const NodeAttr&);
 
             void exec() override;
             void undo() override;
@@ -165,8 +164,8 @@ namespace ibis
         private:
             std::shared_ptr<Graph> _graph;
             std::shared_ptr<INode> _node;
-            std::vector<std::pair<std::string, nlohmann::json > > _attr;
-            std::vector<std::pair<std::string, nlohmann::json > > _prev;
+            NodeAttr _attr;
+            NodeAttr _prev;
         };
     }
 }

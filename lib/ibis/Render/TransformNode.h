@@ -13,7 +13,9 @@ namespace ibis
         class ResizeNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             ResizeNode();
 
@@ -23,7 +25,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
@@ -37,7 +40,9 @@ namespace ibis
         class CropNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             CropNode();
 
@@ -47,7 +52,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
@@ -61,7 +67,9 @@ namespace ibis
         class MirrorNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             MirrorNode();
 
@@ -71,7 +79,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
@@ -85,7 +94,9 @@ namespace ibis
         class RotateNode : public INode
         {
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
 
             RotateNode();
 
@@ -95,7 +106,8 @@ namespace ibis
             static NodeInfo getClassNodeInfo();
 
             static std::shared_ptr<INode> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json& = {});
 
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
