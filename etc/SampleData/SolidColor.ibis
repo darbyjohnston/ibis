@@ -1,69 +1,35 @@
 {
     "CurrentTime": [
-        8.0,
+        4.0,
         24.0
     ],
     "Graph": {
         "Nodes": [
             {
                 "Attr": {
-                    "Mode": 2,
-                    "Offset": [
-                        0,
-                        0
-                    ]
+                    "ChannelGroup": 1,
+                    "EndFrame": 76,
+                    "Loop": 0,
+                    "Path": "D:\\Imaging\\OpenEXR\\EWR_flyover_beauty2_0066.exr",
+                    "StartFrame": 66,
+                    "SubImage": 0
                 },
-                "ID": "Over",
-                "Inputs": [
-                    {
-                        "Index": 1,
-                        "Output": 0
-                    },
-                    {
-                        "Index": 2,
-                        "Output": 0
-                    }
-                ],
+                "ID": "ImageSequence",
                 "Pos": [
-                    737,
-                    187
+                    142,
+                    22
                 ]
             },
             {
                 "Attr": {
-                    "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\Charlie.jpg"
+                    "ChannelGroup": 0,
+                    "Path": "C:\\Users\\darby\\Downloads\\SoleMates-1.0.0\\lighting_render_layers\\unh0400_0010_render_lighting_vol__all_layer_frames_v005\\unh0400_0010_render_lighting_vol__all_layer_frames_v005.1037.exr",
+                    "SubImage": 35
                 },
                 "ID": "ImageFile",
                 "Pos": [
-                    306,
-                    48
-                ]
-            },
-            {
-                "Attr": {
-                    "Scale": 23.111879348754883,
-                    "Size": [
-                        1024,
-                        1024
-                    ]
-                },
-                "ID": "Noise",
-                "Pos": [
-                    294,
-                    384
-                ]
-            },
-            {
-                "ID": "Invert",
-                "Inputs": [
-                    {
-                        "Index": 0,
-                        "Output": 0
-                    }
-                ],
-                "Pos": [
-                    1192,
-                    177
+                    481,
+                    12
                 ]
             }
         ]
@@ -74,9 +40,9 @@
             24.0
         ],
         [
-            24.0,
+            10.0,
             24.0
         ]
     ],
-    "ViewNode": 3
+    "ViewNode": 1
 }
