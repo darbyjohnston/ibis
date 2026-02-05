@@ -42,6 +42,8 @@ namespace ibis
 
             static NodeInfo getClassNodeInfo();
 
+            static std::vector<std::string> getExts();
+
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json& = {});
@@ -73,6 +75,8 @@ namespace ibis
             virtual ~ImageSequenceNode();
 
             static NodeInfo getClassNodeInfo();
+
+            static std::vector<std::string> getExts();
 
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&,
@@ -106,6 +110,8 @@ namespace ibis
 
             static NodeInfo getClassNodeInfo();
 
+            static std::vector<std::string> getExts();
+
             static std::shared_ptr<INode> create(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json& = {});
@@ -117,5 +123,9 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+
+        std::shared_ptr<INode> createInputNode(
+            const std::shared_ptr<ftk::Context>&,
+            const std::string& fileName);
     }
 }

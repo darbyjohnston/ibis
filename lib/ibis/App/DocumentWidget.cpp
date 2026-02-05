@@ -85,6 +85,13 @@ namespace ibis
         return _p->viewport;
     }
 
+    ftk::Box2I DocumentWidget::getCanvasViewportRect() const
+    {
+        FTK_P();
+        auto scrollArea = p.canvasScrollWidget->getScrollArea();
+        return scrollArea->getGeometry();
+    }
+
     ftk::Box2I DocumentWidget::getCanvasViewRect() const
     {
         FTK_P();

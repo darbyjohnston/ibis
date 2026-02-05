@@ -254,6 +254,23 @@ namespace ibis
             }
         }
 
+        std::vector<std::string> ImageFileNode::getExts()
+        {
+            std::vector<std::string> out;
+            for (const auto& i : OIIO::get_extension_map())
+            {
+                // Filter out FFmpeg extensions.
+                if (i.first != "ffmpeg")
+                {
+                    for (const auto& ext : i.second)
+                    {
+                        out.push_back("." + ext);
+                    }
+                }
+            }
+            return out;
+        }
+
         struct ImageFileNode::Private
         {
             std::string path;
@@ -468,6 +485,11 @@ namespace ibis
                 }
             }
             _outputInfo->setItemOnlyIfChanged(0, info);
+        }
+
+        std::vector<std::string> ImageSequenceNode::getExts()
+        {
+            return ImageFileNode::getExts();
         }
 
         struct ImageSequenceNode::Private

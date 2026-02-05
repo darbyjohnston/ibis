@@ -45,6 +45,7 @@ namespace ibis
 
         std::shared_ptr<ui::Viewport> getViewport() const;
 
+        ftk::Box2I getCanvasViewportRect() const;
         ftk::Box2I getCanvasViewRect() const;
 
         ftk::Size2I getSizeHint() const override;

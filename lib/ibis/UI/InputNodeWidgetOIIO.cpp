@@ -12,9 +12,13 @@
 #include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
+#include <ftk/UI/Icon.h>
 #include <ftk/UI/IntEdit.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
+
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
@@ -32,6 +36,32 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
 
+        namespace
+        {
+            std::string getExtTooltip(const std::vector<std::string>& exts)
+            {
+                std::vector<std::string> lines;
+                std::vector<std::string> tmp;
+                for (const auto& ext : exts)
+                {
+                    if (tmp.size() >= 10)
+                    {
+                        lines.push_back(ftk::join(tmp, ", "));
+                        tmp.clear();
+                    }
+                    else
+                    {
+                        tmp.push_back(ext);
+                    }
+                }
+                if (!tmp.empty())
+                {
+                    lines.push_back(ftk::join(tmp, ", "));
+                }
+                return ftk::join(lines, ",\n");
+            }
+        }
+
         void ImageFileNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
@@ -43,13 +73,23 @@ namespace ibis
 
             p.fileEdit = ftk::FileEdit::create(context);
 
+            auto infoIcon = ftk::Icon::create(context, "Info");
+            infoIcon->setTooltip(
+                ftk::Format("Supported file extensions:\n{0}").
+                arg(getExtTooltip(render::ImageFileNode::getExts())));
+
             p.subImageComboBox = ftk::ComboBox::create(context);
 
             p.channelsComboBox = ftk::ComboBox::create(context);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Path:", p.fileEdit);
+            auto hLayout = ftk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            hLayout->setHStretch(ftk::Stretch::Expanding);
+            p.fileEdit->setParent(hLayout);
+            infoIcon->setParent(hLayout);
+            formLayout->addRow("Path:", hLayout);
             formLayout->addRow("Sub-image:", p.subImageComboBox);
             formLayout->addRow("Channels:", p.channelsComboBox);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
@@ -178,6 +218,11 @@ namespace ibis
 
             p.fileEdit = ftk::FileEdit::create(context);
 
+            auto infoIcon = ftk::Icon::create(context, "Info");
+            infoIcon->setTooltip(
+                ftk::Format("Supported file extensions:\n{0}").
+                arg(getExtTooltip(render::ImageSequenceNode::getExts())));
+
             p.subImageComboBox = ftk::ComboBox::create(context);
 
             p.channelsComboBox = ftk::ComboBox::create(context);
@@ -192,7 +237,12 @@ namespace ibis
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Path:", p.fileEdit);
+            auto hLayout = ftk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            hLayout->setHStretch(ftk::Stretch::Expanding);
+            p.fileEdit->setParent(hLayout);
+            infoIcon->setParent(hLayout);
+            formLayout->addRow("Path:", hLayout);
             formLayout->addRow("Sub-image:", p.subImageComboBox);
             formLayout->addRow("Channels:", p.channelsComboBox);
             formLayout->addRow("Start frame:", p.startFrameEdit);

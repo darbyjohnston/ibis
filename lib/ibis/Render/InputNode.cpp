@@ -78,6 +78,11 @@ namespace ibis
             return { "SVGFile", "SVG File", "Input" };
         }
 
+        std::vector<std::string> SVGFileNode::getExts()
+        {
+            return std::vector<std::string>({ ".svg" });
+        }
+
         std::shared_ptr<INode> SVGFileNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
@@ -159,6 +164,54 @@ namespace ibis
                 _outputs[0] ?
                 ftk::gl::TextureInfo(_outputs[0]->getSize(), _outputs[0]->getType()) :
                 ftk::gl::TextureInfo());
+        }
+
+        std::shared_ptr<INode> createInputNode(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::string& fileName)
+        {
+            std::shared_ptr<render::INode> out;
+
+            const auto imageExts = render::ImageFileNode::getExts();
+            const auto sequenceExts = render::ImageSequenceNode::getExts();
+            const auto svgExts = render::SVGFileNode::getExts();
+
+            ftk::Path path(fileName);
+            const std::string ext = path.getExt();
+            if (std::find(sequenceExts.begin(), sequenceExts.end(), ext) != sequenceExts.end() &&
+                path.hasNum())
+            {
+                path = ftk::expandSeq(path);
+            }
+
+            if (path.isSeq())
+            {
+                nlohmann::json json;
+                json["Path"] = fileName;
+                int startFrame = 0;
+                int endFrame = 0;
+                if (path.getFrames().has_value())
+                {
+                    startFrame = path.getFrames()->min();
+                    endFrame = path.getFrames()->max();
+                }
+                json["StartFrame"] = startFrame;
+                json["EndFrame"] = endFrame;
+                out = render::ImageSequenceNode::create(context, json);
+            }
+            else if (std::find(imageExts.begin(), imageExts.end(), ext) != imageExts.end())
+            {
+                nlohmann::json json;
+                json["Path"] = fileName;
+                out = render::ImageFileNode::create(context, json);
+            }
+            else if (std::find(svgExts.begin(), svgExts.end(), ext) != svgExts.end())
+            {
+                nlohmann::json json;
+                json["Path"] = fileName;
+                out = render::SVGFileNode::create(context, json);
+            }
+            return out;
         }
     }
 }

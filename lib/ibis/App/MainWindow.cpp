@@ -24,6 +24,10 @@
 
 #include <ibis/Models/DocumentModel.h>
 
+#include <ibis/Render/GraphCmd.h>
+#include <ibis/Render/InputNode.h>
+#include <ibis/Render/NodeFactory.h>
+
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/IconSystem.h>
 #include <ftk/UI/Menu.h>
@@ -264,11 +268,38 @@ namespace ibis
         event.accept = true;
         if (auto textData = std::dynamic_pointer_cast<ftk::DragDropTextData>(event.data))
         {
-            if (auto app = getApp())
+            auto context = getContext();
+            auto app = std::dynamic_pointer_cast<App>(getApp());
+            auto document = app->getDocumentModel()->getCurrent();
+
+            ftk::V2I pos = event.pos;
+            if (auto documentWidget = app->getMainWindow()->getDocumentWidget())
             {
-                for (const auto& fileName : textData->getText())
+                pos = pos -
+                    documentWidget->getCanvasViewportRect().min +
+                    documentWidget->getCanvasViewRect().min;
+            }
+
+            for (const auto& fileName : textData->getText())
+            {
+                ftk::Path path(fileName);
+                const std::string ext = path.getExt();
+                if (".ibis" == ext)
                 {
-                    //app->open(ftk::Path(fileName));
+                    app->open(path);
+                }
+                else if (document)
+                {
+                    if (auto node = render::createInputNode(context, fileName))
+                    {
+                        document->command(
+                            render::AddNodesCmd::create(
+                                document->getGraph(),
+                                { node },
+                                { pos }));
+                        pos.x += 100;
+                        pos.y += 100;
+                    }
                 }
             }
         }

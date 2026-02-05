@@ -10,9 +10,13 @@
 #include <ibis/Render/InputNode.h>
 
 #include <ftk/UI/Bellows.h>
+#include <ftk/UI/Icon.h>
 #include <ftk/UI/FileEdit.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
+
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
@@ -37,9 +41,19 @@ namespace ibis
 
             p.fileEdit = ftk::FileEdit::create(context);
 
+            auto infoIcon = ftk::Icon::create(context, "Info");
+            infoIcon->setTooltip(
+                ftk::Format("Supported file extensions:\n{0}").
+                arg(ftk::join(render::SVGFileNode::getExts(), ", ")));
+
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Path:", p.fileEdit);
+            auto hLayout = ftk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            hLayout->setHStretch(ftk::Stretch::Expanding);
+            p.fileEdit->setParent(hLayout);
+            infoIcon->setParent(hLayout);
+            formLayout->addRow("Path:", hLayout);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
