@@ -8,6 +8,7 @@ set(HEADERS
     Init.h
     InputNodeWidget.h
     MathNodeWidget.h
+    MessagesWidget.h
     NodeBrowser.h
     NodeDragDrop.h
     NodeEditor.h
@@ -17,6 +18,7 @@ set(HEADERS
     PlaybackLoopWidget.h
     PlaybackToolBar.h
     SettingsWidget.h
+    StatusBar.h
     SysLogWidget.h
     TimeEdit.h
     TimeLabel.h
@@ -36,6 +38,7 @@ set(SOURCE
     Init.cpp
     InputNodeWidget.cpp
     MathNodeWidget.cpp
+    MessagesWidget.cpp
     NodeBrowser.cpp
     NodeDragDrop.cpp
     NodeEditor.cpp
@@ -45,6 +48,7 @@ set(SOURCE
     PlaybackLoopWidget.cpp
     PlaybackToolBar.cpp
     SettingsWidget.cpp
+    StatusBar.cpp
     SysLogWidget.cpp
     TimeEdit.cpp
     TimeLabel.cpp

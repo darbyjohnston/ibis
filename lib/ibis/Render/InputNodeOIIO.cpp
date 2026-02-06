@@ -309,9 +309,10 @@ namespace ibis
                     }
                     p.subImages = getSubImages(oiioInput.get());
                 }
-                catch (const std::exception&)
+                catch (const std::exception& e)
                 {
-                    //! \todo
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
                 }
             }
 
@@ -381,9 +382,10 @@ namespace ibis
                         }
                         p.subImages = getSubImages(oiioInput.get());
                     }
-                    catch (const std::exception&)
+                    catch (const std::exception& e)
                     {
-                        //! \todo
+                        auto logSystem = _context.lock()->getLogSystem();
+                        logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
                     }
                 }
                 p.subImageNames->setIfChanged(getSubImageNames(p.subImages));
@@ -459,9 +461,10 @@ namespace ibis
                             throw std::runtime_error(OIIO::geterror());
                         }
                     }
-                    catch (const std::exception&)
+                    catch (const std::exception& e)
                     {
-                        //! \todo
+                        auto logSystem = _context.lock()->getLogSystem();
+                        logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
                     }
                 }
             }
@@ -538,9 +541,10 @@ namespace ibis
                     }
                     p.subImages = getSubImages(oiioInput.get());
                 }
-                catch (const std::exception&)
+                catch (const std::exception& e)
                 {
-                    //! \todo
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::ImageSequenceNode", e.what(), ftk::LogType::Error);
                 }
             }
 
@@ -611,9 +615,10 @@ namespace ibis
                         }
                         p.subImages = getSubImages(oiioInput.get());
                     }
-                    catch (const std::exception&)
+                    catch (const std::exception& e)
                     {
-                        //! \todo
+                        auto logSystem = _context.lock()->getLogSystem();
+                        logSystem->print("ibis::render::ImageSequenceNode", e.what(), ftk::LogType::Error);
                     }
                 }
                 p.subImageNames->setIfChanged(getSubImageNames(p.subImages));
@@ -706,9 +711,10 @@ namespace ibis
                         throw std::runtime_error(OIIO::geterror());
                     }
                 }
-                catch (const std::exception&)
+                catch (const std::exception& e)
                 {
-                    //! \todo
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::ImageSequenceNode", e.what(), ftk::LogType::Error);
                 }
             }
 

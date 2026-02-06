@@ -43,13 +43,15 @@ namespace ibis
             ftk::Key::F2,
             ftk::Key::F3,
             ftk::Key::F4,
-            ftk::Key::F5
+            ftk::Key::F5,
+            ftk::Key::F6
         };
         const std::vector<std::string> sidePanelTooltips =
         {
             "Toggle the node browser.",
             "Toggle the node editor.",
             "Toggle the settings.",
+            "Toggle the messages.",
             "Toggle the diagnostics.",
             "Toggle the system log."
         };

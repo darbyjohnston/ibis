@@ -22,6 +22,8 @@
 #include "WindowMenu.h"
 #include "WindowToolBar.h"
 
+#include <ibis/UI/StatusBar.h>
+
 #include <ibis/Models/DocumentModel.h>
 
 #include <ibis/Render/GraphCmd.h>
@@ -38,6 +40,7 @@
 #include <ftk/UI/ToolBar.h>
 #include <ftk/UI/Splitter.h>
 #include <ftk/UI/StackLayout.h>
+#include <ftk/Core/Format.h>
 
 namespace ibis
 {
@@ -57,6 +60,7 @@ namespace ibis
         std::shared_ptr<ftk::StackLayout> documentLayout;
         std::shared_ptr<SidePanelWidget> sidePanelWidget;
         std::shared_ptr<ftk::Splitter> splitter;
+        std::shared_ptr<ui::StatusBar> statusBar;
         std::shared_ptr<ftk::VerticalLayout> layout;
 
         std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > documentsObserver;
@@ -108,6 +112,13 @@ namespace ibis
         p.documentLayout = ftk::StackLayout::create(context);
         p.documentLayout->setVStretch(ftk::Stretch::Expanding);
 
+        p.statusBar = ui::StatusBar::create(context, app->getMessagesModel());
+        p.statusBar->setCallback(
+            [this]
+            {
+                setSidePanel(SidePanel::Messages);
+            });
+
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);
         auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
@@ -127,6 +138,7 @@ namespace ibis
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.documentLayout->setParent(vLayout);
         p.sidePanelWidget->setParent(p.splitter);
+        p.statusBar->setParent(p.layout);
 
         setWidget(p.layout);
 
@@ -296,18 +308,22 @@ namespace ibis
                     {
                         app->open(path);
                     }
+                    else if (auto node = render::createInputNode(context, fileName))
+                    {
+                        document->command(
+                            render::AddNodesCmd::create(
+                                document->getGraph(),
+                                { node },
+                                { pos }));
+                        pos.x += 100;
+                        pos.y += 100;
+                    }
                     else
                     {
-                        if (auto node = render::createInputNode(context, fileName))
-                        {
-                            document->command(
-                                render::AddNodesCmd::create(
-                                    document->getGraph(),
-                                    { node },
-                                    { pos }));
-                            pos.x += 100;
-                            pos.y += 100;
-                        }
+                        context->getLogSystem()->print(
+                            "ibis::MainWindow",
+                            ftk::Format("Unknown file format: {0}").arg(path.getFileName()),
+                            ftk::LogType::Error);
                     }
                 }
             }

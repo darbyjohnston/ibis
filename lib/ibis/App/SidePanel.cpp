@@ -6,6 +6,7 @@
 #include "App.h"
 
 #include <ibis/UI/DiagWidget.h>
+#include <ibis/UI/MessagesWidget.h>
 #include <ibis/UI/NodeBrowser.h>
 #include <ibis/UI/NodeEditor.h>
 #include <ibis/UI/SettingsWidget.h>
@@ -25,6 +26,7 @@ namespace ibis
         "Node Browser",
         "Node Editor",
         "Settings",
+        "Messages",
         "Diagnostics",
         "System Log");
 
@@ -138,6 +140,12 @@ namespace ibis
             break;
         case SidePanel::Settings:
             p.currentWidget = ui::SettingsWidget::create(context, p.layout);
+            break;
+        case SidePanel::Messages:
+            p.currentWidget = ui::MessagesWidget::create(
+                context,
+                app->getMessagesModel(),
+                p.layout);
             break;
         case SidePanel::Diag:
             p.currentWidget = ui::DiagWidget::create(context, p.layout);

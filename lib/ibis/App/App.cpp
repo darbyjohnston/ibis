@@ -8,6 +8,7 @@
 #include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ibis/Models/DocumentModel.h>
+#include <ibis/Models/MessagesModel.h>
 #include <ibis/Models/TimeUnitsModel.h>
 
 #include <ibis/Render/NodeFactory.h>
@@ -30,6 +31,7 @@ namespace ibis
         };
         CmdLine cmdLine;
 
+        std::shared_ptr<models::MessagesModel> messagesModel;
         std::shared_ptr<ftk::RecentFilesModel> recentFilesModel;
         std::shared_ptr<models::TimeUnitsModel> timeUnitsModel;
         std::shared_ptr<render::NodeFactory> nodeFactory;
@@ -72,6 +74,11 @@ namespace ibis
         auto out = std::shared_ptr<App>(new App);
         out->_init(context, argv);
         return out;
+    }
+
+    const std::shared_ptr<models::MessagesModel>& App::getMessagesModel() const
+    {
+        return _p->messagesModel;
     }
 
     const std::shared_ptr<ftk::RecentFilesModel>& App::getRecentFilesModel() const
@@ -170,6 +177,7 @@ namespace ibis
 
         ui::init(_context);
 
+        p.messagesModel = models::MessagesModel::create(_context);
         p.recentFilesModel = ftk::RecentFilesModel::create(_context);
         p.timeUnitsModel = models::TimeUnitsModel::create(_context);
         p.nodeFactory = render::NodeFactory::create(_context);

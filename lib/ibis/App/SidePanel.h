@@ -19,6 +19,7 @@ namespace ibis
         NodeBrowser,
         NodeEditor,
         Settings,
+        Messages,
         Diag,
         SysLog,
 

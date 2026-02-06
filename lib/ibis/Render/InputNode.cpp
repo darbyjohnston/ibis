@@ -130,9 +130,10 @@ namespace ibis
                         }
                     }
                 }
-                catch (const std::exception&)
+                catch (const std::exception& e)
                 {
-                    //! \todo
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::SVGFileNode", e.what(), ftk::LogType::Error);
                 }
             }
 

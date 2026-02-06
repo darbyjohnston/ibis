@@ -17,6 +17,7 @@ namespace ibis
     namespace models
     {
         class DocumentModel;
+        class MessagesModel;
         class TimeUnitsModel;
     }
 
@@ -46,6 +47,7 @@ namespace ibis
             const std::shared_ptr<ftk::Context>&,
             std::vector<std::string>&);
 
+        const std::shared_ptr<models::MessagesModel>& getMessagesModel() const;
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
         const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;
         const std::shared_ptr<render::NodeFactory>& getNodeFactory() const;
