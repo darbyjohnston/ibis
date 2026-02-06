@@ -7,6 +7,7 @@
 
 #include <ibis/UI/TimelineWidget.h>
 #include <ibis/UI/NodeGraphCanvas.h>
+#include <ibis/UI/NodeMiniMap.h>
 #include <ibis/UI/Viewport.h>
 
 #include <ibis/Models/Document.h>
@@ -22,6 +23,7 @@ namespace ibis
     {
         std::shared_ptr<ui::Viewport> viewport;
         std::shared_ptr<ui::NodeGraphCanvas> canvas;
+        std::shared_ptr<ui::NodeMiniMap> miniMap;
         std::shared_ptr<ftk::ScrollWidget> canvasScrollWidget;
         std::shared_ptr<ui::TimelineWidget> timelineWidget;
         std::shared_ptr<ftk::Splitter> splitter;
@@ -50,6 +52,8 @@ namespace ibis
             app->getTimeUnitsModel(),
             document->getTimeModel());
 
+        p.miniMap = ui::NodeMiniMap::create(context);
+
         p.layout = ftk::VerticalLayout::create(context, shared_from_this());
         p.layout->setSpacingRole(ftk::SizeRole::None);
         p.splitter = ftk::Splitter::create(context, ftk::Orientation::Vertical, p.layout);
@@ -58,8 +62,27 @@ namespace ibis
         p.canvasScrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, p.splitter);
         p.canvasScrollWidget->setBorder(false);
         p.canvasScrollWidget->setWidget(p.canvas);
+        p.canvasScrollWidget->setViewportWidget(p.miniMap);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
         p.timelineWidget->setParent(p.layout);
+
+        p.canvasScrollWidget->setScrollInfoCallback(
+            [this](const ftk::ScrollInfo& value)
+            {
+                _p->miniMap->setScrollInfo(value);
+            });
+
+        p.canvas->setChildGeometryCallback(
+            [this](const std::vector<ftk::Box2I>& value)
+            {
+                _p->miniMap->setChildGeometry(value);
+            });
+
+        p.miniMap->setCallback(
+            [this](const ftk::V2I& value)
+            {
+                _p->canvasScrollWidget->setScrollPos(value);
+            });
     }
 
     DocumentWidget::DocumentWidget() :

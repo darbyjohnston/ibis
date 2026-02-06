@@ -26,8 +26,10 @@ namespace ibis
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::NodeFactory> nodeFactory;
             std::map<std::string, std::shared_ptr<ftk::Action> > editActions;
-            ftk::Size2I canvasSize = ftk::Size2I(4000, 4000);
+            ftk::Size2I canvasSize = ftk::Size2I(2000, 2000);
             ftk::Size2I gridSize = ftk::Size2I(100, 100);
+            std::function<void(const std::vector<ftk::Box2I>&)> childGeometryCallback;
+            std::vector<ftk::Box2I> childGeomPrev;
 
             std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
             std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
@@ -78,6 +80,7 @@ namespace ibis
 
                 // Data for connecting nodes.
                 std::optional<Connect> connect;
+                std::shared_ptr<INodeGraphPort> connectPort;
 
                 // Auto-scroll timer.
                 std::shared_ptr<ftk::Timer> autoScrollTimer;
@@ -185,6 +188,12 @@ namespace ibis
             }
         }
 
+        void NodeGraphCanvas::setChildGeometryCallback(
+            const std::function<void(const std::vector<ftk::Box2I>&)>& value)
+        {
+            _p->childGeometryCallback = value;
+        }
+
         ftk::Size2I NodeGraphCanvas::getSizeHint() const
         {
             return _p->size.canvas;
@@ -194,6 +203,8 @@ namespace ibis
         {
             IWidget::setGeometry(value);
             FTK_P();
+
+            std::vector<ftk::Box2I> childGeomList;
             for (const auto i : p.nodeToWidget)
             {
                 const ftk::Size2I sizeHint = i.second->getSizeHint();
@@ -206,7 +217,14 @@ namespace ibis
                     pos = j->second;
                 }
                 i.second->setGeometry(ftk::Box2I(pos + value.min, sizeHint));
+                childGeomList.push_back(ftk::Box2I(pos, sizeHint));
             }
+            if (childGeomList != p.childGeomPrev && p.childGeometryCallback)
+            {
+                p.childGeometryCallback(childGeomList);
+            }
+            p.childGeomPrev = childGeomList;
+
             if (p.viewInit)
             {
                 auto scrollWidget = getParentT<ftk::ScrollWidget>();
@@ -389,6 +407,42 @@ namespace ibis
                 break;
 
             case Private::MouseMode::ConnectNodes:
+                if (p.mouse.connect.has_value())
+                {
+                    const auto& graph = p.document->getGraph();
+                    std::shared_ptr<INodeGraphPort> port;
+                    if (p.mouse.connect->input != -1)
+                    {
+                        const auto output = _getOutput(p.mouse.pos);
+                        if (output.has_value())
+                        {
+                            port = output->widget->getOutputs()[output->output];
+                        }
+                    }
+                    else if (p.mouse.connect->output != -1)
+                    {
+                        const auto input = _getInput(p.mouse.pos);
+                        if (input.has_value())
+                        {
+                            port = input->widget->getInputs()[input->input];
+                        }
+                    }
+                    if (port != p.mouse.connectPort)
+                    {
+                        if (p.mouse.connectPort)
+                        {
+                            p.mouse.connectPort->setBackgroundRole(ftk::ColorRole::None);
+                        }
+                        p.mouse.connectPort = port;
+                        if (p.mouse.connectPort)
+                        {
+                            p.mouse.connectPort->setBackgroundRole(ftk::ColorRole::Checked);
+                        }
+                    }
+                    setDrawUpdate();
+                }
+                break;
+
             case Private::MouseMode::Select:
                 setDrawUpdate();
                 break;
@@ -586,6 +640,10 @@ namespace ibis
                                     p.mouse.connect->node,
                                     p.mouse.connect->output));
                         }
+                    }
+                    if (p.mouse.connectPort)
+                    {
+                        p.mouse.connectPort->setBackgroundRole(ftk::ColorRole::None);
                     }
                     p.mouse.connect.reset();
                     setDrawUpdate();

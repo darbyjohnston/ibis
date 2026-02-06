@@ -14,6 +14,7 @@ set(HEADERS
     NodeEditor.h
     NodeGraphCanvas.h
     NodeGraphWidget.h
+    NodeMiniMap.h
     NodeWidgetFactory.h
     PlaybackLoopWidget.h
     PlaybackToolBar.h
@@ -44,6 +45,7 @@ set(SOURCE
     NodeEditor.cpp
     NodeGraphCanvas.cpp
     NodeGraphWidget.cpp
+    NodeMiniMap.cpp
     NodeWidgetFactory.cpp
     PlaybackLoopWidget.cpp
     PlaybackToolBar.cpp

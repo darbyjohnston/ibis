@@ -52,6 +52,9 @@ namespace ibis
 
             void scrollTo(const std::shared_ptr<render::INode>&);
 
+            void setChildGeometryCallback(
+                const std::function<void(const std::vector<ftk::Box2I>&)>&);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;

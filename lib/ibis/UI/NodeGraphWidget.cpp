@@ -70,8 +70,20 @@ namespace ibis
 
         void INodeGraphPort::sizeHintEvent(const ftk::SizeHintEvent& event)
         {}
+        
+        void INodeGraphPort::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
+        {
+            FTK_P();
+            IMouseWidget::drawEvent(drawRect, event);
+            if (_isMouseInside())
+            {
+                event.render->drawRect(
+                    getGeometry(),
+                    event.style->getColorRole(ftk::ColorRole::Hover));
+            }
+        }
 
-        void INodeGraphPort::mouseEnterEvent(ftk::MouseEnterEvent & event)
+        void INodeGraphPort::mouseEnterEvent(ftk::MouseEnterEvent& event)
         {
             IMouseWidget::mouseEnterEvent(event);
             setDrawUpdate();
@@ -81,17 +93,6 @@ namespace ibis
         {
             IMouseWidget::mouseLeaveEvent();
             setDrawUpdate();
-        }
-        
-        void INodeGraphPort::drawEvent(const ftk::Box2I& drawRect, const ftk::DrawEvent& event)
-        {
-            FTK_P();
-            if (_isMouseInside())
-            {
-                event.render->drawRect(
-                    getGeometry(),
-                    event.style->getColorRole(ftk::ColorRole::Hover));
-            }
         }
 
         NodeGraphInput::~NodeGraphInput()
