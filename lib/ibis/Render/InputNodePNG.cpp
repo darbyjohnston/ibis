@@ -53,6 +53,11 @@ namespace ibis
             return { "ImageFile", "Image File", "Input" };
         }
 
+        std::vector<std::string> ImageFileNode::getExts()
+        {
+            return std::vector<std::string>({ ".png" });
+        }
+
         std::shared_ptr<INode> ImageFileNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
@@ -177,6 +182,11 @@ namespace ibis
         NodeInfo ImageSequenceNode::getClassNodeInfo()
         {
             return { "ImageSequence", "Image Sequence", "Input" };
+        }
+
+        std::vector<std::string> ImageSequenceNode::getExts()
+        {
+            return ImageFileNode::getExts();
         }
 
         std::shared_ptr<INode> ImageSequenceNode::create(
