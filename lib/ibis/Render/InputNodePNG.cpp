@@ -243,25 +243,27 @@ namespace ibis
                 loop,
                 time + timeRange.start_time(),
                 timeRange);
-
-            if (!p.path.empty() && timeRange.contains(time2))
+            if (time2 != p.time || !timeRange.contains(time2))
             {
-                if (!p.image || time2 != p.time)
+                p.time = time2;
+                p.image.reset();
+                _outputs[0].reset();
+            }
+
+            if (!p.path.empty() && !p.image)
+            {
+                try
                 {
-                    p.time = time2;
-                    try
+                    auto ioSystem = _context.lock()->getSystem<ftk::ImageIO>();
+                    const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
+                    if (auto read = ioSystem->read(std::filesystem::u8path(fileName)))
                     {
-                        auto ioSystem = _context.lock()->getSystem<ftk::ImageIO>();
-                        const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
-                        if (auto read = ioSystem->read(std::filesystem::u8path(fileName)))
-                        {
-                            p.image = read->read();
-                        }
+                        p.image = read->read();
                     }
-                    catch (const std::exception&)
-                    {
-                        //! \todo
-                    }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo
                 }
             }
 

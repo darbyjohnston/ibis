@@ -270,7 +270,13 @@ namespace ibis
         {
             auto context = getContext();
             auto app = std::dynamic_pointer_cast<App>(getApp());
+
             auto document = app->getDocumentModel()->getCurrent();
+            if (!document)
+            {
+                app->newDocument();
+                document = app->getDocumentModel()->getCurrent();
+            }
 
             ftk::V2I pos = event.pos;
             if (auto documentWidget = app->getMainWindow()->getDocumentWidget())
@@ -280,25 +286,28 @@ namespace ibis
                     documentWidget->getCanvasViewRect().min;
             }
 
-            for (const auto& fileName : textData->getText())
+            if (document)
             {
-                ftk::Path path(fileName);
-                const std::string ext = path.getExt();
-                if (".ibis" == ext)
+                for (const auto& fileName : textData->getText())
                 {
-                    app->open(path);
-                }
-                else if (document)
-                {
-                    if (auto node = render::createInputNode(context, fileName))
+                    ftk::Path path(fileName);
+                    const std::string ext = path.getExt();
+                    if (".ibis" == ext)
                     {
-                        document->command(
-                            render::AddNodesCmd::create(
-                                document->getGraph(),
-                                { node },
-                                { pos }));
-                        pos.x += 100;
-                        pos.y += 100;
+                        app->open(path);
+                    }
+                    else
+                    {
+                        if (auto node = render::createInputNode(context, fileName))
+                        {
+                            document->command(
+                                render::AddNodesCmd::create(
+                                    document->getGraph(),
+                                    { node },
+                                    { pos }));
+                            pos.x += 100;
+                            pos.y += 100;
+                        }
                     }
                 }
             }

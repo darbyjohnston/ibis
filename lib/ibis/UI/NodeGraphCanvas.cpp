@@ -32,6 +32,7 @@ namespace ibis
             std::map<std::shared_ptr<render::INode>, std::shared_ptr<NodeGraphWidget> > nodeToWidget;
             std::map<std::shared_ptr<NodeGraphWidget>, std::shared_ptr<render::INode> > widgetToNode;
             std::map<std::shared_ptr<render::INode>, ftk::V2I> nodeToPos;
+            bool viewInit = true;
             std::shared_ptr<ftk::Menu> menu;
 
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
@@ -158,6 +159,32 @@ namespace ibis
             return out;
         }
 
+        void NodeGraphCanvas::scrollTo(const std::shared_ptr<render::INode>& node)
+        {
+            FTK_P();
+            std::shared_ptr<NodeGraphWidget> widget;
+            const auto i = p.nodeToWidget.find(node);
+            if (i != p.nodeToWidget.end())
+            {
+                widget = i->second;
+            }
+            if (node && widget)
+            {
+                const ftk::Box2I& widgetGeom = widget->getGeometry();
+                ftk::V2I pos;
+                const auto i = p.nodeToPos.find(node);
+                if (i != p.nodeToPos.end())
+                {
+                    pos = pos + i->second + ftk::V2I(widgetGeom.w() / 2, widgetGeom.h() / 2);
+                }
+                auto scrollWidget = getParentT<ftk::ScrollWidget>();
+                const ftk::Box2I& scrollGeom = scrollWidget->getScrollArea()->getGeometry();
+                pos.x -= scrollGeom.w() / 2;
+                pos.y -= scrollGeom.h() / 2;
+                scrollWidget->setScrollPos(pos);
+            }
+        }
+
         ftk::Size2I NodeGraphCanvas::getSizeHint() const
         {
             return _p->size.canvas;
@@ -179,6 +206,20 @@ namespace ibis
                     pos = j->second;
                 }
                 i.second->setGeometry(ftk::Box2I(pos + value.min, sizeHint));
+            }
+            if (p.viewInit)
+            {
+                auto scrollWidget = getParentT<ftk::ScrollWidget>();
+                if (scrollWidget->getScrollSize().isValid())
+                {
+                    p.viewInit = false;
+                    std::shared_ptr<render::INode> node;
+                    if (!p.nodeToWidget.empty())
+                    {
+                        node = p.nodeToWidget.begin()->first;
+                    }
+                    scrollTo(node);
+                }
             }
         }
 

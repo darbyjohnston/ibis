@@ -50,6 +50,8 @@ namespace ibis
                 const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
+            void scrollTo(const std::shared_ptr<render::INode>&);
+
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;

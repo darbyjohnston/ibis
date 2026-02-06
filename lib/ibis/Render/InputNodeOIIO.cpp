@@ -425,6 +425,10 @@ namespace ibis
                     try
                     {
                         const auto oiioInput = OIIO::ImageInput::open(p.path);
+                        if (!oiioInput)
+                        {
+                            throw std::runtime_error(OIIO::geterror());
+                        }
                         auto subImages = getSubImages(oiioInput.get());
                         std::optional<ChannelGroup> group;
                         if (p.subImage >= 0 &&
@@ -655,50 +659,56 @@ namespace ibis
                 loop,
                 time + timeRange.start_time(),
                 timeRange);
-
-            if (!p.path.empty() && timeRange.contains(time2))
+            if (time2 != p.time || !timeRange.contains(time2))
             {
-                if (!p.image || time2 != p.time)
-                {
-                    p.time = time2;
-                    try
-                    {
-                        const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
-                        const auto oiioInput = OIIO::ImageInput::open(fileName);
-                        auto subImages = getSubImages(oiioInput.get());
-                        std::optional<ChannelGroup> group;
-                        if (p.subImage >= 0 &&
-                            p.subImage < subImages.size() &&
-                            p.channelGroup >= 0 &&
-                            p.channelGroup < subImages[p.subImage].channels.size())
-                        {
-                            group = subImages[p.subImage].channels[p.channelGroup];
-                        }
-                        if (!group.has_value())
-                        {
-                            std::stringstream ss;
-                            ss << "Unsupported file: " << fileName;
-                            throw std::runtime_error(ss.str());
-                        }
+                p.time = time2;
+                p.image.reset();
+                _outputs[0].reset();
+            }
 
-                        ftk::ImageInfo imageInfo(group->size, group->type);
-                        imageInfo.layout.mirror.y = true;
-                        p.image = ftk::Image::create(imageInfo);
-                        if (!oiioInput->read_image(
-                            p.subImage,
-                            0,
-                            group->start,
-                            group->start + ftk::getChannelCount(group->type),
-                            group->oiioFormat,
-                            p.image->getData()))
-                        {
-                            throw std::runtime_error(OIIO::geterror());
-                        }
-                    }
-                    catch (const std::exception&)
+            if (!p.path.empty() && !p.image)
+            {
+                try
+                {
+                    const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
+                    const auto oiioInput = OIIO::ImageInput::open(fileName);
+                    if (!oiioInput)
                     {
-                        //! \todo
+                        throw std::runtime_error(OIIO::geterror());
                     }
+                    auto subImages = getSubImages(oiioInput.get());
+                    std::optional<ChannelGroup> group;
+                    if (p.subImage >= 0 &&
+                        p.subImage < subImages.size() &&
+                        p.channelGroup >= 0 &&
+                        p.channelGroup < subImages[p.subImage].channels.size())
+                    {
+                        group = subImages[p.subImage].channels[p.channelGroup];
+                    }
+                    if (!group.has_value())
+                    {
+                        std::stringstream ss;
+                        ss << "Unsupported file: " << fileName;
+                        throw std::runtime_error(ss.str());
+                    }
+
+                    ftk::ImageInfo imageInfo(group->size, group->type);
+                    imageInfo.layout.mirror.y = true;
+                    p.image = ftk::Image::create(imageInfo);
+                    if (!oiioInput->read_image(
+                        p.subImage,
+                        0,
+                        group->start,
+                        group->start + ftk::getChannelCount(group->type),
+                        group->oiioFormat,
+                        p.image->getData()))
+                    {
+                        throw std::runtime_error(OIIO::geterror());
+                    }
+                }
+                catch (const std::exception&)
+                {
+                    //! \todo
                 }
             }
 
