@@ -112,7 +112,7 @@ namespace ibis
                             p.image = read->read();
                         }
                     }
-                    catch (const std::exception& )
+                    catch (const std::exception& e)
                     {
                         auto logSystem = _context.lock()->getLogSystem();
                         logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
