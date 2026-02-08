@@ -62,7 +62,7 @@ namespace ibis
 
         _widgetUpdate(SidePanel::First);
 
-        p.tabBar->setCurrentTabCallback(
+        p.tabBar->setCallback(
             [this](int index)
             {
                 FTK_P();
@@ -93,7 +93,7 @@ namespace ibis
 
     void SidePanelWidget::setSidePanel(SidePanel value)
     {
-        _p->tabBar->setCurrentTab(static_cast<int>(value));
+        _p->tabBar->setCurrent(static_cast<int>(value));
         _widgetUpdate(value);
     }
 

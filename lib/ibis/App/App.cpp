@@ -195,6 +195,10 @@ namespace ibis
         {
             open(ftk::Path(input));
         }
+        if (!p.documentModel->getCurrent())
+        {
+            newDocument();
+        }
 
         ftk::App::run();
     }

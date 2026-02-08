@@ -22,6 +22,7 @@
 #include "WindowMenu.h"
 #include "WindowToolBar.h"
 
+#include <ibis/UI/NodeDragDrop.h>
 #include <ibis/UI/StatusBar.h>
 
 #include <ibis/Models/DocumentModel.h>
@@ -107,7 +108,7 @@ namespace ibis
         auto viewToolBar = ViewToolBar::create(context, app, p.viewActions);
 
         p.documentTabBar = ftk::TabBar::create(context);
-        p.documentTabBar->setTabsClosable(true);
+        p.documentTabBar->setClosable(true);
 
         p.documentLayout = ftk::StackLayout::create(context);
         p.documentLayout->setVStretch(ftk::Stretch::Expanding);
@@ -143,13 +144,13 @@ namespace ibis
         setWidget(p.layout);
 
         std::weak_ptr<App> appWeak(app);
-        p.documentTabBar->setCurrentTabCallback(
+        p.documentTabBar->setCallback(
             [appWeak](int index)
             {
                 appWeak.lock()->getDocumentModel()->setCurrent(index);
             });
 
-        p.documentTabBar->setTabCloseCallback(
+        p.documentTabBar->setCloseCallback(
             [appWeak](int index)
             {
                 appWeak.lock()->getDocumentModel()->close(index);
@@ -169,7 +170,9 @@ namespace ibis
                 {
                     const auto& path = document->getPath();
                     const std::string fileName = path.filename().u8string();
-                    p.documentTabBar->addTab(fileName, path.u8string());
+                    p.documentTabBar->addTab(
+                        !fileName.empty() ? fileName : "Untitled",
+                        path.u8string());
 
                     std::shared_ptr<DocumentWidget> widget;
                     auto i = p.widgets.find(document);
@@ -207,7 +210,7 @@ namespace ibis
             [this](int value)
             {
                 FTK_P();
-                p.documentTabBar->setCurrentTab(value);
+                p.documentTabBar->setCurrent(value);
                 p.documentLayout->setCurrentIndex(value);
             });
 
@@ -239,7 +242,7 @@ namespace ibis
 
     int MainWindow::getCurrentTab() const
     {
-        return _p->documentTabBar->getCurrentTab();
+        return _p->documentTabBar->getCurrent();
     }
 
     std::shared_ptr<DocumentWidget> MainWindow::getDocumentWidget() const
@@ -275,11 +278,37 @@ namespace ibis
         p.sidePanelWidget->setSidePanel(value);
     }
 
+    void MainWindow::dragEnterEvent(ftk::DragDropEvent& event)
+    {
+        FTK_P();
+        if (std::dynamic_pointer_cast<ui::NodeDragDropData>(event.data))
+        {
+            event.accept = true;
+        }
+    }
+
+    void MainWindow::dragLeaveEvent(ftk::DragDropEvent& event)
+    {
+        FTK_P();
+        if (std::dynamic_pointer_cast<ui::NodeDragDropData>(event.data))
+        {
+            event.accept = true;
+        }
+    }
+
+    void MainWindow::dragMoveEvent(ftk::DragDropEvent& event)
+    {
+        if (std::dynamic_pointer_cast<ui::NodeDragDropData>(event.data))
+        {
+            event.accept = true;
+        }
+    }
+
     void MainWindow::dropEvent(ftk::DragDropEvent& event)
     {
-        event.accept = true;
         if (auto textData = std::dynamic_pointer_cast<ftk::DragDropTextData>(event.data))
         {
+            event.accept = true;
             auto context = getContext();
             auto app = std::dynamic_pointer_cast<App>(getApp());
 
@@ -325,6 +354,26 @@ namespace ibis
                             ftk::Format("Unknown file format: {0}").arg(path.getFileName()),
                             ftk::LogType::Error);
                     }
+                }
+            }
+        }
+        else if (auto nodeData = std::dynamic_pointer_cast<ui::NodeDragDropData>(event.data))
+        {
+            event.accept = true;
+            auto app = std::dynamic_pointer_cast<App>(getApp());
+            auto document = app->getDocumentModel()->getCurrent();
+            if (!document)
+            {
+                app->newDocument();
+                document = app->getDocumentModel()->getCurrent();
+                if (auto node = app->getNodeFactory()->createNode(nodeData->getNode()))
+                {
+                    const ftk::Box2I& g = getGeometry();
+                    document->command(
+                        render::AddNodesCmd::create(
+                            document->getGraph(),
+                            { node },
+                            { ftk::V2I(200, 200) }));
                 }
             }
         }

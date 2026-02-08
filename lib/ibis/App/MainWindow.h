@@ -38,6 +38,9 @@ namespace ibis
         std::shared_ptr<ftk::IObservable<std::pair<SidePanel, bool> > > observeSidePanel() const;
         void setSidePanel(SidePanel);
 
+        void dragEnterEvent(ftk::DragDropEvent&) override;
+        void dragLeaveEvent(ftk::DragDropEvent&) override;
+        void dragMoveEvent(ftk::DragDropEvent&) override;
         void dropEvent(ftk::DragDropEvent&) override;
 
     private:
