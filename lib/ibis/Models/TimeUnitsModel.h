@@ -10,6 +10,7 @@
 namespace ftk
 {
     class Context;
+    class Settings;
 }
 
 namespace ibis
@@ -50,7 +51,9 @@ namespace ibis
             FTK_NON_COPYABLE(TimeUnitsModel);
 
         protected:
-            void _init(const std::shared_ptr<ftk::Context>&);
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Settings>&);
 
             TimeUnitsModel();
 
@@ -59,7 +62,8 @@ namespace ibis
 
             //! Create a new model.
             static std::shared_ptr<TimeUnitsModel> create(
-                const std::shared_ptr<ftk::Context>&);
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Settings>&);
 
             //! Get the time units.
             TimeUnits getTimeUnits() const;

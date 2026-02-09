@@ -27,7 +27,8 @@ namespace ibis
             std::shared_ptr<render::NodeFactory> nodeFactory;
             std::map<std::string, std::shared_ptr<ftk::Action> > editActions;
             ftk::Size2I canvasSize = ftk::Size2I(2000, 2000);
-            ftk::Size2I gridSize = ftk::Size2I(100, 100);
+            bool grid = true;
+            int gridSize = 100;
             std::function<void(const std::vector<ftk::Box2I>&)> childGeometryCallback;
             std::vector<ftk::Box2I> childGeomPrev;
 
@@ -40,11 +41,14 @@ namespace ibis
             std::shared_ptr<ftk::Observer<bool> > changedObserver;
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > selectionObserver;
             std::shared_ptr<ftk::Observer<std::shared_ptr<render::INode> > > viewNodeObserver;
+            std::shared_ptr<ftk::Observer<ftk::Size2I> > canvasSizeObserver;
+            std::shared_ptr<ftk::Observer<bool> > gridObserver;
+            std::shared_ptr<ftk::Observer<int> > gridSizeObserver;
 
             struct SizeData
             {
                 ftk::Size2I canvas;
-                ftk::Size2I grid;
+                int grid = 0;
                 int margin = 0;
                 int border = 0;
                 int handle = 0;
@@ -140,6 +144,35 @@ namespace ibis
                     {
                         i.second->setView(i.first == node);
                     }
+                });
+
+            p.canvasSizeObserver = ftk::Observer<ftk::Size2I>::create(
+                document->observeCanvasSize(),
+                [this](const ftk::Size2I& value)
+                {
+                    FTK_P();
+                    p.canvasSize = value;
+                    setSizeUpdate();
+                    setDrawUpdate();
+                });
+
+            p.gridObserver = ftk::Observer<bool>::create(
+                document->observeGrid(),
+                [this](bool value)
+                {
+                    FTK_P();
+                    p.grid = value;
+                    setDrawUpdate();
+                });
+
+            p.gridSizeObserver = ftk::Observer<int>::create(
+                document->observeGridSize(),
+                [this](int value)
+                {
+                    FTK_P();
+                    p.gridSize = value;
+                    setSizeUpdate();
+                    setDrawUpdate();
                 });
         }
 
@@ -309,28 +342,31 @@ namespace ibis
             const ftk::Box2I& g = getGeometry();
 
             // Draw the grid.
-            std::vector<std::pair<ftk::V2I, ftk::V2I> > lines;
-            for (int y = p.size.grid.h; y < p.size.canvas.h; y += p.size.grid.h)
+            if (p.grid)
             {
-                const int y2 = g.min.y + y;
-                if (y2 >= drawRect.min.y && y2 <= drawRect.max.y)
+                std::vector<std::pair<ftk::V2I, ftk::V2I> > lines;
+                for (int y = p.size.grid; y < p.size.canvas.h; y += p.size.grid)
                 {
-                    lines.push_back(std::make_pair(
-                        ftk::V2I(g.min.x, g.min.y + y),
-                        ftk::V2I(g.max.x, g.min.y + y)));
+                    const int y2 = g.min.y + y;
+                    if (y2 >= drawRect.min.y && y2 <= drawRect.max.y)
+                    {
+                        lines.push_back(std::make_pair(
+                            ftk::V2I(g.min.x, g.min.y + y),
+                            ftk::V2I(g.max.x, g.min.y + y)));
+                    }
                 }
-            }
-            for (int x = p.size.grid.w; x < p.size.canvas.w; x += p.size.grid.w)
-            {
-                const int x2 = g.min.x + x;
-                if (x2 >= drawRect.min.x && x2 <= drawRect.max.x)
+                for (int x = p.size.grid; x < p.size.canvas.w; x += p.size.grid)
                 {
-                    lines.push_back(std::make_pair(
-                        ftk::V2I(g.min.x + x, g.min.y),
-                        ftk::V2I(g.min.x + x, g.max.y)));
+                    const int x2 = g.min.x + x;
+                    if (x2 >= drawRect.min.x && x2 <= drawRect.max.x)
+                    {
+                        lines.push_back(std::make_pair(
+                            ftk::V2I(g.min.x + x, g.min.y),
+                            ftk::V2I(g.min.x + x, g.max.y)));
+                    }
                 }
+                event.render->drawLines(lines, event.style->getColorRole(ftk::ColorRole::Border));
             }
-            event.render->drawLines(lines, event.style->getColorRole(ftk::ColorRole::Border));
 
             // Draw shadows.
             for (const auto i : p.nodeToWidget)

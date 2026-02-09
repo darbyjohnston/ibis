@@ -3,6 +3,7 @@ set(HEADERS
     DocumentModel.h
     MessagesModel.h
     NodeSelectionModel.h
+    SettingsModel.h
     TimeModel.h
     TimeUnitsModel.h)
 
@@ -11,6 +12,7 @@ set(SOURCE
     DocumentModel.cpp
     MessagesModel.cpp
     NodeSelectionModel.cpp
+    SettingsModel.cpp
     TimeModel.cpp
     TimeUnitsModel.cpp)
 

@@ -2,6 +2,7 @@ set(HEADERS
     ColorNodeWidget.h
     CompNodeWidget.h
     DiagWidget.h
+    DocumentEditor.h
     FrameToolBar.h
     GenNodeWidget.h
     INodeWidget.h
@@ -33,6 +34,7 @@ set(SOURCE
     ColorNodeWidget.cpp
     CompNodeWidget.cpp
     DiagWidget.cpp
+    DocumentEditor.cpp
     FrameToolBar.cpp
     GenNodeWidget.cpp
     INodeWidget.cpp

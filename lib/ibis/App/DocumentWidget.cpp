@@ -11,6 +11,7 @@
 #include <ibis/UI/Viewport.h>
 
 #include <ibis/Models/Document.h>
+#include <ibis/Models/SettingsModel.h>
 
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
@@ -28,6 +29,8 @@ namespace ibis
         std::shared_ptr<ui::TimelineWidget> timelineWidget;
         std::shared_ptr<ftk::Splitter> splitter;
         std::shared_ptr<ftk::VerticalLayout> layout;
+
+        std::shared_ptr<ftk::Observer<models::CanvasSettings> > canvasSettingsObserver;
     };
 
     void DocumentWidget::_init(
@@ -82,6 +85,13 @@ namespace ibis
             [this](const ftk::V2I& value)
             {
                 _p->canvasScrollWidget->setScrollPos(value);
+            });
+
+        p.canvasSettingsObserver = ftk::Observer<models::CanvasSettings>::create(
+            app->getSettingsModel()->observeCanvas(),
+            [this](const models::CanvasSettings& value)
+            {
+                _p->miniMap->setVisible(value.miniMap);
             });
     }
 

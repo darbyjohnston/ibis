@@ -3,6 +3,7 @@
 
 #include <ibis/Models/TimeUnitsModel.h>
 
+#include <ftk/UI/Settings.h>
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
@@ -118,13 +119,19 @@ namespace ibis
 
         struct TimeUnitsModel::Private
         {
+            std::weak_ptr<ftk::Settings> settings;
             std::shared_ptr<ftk::Observable<TimeUnits> > timeUnits;
         };
 
-        void TimeUnitsModel::_init(const std::shared_ptr<ftk::Context>& context)
+        void TimeUnitsModel::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::Settings>& settings)
         {
             FTK_P();
-            p.timeUnits = ftk::Observable<TimeUnits>::create(TimeUnits::Timecode);
+            p.settings = settings;
+            TimeUnits units = TimeUnits::Timecode;
+            settings->getT("/TimeUnits", units);
+            p.timeUnits = ftk::Observable<TimeUnits>::create(units);
         }
 
         TimeUnitsModel::TimeUnitsModel() :
@@ -132,13 +139,20 @@ namespace ibis
         {}
 
         TimeUnitsModel::~TimeUnitsModel()
-        {}
+        {
+            FTK_P();
+            if (auto settings = p.settings.lock())
+            {
+                settings->setT("/TimeUnits", p.timeUnits->get());
+            }
+        }
 
         std::shared_ptr<TimeUnitsModel> TimeUnitsModel::create(
-            const std::shared_ptr<ftk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::Settings>& settings)
         {
             auto out = std::shared_ptr<TimeUnitsModel>(new TimeUnitsModel);
-            out->_init(context);
+            out->_init(context, settings);
             return out;
         }
 

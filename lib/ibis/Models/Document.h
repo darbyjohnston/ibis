@@ -6,6 +6,7 @@
 #include <ftk/Core/Command.h>
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Observable.h>
+#include <ftk/Core/Size.h>
 
 #include <opentimelineio/version.h>
 
@@ -104,6 +105,28 @@ namespace ibis
             const std::shared_ptr<render::INode> getViewNode() const;
             std::shared_ptr<ftk::IObservable<std::shared_ptr<render::INode> > > observeViewNode() const;
             void setViewNode(const std::shared_ptr<render::INode>&);
+
+            ///@}
+
+            //! \name Canvas Size
+            ///@{
+
+            const ftk::Size2I& getCanvasSize();
+            std::shared_ptr<ftk::IObservable<ftk::Size2I> > observeCanvasSize() const;
+            void setCanvasSize(const ftk::Size2I&);
+
+            ///@}
+
+            //! \name Grid
+            ///@{
+
+            bool hasGrid();
+            std::shared_ptr<ftk::IObservable<bool> > observeGrid() const;
+            void setGrid(bool);
+
+            int getGridSize();
+            std::shared_ptr<ftk::IObservable<int> > observeGridSize() const;
+            void setGridSize(int);
 
             ///@}
 

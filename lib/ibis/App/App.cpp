@@ -9,6 +9,7 @@
 
 #include <ibis/Models/DocumentModel.h>
 #include <ibis/Models/MessagesModel.h>
+#include <ibis/Models/SettingsModel.h>
 #include <ibis/Models/TimeUnitsModel.h>
 
 #include <ibis/Render/NodeFactory.h>
@@ -31,6 +32,7 @@ namespace ibis
         };
         CmdLine cmdLine;
 
+        std::shared_ptr<models::SettingsModel> settingsModel;
         std::shared_ptr<models::MessagesModel> messagesModel;
         std::shared_ptr<ftk::RecentFilesModel> recentFilesModel;
         std::shared_ptr<models::TimeUnitsModel> timeUnitsModel;
@@ -39,6 +41,8 @@ namespace ibis
         std::shared_ptr<models::DocumentModel> documentModel;
 
         std::shared_ptr<MainWindow> window;
+
+        std::shared_ptr<ftk::Observer<models::StyleSettings> > styleSettingsObserver;
     };
 
     void App::_init(
@@ -65,7 +69,14 @@ namespace ibis
     {}
 
     App::~App()
-    {}
+    {
+        FTK_P();
+        if (p.settingsModel)
+        {
+            p.settingsModel->setT("/MainWindow/Size", p.window->getSize());
+            p.settingsModel->setT("/MainWindow/SidePanel", p.window->getSidePanel());
+        }
+    }
 
     std::shared_ptr<App> App::create(
         const std::shared_ptr<ftk::Context>& context,
@@ -74,6 +85,11 @@ namespace ibis
         auto out = std::shared_ptr<App>(new App);
         out->_init(context, argv);
         return out;
+    }
+
+    const std::shared_ptr<models::SettingsModel>& App::getSettingsModel() const
+    {
+        return _p->settingsModel;
     }
 
     const std::shared_ptr<models::MessagesModel>& App::getMessagesModel() const
@@ -177,20 +193,24 @@ namespace ibis
 
         ui::init(_context);
 
-        p.messagesModel = models::MessagesModel::create(_context);
-        p.recentFilesModel = ftk::RecentFilesModel::create(_context);
-        p.timeUnitsModel = models::TimeUnitsModel::create(_context);
-        p.nodeFactory = render::NodeFactory::create(_context);
-        p.nodeWidgetFactory = ui::NodeWidgetFactory::create(_context);
-        p.documentModel = models::DocumentModel::create(_context);
+        _createModels();
 
-        auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
-        fileBrowserSystem->setRecentFilesModel(p.recentFilesModel);
-
+        ftk::Size2I windowSize(1700, 960);
+        p.settingsModel->getT("/MainWindow/Size", windowSize);
         p.window = MainWindow::create(
             _context,
-            std::dynamic_pointer_cast<App>(shared_from_this()));
-        
+            std::dynamic_pointer_cast<App>(shared_from_this()),
+            windowSize);
+
+        p.styleSettingsObserver = ftk::Observer<models::StyleSettings>::create(
+            p.settingsModel->observeStyle(),
+            [this](const models::StyleSettings& value)
+            {
+                getStyle()->setColorControls(value.colorControls);
+                setColorStyle(value.colorStyle);
+                setDisplayScale(value.displayScale);
+            });
+
         for (const auto& input : p.cmdLine.inputs->getList())
         {
             open(ftk::Path(input));
@@ -201,5 +221,27 @@ namespace ibis
         }
 
         ftk::App::run();
+    }
+
+    void App::_createModels()
+    {
+        FTK_P();
+
+        p.settingsModel = models::SettingsModel::create(
+            _context,
+            ftk::getSettingsPath("ibis", "ibis.json"),
+            getDefaultDisplayScale());
+
+        p.messagesModel = models::MessagesModel::create(_context);
+
+        p.recentFilesModel = ftk::RecentFilesModel::create(_context);
+        auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
+        fileBrowserSystem->setRecentFilesModel(p.recentFilesModel);
+
+        p.timeUnitsModel = models::TimeUnitsModel::create(_context, p.settingsModel);
+
+        p.nodeFactory = render::NodeFactory::create(_context);
+        p.nodeWidgetFactory = ui::NodeWidgetFactory::create(_context);
+        p.documentModel = models::DocumentModel::create(_context);
     }
 }

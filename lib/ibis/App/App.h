@@ -18,6 +18,7 @@ namespace ibis
     {
         class DocumentModel;
         class MessagesModel;
+        class SettingsModel;
         class TimeUnitsModel;
     }
 
@@ -47,6 +48,7 @@ namespace ibis
             const std::shared_ptr<ftk::Context>&,
             std::vector<std::string>&);
 
+        const std::shared_ptr<models::SettingsModel>& getSettingsModel() const;
         const std::shared_ptr<models::MessagesModel>& getMessagesModel() const;
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
         const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;
@@ -64,6 +66,8 @@ namespace ibis
         void run() override;
 
     private:
+        void _createModels();
+
         FTK_PRIVATE();
     };
 }

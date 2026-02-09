@@ -18,6 +18,7 @@ namespace ibis
     {
         NodeBrowser,
         NodeEditor,
+        Document,
         Settings,
         Messages,
         Diag,

@@ -20,6 +20,9 @@ namespace ibis
             std::shared_ptr<ftk::Observable<std::filesystem::path> > path;
             std::shared_ptr<TimeModel> timeModel;
             std::shared_ptr<ftk::Observable<std::shared_ptr<render::INode> > > viewNode;
+            std::shared_ptr<ftk::Observable<ftk::Size2I> > canvasSize;
+            std::shared_ptr<ftk::Observable<bool> > grid;
+            std::shared_ptr<ftk::Observable<int> > gridSize;
             std::shared_ptr<render::Graph> graph;
 
             std::shared_ptr<ftk::ListObserver<std::shared_ptr<render::INode> > > nodesObserver;
@@ -38,6 +41,9 @@ namespace ibis
             p.path = ftk::Observable<std::filesystem::path>::create(path);
             p.timeModel = TimeModel::create(context);
             p.viewNode = ftk::Observable<std::shared_ptr<render::INode> >::create();
+            p.canvasSize = ftk::Observable<ftk::Size2I>::create(ftk::Size2I(2000, 2000));
+            p.grid = ftk::Observable<bool>::create(true);
+            p.gridSize = ftk::Observable<int>::create(100);
 
             int viewNode = -1;
             if (!json.empty())
@@ -53,6 +59,18 @@ namespace ibis
                 if (json.contains("ViewNode"))
                 {
                     viewNode = json["ViewNode"];
+                }
+                if (json.contains("CanvasSize"))
+                {
+                    p.canvasSize->setIfChanged(json["CanvasSize"]);
+                }
+                if (json.contains("Grid"))
+                {
+                    p.grid->setIfChanged(json["Grid"]);
+                }
+                if (json.contains("GridSize"))
+                {
+                    p.gridSize->setIfChanged(json["GridSize"]);
                 }
                 if (json.contains("Graph"))
                 {
@@ -145,6 +163,9 @@ namespace ibis
                 out["ViewNode"] = i - nodes.begin();
             }
 
+            out["CanvasSize"] = p.canvasSize->get();
+            out["Grid"] = p.grid->get();
+            out["GridSize"] = p.gridSize->get();
             out["Graph"] = p.graph->to_json();
             return out;
         }
@@ -202,6 +223,16 @@ namespace ibis
             const auto selection = p.selectionModel->get();
             p.selectionModel->clear();
             p.commandStack->push(render::RemoveNodesCmd::create(p.graph, selection));
+        }
+
+        const std::vector<std::shared_ptr<render::INode> > Document::getSelection() const
+        {
+            return _p->selectionModel->get();
+        }
+
+        std::shared_ptr<ftk::IObservableList<std::shared_ptr<render::INode> > > Document::observeSelection() const
+        {
+            return _p->selectionModel->observe();
         }
 
         void Document::select(const std::vector<std::shared_ptr<render::INode> >& value)
@@ -262,14 +293,49 @@ namespace ibis
             _p->viewNode->setIfChanged(value);
         }
 
-        const std::vector<std::shared_ptr<render::INode> > Document::getSelection() const
+        const ftk::Size2I& Document::getCanvasSize()
         {
-            return _p->selectionModel->get();
+            return _p->canvasSize->get();
         }
 
-        std::shared_ptr<ftk::IObservableList<std::shared_ptr<render::INode> > > Document::observeSelection() const
+        std::shared_ptr<ftk::IObservable<ftk::Size2I> > Document::observeCanvasSize() const
         {
-            return _p->selectionModel->observe();
+            return _p->canvasSize;
+        }
+
+        void Document::setCanvasSize(const ftk::Size2I& value)
+        {
+            _p->canvasSize->setIfChanged(value);
+        }
+
+        bool Document::hasGrid()
+        {
+            return _p->grid->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<bool> > Document::observeGrid() const
+        {
+            return _p->grid;
+        }
+
+        void Document::setGrid(bool value)
+        {
+            _p->grid->setIfChanged(value);
+        }
+
+        int Document::getGridSize()
+        {
+            return _p->gridSize->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<int> > Document::observeGridSize() const
+        {
+            return _p->gridSize;
+        }
+
+        void Document::setGridSize(int value)
+        {
+            _p->gridSize->setIfChanged(value);
         }
     }
 }

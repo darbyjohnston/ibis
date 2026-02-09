@@ -20,7 +20,8 @@ namespace ibis
     protected:
         void _init(
             const std::shared_ptr<ftk::Context>&,
-            const std::shared_ptr<App>&);
+            const std::shared_ptr<App>&,
+            const ftk::Size2I&);
 
         MainWindow();
 
@@ -29,12 +30,14 @@ namespace ibis
 
         static std::shared_ptr<MainWindow> create(
             const std::shared_ptr<ftk::Context>&,
-            const std::shared_ptr<App>&);
+            const std::shared_ptr<App>&,
+            const ftk::Size2I&);
 
         int getCurrentTab() const;
         std::shared_ptr<DocumentWidget> getDocumentWidget() const;
         std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > observeDocumentWidget() const;
 
+        SidePanel getSidePanel() const;
         std::shared_ptr<ftk::IObservable<std::pair<SidePanel, bool> > > observeSidePanel() const;
         void setSidePanel(SidePanel);
 

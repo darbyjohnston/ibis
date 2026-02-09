@@ -26,6 +26,7 @@
 #include <ibis/UI/StatusBar.h>
 
 #include <ibis/Models/DocumentModel.h>
+#include <ibis/Models/SettingsModel.h>
 
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/InputNode.h>
@@ -47,6 +48,8 @@ namespace ibis
 {
     struct MainWindow::Private
     {
+        std::weak_ptr<models::SettingsModel> settingsModel;
+
         std::shared_ptr<ftk::Observable<std::shared_ptr<DocumentWidget> > > documentWidget;
         std::shared_ptr<ftk::Observable<std::pair<SidePanel, bool> > > sidePanel;
 
@@ -71,20 +74,30 @@ namespace ibis
 
     void MainWindow::_init(
         const std::shared_ptr<ftk::Context>& context,
-        const std::shared_ptr<App>& app)
+        const std::shared_ptr<App>& app,
+        const ftk::Size2I& size)
     {
-        ftk::MainWindow::_init(context, app, ftk::Size2I(1700, 960));
+        ftk::MainWindow::_init(context, app, size);
         FTK_P();
 
         auto iconSystem = context->getSystem<ftk::IconSystem>();
         setIcon(iconSystem->get("ibis", 1.0));
 
+        auto settingsModel = app->getSettingsModel();
+        p.settingsModel = settingsModel;
+
         p.documentWidget = ftk::Observable<std::shared_ptr<DocumentWidget> >::create();
 
+        SidePanel sidePanel = SidePanel::First;
+        bool sidePanelVisible = true;
+        settingsModel->getT("/MainWindow/SidePanel", sidePanel);
+        settingsModel->get("/MainWindow/SidePanelVisible", sidePanelVisible);
         p.sidePanel = ftk::Observable<std::pair<SidePanel, bool> >::create(
-            std::make_pair(SidePanel::NodeBrowser, true));
+            std::make_pair(sidePanel, sidePanelVisible));
 
         p.sidePanelWidget = SidePanelWidget::create(context, app);
+        p.sidePanelWidget->setSidePanel(sidePanel);
+        p.sidePanelWidget->setVisible(sidePanelVisible);
 
         auto mainWindow = std::dynamic_pointer_cast<MainWindow>(shared_from_this());
         p.fileActions = FileActions::create(context, app, mainWindow);
@@ -131,8 +144,12 @@ namespace ibis
         ftk::Divider::create(context, ftk::Orientation::Horizontal, hLayout);
         viewToolBar->setParent(hLayout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
+
         p.splitter = ftk::Splitter::create(context, ftk::Orientation::Horizontal, p.layout);
-        p.splitter->setSplit(.8F);
+        float split = .8F;
+        settingsModel->get("/MainWindow/Splitter", split);
+        p.splitter->setSplit(split);
+
         auto vLayout = ftk::VerticalLayout::create(context, p.splitter);
         vLayout->setSpacingRole(ftk::SizeRole::None);
         p.documentTabBar->setParent(vLayout);
@@ -229,14 +246,23 @@ namespace ibis
     {}
 
     MainWindow::~MainWindow()
-    {}
+    {
+        FTK_P();
+        if (auto settingsModel = p.settingsModel.lock())
+        {
+            settingsModel->setT("/MainWindow/SidePanel", p.sidePanel->get().first);
+            settingsModel->set("/MainWindow/SidePanelVisible", p.sidePanel->get().second);
+            settingsModel->set("/MainWindow/Splitter", p.splitter->getSplit());
+        }
+    }
 
     std::shared_ptr<MainWindow> MainWindow::create(
         const std::shared_ptr<ftk::Context>& context,
-        const std::shared_ptr<App>& app)
+        const std::shared_ptr<App>& app,
+        const ftk::Size2I& size)
     {
         auto out = std::shared_ptr<MainWindow>(new MainWindow);
-        out->_init(context, app);
+        out->_init(context, app, size);
         return out;
     }
 
@@ -253,6 +279,11 @@ namespace ibis
     std::shared_ptr<ftk::IObservable<std::shared_ptr<DocumentWidget> > > MainWindow::observeDocumentWidget() const
     {
         return _p->documentWidget;
+    }
+
+    SidePanel MainWindow::getSidePanel() const
+    {
+        return _p->sidePanel->get().first;
     }
 
     std::shared_ptr<ftk::IObservable<std::pair<SidePanel, bool> > > MainWindow::observeSidePanel() const
