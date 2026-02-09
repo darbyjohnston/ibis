@@ -48,7 +48,7 @@ namespace ibis
 
             _textUpdate();
 
-            p.lineEdit->setTextCallback(
+            p.lineEdit->setCallback(
                 [this](const std::string& value)
                 {
                     _commitValue(value);

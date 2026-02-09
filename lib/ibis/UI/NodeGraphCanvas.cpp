@@ -52,6 +52,7 @@ namespace ibis
                 int margin = 0;
                 int border = 0;
                 int handle = 0;
+                int drag = 0;
                 int shadow = 0;
             };
             SizeData size;
@@ -75,6 +76,7 @@ namespace ibis
                 ftk::V2I pos;
 
                 // Mouse press position in regular and canvas coordinates.
+                bool pressed = false;
                 ftk::V2I press;
                 ftk::V2I canvasPress;
 
@@ -282,6 +284,7 @@ namespace ibis
             p.size.margin = event.style->getSizeRole(ftk::SizeRole::MarginLarge, event.displayScale);
             p.size.border = event.style->getSizeRole(ftk::SizeRole::Border, event.displayScale);
             p.size.handle = event.style->getSizeRole(ftk::SizeRole::Handle, event.displayScale);
+            p.size.drag = event.style->getSizeRole(ftk::SizeRole::DragLength, event.displayScale);
             p.size.shadow = event.style->getSizeRole(ftk::SizeRole::Shadow, event.displayScale);
         }
 
@@ -532,6 +535,7 @@ namespace ibis
             FTK_P();
             event.accept = true;
             p.mouse.mode = Private::MouseMode::None;
+            p.mouse.pressed = true;
             p.mouse.press = event.pos;
             p.mouse.canvasPress = event.pos - getGeometry().min;
             takeKeyFocus();
@@ -569,9 +573,9 @@ namespace ibis
             {
                 if (ftk::MouseButton::Left == event.button)
                 {
-                    p.mouse.mode = Private::MouseMode::Select;
                     if (auto node = _getNode(p.mouse.pos))
                     {
+                        p.mouse.mode = Private::MouseMode::Select;
                         if (ftk::checkKeyModifier(ftk::KeyModifier::Shift, event.modifiers))
                         {
                             p.document->selectionAdd({ node });
@@ -584,6 +588,18 @@ namespace ibis
                         {
                             p.document->select({ node });
                         }
+                    }
+                    else if (ftk::checkKeyModifier(ftk::KeyModifier::None, event.modifiers))
+                    {
+                        p.mouse.mode = Private::MouseMode::Select;
+                    }
+                    else if (ftk::checkKeyModifier(ftk::KeyModifier::Shift, event.modifiers))
+                    {
+                        p.mouse.mode = Private::MouseMode::Select;
+                    }
+                    else if (ftk::checkKeyModifier(ftk::KeyModifier::Control, event.modifiers))
+                    {
+                        p.mouse.mode = Private::MouseMode::Select;
                     }
                 }
             }
@@ -604,8 +620,8 @@ namespace ibis
             // Popup menu or clear the selection.
             if (Private::MouseMode::None == p.mouse.mode)
             {
-                if (ftk::MouseButton::Right == event.button &&
-                    0 == event.modifiers)
+                if ((ftk::MouseButton::Right == event.button && 0 == event.modifiers) ||
+                    (ftk::MouseButton::Left == event.button && ftk::checkKeyModifier(ftk::KeyModifier::Alt, event.modifiers)))
                 {
                     _popupMenu(event.pos);
                 }
@@ -620,6 +636,7 @@ namespace ibis
         {
             FTK_P();
             event.accept = true;
+            p.mouse.pressed = false;
             p.mouse.autoScrollTimer.reset();
 
             switch (p.mouse.mode)

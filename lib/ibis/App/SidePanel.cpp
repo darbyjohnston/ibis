@@ -16,6 +16,7 @@
 #include <ftk/UI/Divider.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/TabBar.h>
+#include <ftk/UI/ToolButton.h>
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
@@ -39,6 +40,7 @@ namespace ibis
         std::shared_ptr<ftk::IWidget> currentWidget;
         std::shared_ptr<ftk::VerticalLayout> layout;
         std::function<void(SidePanel)> callback;
+        std::function<void(void)> closeCallback;
     };
 
     void SidePanelWidget::_init(
@@ -52,14 +54,22 @@ namespace ibis
         p.app = app;
 
         p.tabBar = ftk::TabBar::create(context);
+        p.tabBar->setHStretch(ftk::Stretch::Expanding);
         for (const auto& i : getSidePanelLabels())
         {
             p.tabBar->addTab(i);
         }
 
+        auto closeButton = ftk::ToolButton::create(context);
+        closeButton->setIcon("Close");
+        closeButton->setTooltip("Close the side panel.");
+
         p.layout = ftk::VerticalLayout::create(context, shared_from_this());
         p.layout->setSpacingRole(ftk::SizeRole::None);
-        p.tabBar->setParent(p.layout);
+        auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
+        hLayout->setSpacingRole(ftk::SizeRole::None);
+        p.tabBar->setParent(hLayout);
+        closeButton->setParent(hLayout);
         ftk::Divider::create(context, ftk::Orientation::Vertical, p.layout);
 
         _widgetUpdate(SidePanel::First);
@@ -72,6 +82,16 @@ namespace ibis
                 if (p.callback)
                 {
                     p.callback(static_cast<SidePanel>(index));
+                }
+            });
+
+        closeButton->setClickedCallback(
+            [this]
+            {
+                FTK_P();
+                if (p.closeCallback)
+                {
+                    p.closeCallback();
                 }
             });
     }
@@ -102,6 +122,11 @@ namespace ibis
     void SidePanelWidget::setCallback(const std::function<void(SidePanel)>& value)
     {
         _p->callback = value;
+    }
+
+    void SidePanelWidget::setCloseCallback(const std::function<void(void)>& value)
+    {
+        _p->closeCallback = value;
     }
 
     ftk::Size2I SidePanelWidget::getSizeHint() const
@@ -155,6 +180,7 @@ namespace ibis
         case SidePanel::Messages:
             p.currentWidget = ui::MessagesWidget::create(
                 context,
+                app->getSettingsModel(),
                 app->getMessagesModel(),
                 p.layout);
             break;
@@ -162,7 +188,11 @@ namespace ibis
             p.currentWidget = ui::DiagWidget::create(context, p.layout);
             break;
         case SidePanel::SysLog:
-            p.currentWidget = ui::SysLogWidget::create(context, p.layout);
+            p.currentWidget = ui::SysLogWidget::create(
+                context,
+                app->getSettingsModel(),
+                app->getMessagesModel(),
+                p.layout);
             break;
         default: break;
         }

@@ -379,7 +379,7 @@ namespace ibis
         {
             FTK_P();
             if ((ftk::MouseButton::Right == event.button && 0 == event.modifiers) ||
-                (ftk::MouseButton::Left == event.button && ftk::checkKeyModifier(ftk::KeyModifier::Super, event.modifiers)))
+                (ftk::MouseButton::Left == event.button && ftk::checkKeyModifier(ftk::KeyModifier::Alt, event.modifiers)))
             {
                 event.accept = true;
                 p.menu = ftk::Menu::create(getContext());

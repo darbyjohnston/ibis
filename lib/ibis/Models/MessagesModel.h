@@ -33,7 +33,11 @@ namespace ibis
             static std::shared_ptr<MessagesModel> create(
                 const std::shared_ptr<ftk::Context>&);
 
+            //! Observe the messages.
             std::shared_ptr<ftk::IObservableList<std::string> > observeMessages() const;
+
+            //! Observe the log.
+            std::shared_ptr<ftk::IObservableList<std::string> > observeLog() const;
 
         private:
             FTK_PRIVATE();

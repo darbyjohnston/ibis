@@ -127,6 +127,10 @@ namespace ibis
                             viewNode.reset();
                         }
                     }
+                    if (!viewNode && !nodes.empty())
+                    {
+                        viewNode = nodes.back();
+                    }
                     p.viewNode->setIfChanged(viewNode);
                 });
         }

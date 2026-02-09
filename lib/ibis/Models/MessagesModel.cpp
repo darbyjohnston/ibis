@@ -5,14 +5,21 @@
 
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
     namespace models
     {
+        namespace
+        {
+            const size_t messagesMax = 100;
+        }
+
         struct MessagesModel::Private
         {
             std::shared_ptr<ftk::ObservableList<std::string> > messages;
+            std::shared_ptr<ftk::ObservableList<std::string> > log;
             std::shared_ptr<ftk::ListObserver<ftk::LogItem> > logObserver;
         };
 
@@ -21,6 +28,8 @@ namespace ibis
             FTK_P();
 
             p.messages = ftk::ObservableList<std::string>::create();
+
+            p.log = ftk::ObservableList<std::string>::create();
 
             auto logSystem = context->getLogSystem();
             p.logObserver = ftk::ListObserver<ftk::LogItem>::create(
@@ -31,12 +40,23 @@ namespace ibis
                     std::list<std::string> tmp(p.messages->get().begin(), p.messages->get().end());
                     for (const auto& item : items)
                     {
-                        if (ftk::LogType::Error == item.type)
+                        switch (item.type)
                         {
-                            tmp.push_back(ftk::Format("ERROR: {0}").arg(item.message));
+                        case ftk::LogType::Warning:
+                        case ftk::LogType::Error:
+                            for (const auto& line : ftk::split(ftk::getLabel(item), '\n', ftk::SplitOptions::KeepEmpty))
+                            {
+                                tmp.push_back(line);
+                            }
+                            break;
+                        default: break;
+                        }
+                        for (const auto& line : ftk::split(ftk::getLabel(item), '\n', ftk::SplitOptions::KeepEmpty))
+                        {
+                            p.log->pushBack(line);
                         }
                     }
-                    while (tmp.size() > 100)
+                    while (tmp.size() > messagesMax)
                     {
                         tmp.pop_front();
                     }
@@ -62,6 +82,11 @@ namespace ibis
         std::shared_ptr<ftk::IObservableList<std::string> > MessagesModel::observeMessages() const
         {
             return _p->messages;
+        }
+
+        std::shared_ptr<ftk::IObservableList<std::string> > MessagesModel::observeLog() const
+        {
+            return _p->log;
         }
     }
 }

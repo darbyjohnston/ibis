@@ -127,11 +127,6 @@ namespace ibis
         p.documentLayout->setVStretch(ftk::Stretch::Expanding);
 
         p.statusBar = ui::StatusBar::create(context, app->getMessagesModel());
-        p.statusBar->setCallback(
-            [this]
-            {
-                setSidePanel(SidePanel::Messages);
-            });
 
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);
@@ -161,18 +156,6 @@ namespace ibis
         setWidget(p.layout);
 
         std::weak_ptr<App> appWeak(app);
-        p.documentTabBar->setCallback(
-            [appWeak](int index)
-            {
-                appWeak.lock()->getDocumentModel()->setCurrent(index);
-            });
-
-        p.documentTabBar->setCloseCallback(
-            [appWeak](int index)
-            {
-                appWeak.lock()->getDocumentModel()->close(index);
-            });
-
         p.documentsObserver = ftk::ListObserver<std::shared_ptr<models::Document> >::create(
             app->getDocumentModel()->observe(),
             [this, appWeak](const std::vector<std::shared_ptr<models::Document> >& value)
@@ -231,6 +214,24 @@ namespace ibis
                 p.documentLayout->setCurrentIndex(value);
             });
 
+        p.documentTabBar->setCallback(
+            [appWeak](int index)
+            {
+                appWeak.lock()->getDocumentModel()->setCurrent(index);
+            });
+
+        p.documentTabBar->setCloseCallback(
+            [appWeak](int index)
+            {
+                appWeak.lock()->getDocumentModel()->close(index);
+            });
+
+        p.statusBar->setCallback(
+            [this]
+            {
+                setSidePanel(SidePanel::Messages);
+            });
+
         p.sidePanelWidget->setCallback(
             [this](SidePanel value)
             {
@@ -238,6 +239,15 @@ namespace ibis
                 auto pair = p.sidePanel->get();
                 pair.first = value;
                 p.sidePanel->setIfChanged(pair);
+            });
+        p.sidePanelWidget->setCloseCallback(
+            [this]
+            {
+                FTK_P();
+                auto pair = p.sidePanel->get();
+                pair.second = false;
+                p.sidePanel->setIfChanged(pair);
+                p.sidePanelWidget->setVisible(false);
             });
     }
 

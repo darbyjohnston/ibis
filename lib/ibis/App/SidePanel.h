@@ -50,7 +50,10 @@ namespace ibis
             const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
         void setSidePanel(SidePanel);
+
         void setCallback(const std::function<void(SidePanel)>&);
+
+        void setCloseCallback(const std::function<void(void)>&);
 
         ftk::Size2I getSizeHint() const override;
         void setGeometry(const ftk::Box2I&) override;

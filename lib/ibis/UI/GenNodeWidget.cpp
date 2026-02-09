@@ -462,7 +462,7 @@ namespace ibis
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
 
-            p.textEdit->setTextCallback(
+            p.textEdit->setCallback(
                 [this](const std::vector<std::string>& text)
                 {
                     _document->command(render::NodeAttrCmd::create(
