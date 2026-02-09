@@ -17,6 +17,7 @@ set(HEADERS
     NodeGraphWidget.h
     NodeMiniMap.h
     NodeWidgetFactory.h
+    OutputNodeWidget.h
     PlaybackLoopWidget.h
     PlaybackToolBar.h
     SettingsWidget.h
@@ -62,9 +63,13 @@ set(SOURCE
     TransformNodeWidget.cpp
     Viewport.cpp)
 if(ibis_OIIO)
-    list(APPEND SOURCE InputNodeWidgetOIIO.cpp)
+    list(APPEND SOURCE
+        InputNodeWidgetOIIO.cpp
+        OutputNodeWidgetOIIO.cpp)
 else()
-    list(APPEND SOURCE InputNodeWidgetPNG.cpp)
+    list(APPEND SOURCE
+        InputNodeWidgetPNG.cpp
+        OutputNodeWidgetPNG.cpp)
 endif()
 
 set(LIBRARIES ibisModels)

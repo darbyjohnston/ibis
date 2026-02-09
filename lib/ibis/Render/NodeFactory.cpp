@@ -8,6 +8,7 @@
 #include "GenNode.h"
 #include "InputNode.h"
 #include "MathNode.h"
+#include "OutputNode.h"
 #include "TransformNode.h"
 
 #include <set>
@@ -29,12 +30,14 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNode::getClassNodeInfo().id] = &ImageFileNode::create;
-            p.info[ImageFileNode::getClassNodeInfo().id] = ImageFileNode::getClassNodeInfo();
-            p.nodes[ImageSequenceNode::getClassNodeInfo().id] = &ImageSequenceNode::create;
-            p.info[ImageSequenceNode::getClassNodeInfo().id] = ImageSequenceNode::getClassNodeInfo();
-            p.nodes[SVGFileNode::getClassNodeInfo().id] = &SVGFileNode::create;
-            p.info[SVGFileNode::getClassNodeInfo().id] = SVGFileNode::getClassNodeInfo();
+            p.nodes[ImageInputNode::getClassNodeInfo().id] = &ImageInputNode::create;
+            p.info[ImageInputNode::getClassNodeInfo().id] = ImageInputNode::getClassNodeInfo();
+            p.nodes[ImageOutputNode::getClassNodeInfo().id] = &ImageOutputNode::create;
+            p.info[ImageOutputNode::getClassNodeInfo().id] = ImageOutputNode::getClassNodeInfo();
+            p.nodes[SVGInputNode::getClassNodeInfo().id] = &SVGInputNode::create;
+            p.info[SVGInputNode::getClassNodeInfo().id] = SVGInputNode::getClassNodeInfo();
+            p.nodes[SequenceInputNode::getClassNodeInfo().id] = &SequenceInputNode::create;
+            p.info[SequenceInputNode::getClassNodeInfo().id] = SequenceInputNode::getClassNodeInfo();
 
             p.nodes[GradientNode::getClassNodeInfo().id] = &GradientNode::create;
             p.info[GradientNode::getClassNodeInfo().id] = GradientNode::getClassNodeInfo();

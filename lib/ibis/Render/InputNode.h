@@ -27,18 +27,18 @@ namespace ibis
             const OTIO_NS::RationalTime&,
             const OTIO_NS::TimeRange&);
 
-        //! Image file node.
-        class ImageFileNode : public INode
+        //! Image input node.
+        class ImageInputNode : public INode
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json&);
 
-            ImageFileNode();
+            ImageInputNode();
 
         public:
-            virtual ~ImageFileNode();
+            virtual ~ImageInputNode();
 
             static NodeInfo getClassNodeInfo();
 
@@ -61,18 +61,18 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! Image sequence node.
-        class ImageSequenceNode : public INode
+        //! Image sequence input node.
+        class SequenceInputNode : public INode
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json&);
 
-            ImageSequenceNode();
+            SequenceInputNode();
 
         public:
-            virtual ~ImageSequenceNode();
+            virtual ~SequenceInputNode();
 
             static NodeInfo getClassNodeInfo();
 
@@ -95,18 +95,18 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! SVG file node.
-        class SVGFileNode : public INode
+        //! SVG file input node.
+        class SVGInputNode : public INode
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json&);
 
-            SVGFileNode();
+            SVGInputNode();
 
         public:
-            virtual ~SVGFileNode();
+            virtual ~SVGInputNode();
 
             static NodeInfo getClassNodeInfo();
 

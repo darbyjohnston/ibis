@@ -8,6 +8,7 @@
 #include "GenNodeWidget.h"
 #include "InputNodeWidget.h"
 #include "MathNodeWidget.h"
+#include "OutputNodeWidget.h"
 #include "TransformNodeWidget.h"
 
 #include <ibis/Render/INode.h>
@@ -36,9 +37,10 @@ namespace ibis
 
             p.context = context;
 
-            p.nodes[ImageFileNodeWidget::getClassNodeInfo().id] = &ImageFileNodeWidget::create;
-            p.nodes[ImageSequenceNodeWidget::getClassNodeInfo().id] = &ImageSequenceNodeWidget::create;
-            p.nodes[SVGFileNodeWidget::getClassNodeInfo().id] = &SVGFileNodeWidget::create;
+            p.nodes[ImageInputNodeWidget::getClassNodeInfo().id] = &ImageInputNodeWidget::create;
+            p.nodes[ImageOutputNodeWidget::getClassNodeInfo().id] = &ImageOutputNodeWidget::create;
+            p.nodes[SVGInputNodeWidget::getClassNodeInfo().id] = &SVGInputNodeWidget::create;
+            p.nodes[SequenceInputNodeWidget::getClassNodeInfo().id] = &SequenceInputNodeWidget::create;
 
             p.nodes[GradientNodeWidget::getClassNodeInfo().id] = &GradientNodeWidget::create;
             p.nodes[NoiseNodeWidget::getClassNodeInfo().id] = &NoiseNodeWidget::create;

@@ -51,13 +51,13 @@ namespace ibis
             return out;
         }
 
-        struct SVGFileNode::Private
+        struct SVGInputNode::Private
         {
             std::string path;
             std::shared_ptr<ftk::Image> image;
         };
 
-        void SVGFileNode::_init(
+        void SVGInputNode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
@@ -66,33 +66,33 @@ namespace ibis
             INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
         }
 
-        SVGFileNode::SVGFileNode() :
+        SVGInputNode::SVGInputNode() :
             _p(new Private)
         {}
 
-        SVGFileNode::~SVGFileNode()
+        SVGInputNode::~SVGInputNode()
         {}
 
-        NodeInfo SVGFileNode::getClassNodeInfo()
+        NodeInfo SVGInputNode::getClassNodeInfo()
         {
-            return { "SVGFile", "SVG File", "Input" };
+            return { "SVGInput", "SVG Input", "I/O" };
         }
 
-        std::vector<std::string> SVGFileNode::getExts()
+        std::vector<std::string> SVGInputNode::getExts()
         {
             return std::vector<std::string>({ ".svg" });
         }
 
-        std::shared_ptr<INode> SVGFileNode::create(
+        std::shared_ptr<INode> SVGInputNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
-            std::shared_ptr<SVGFileNode> out(new SVGFileNode);
+            std::shared_ptr<SVGInputNode> out(new SVGInputNode);
             out->_init(context, json);
             return out;
         }
 
-        void SVGFileNode::exec(
+        void SVGInputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {
@@ -133,7 +133,7 @@ namespace ibis
                 catch (const std::exception& e)
                 {
                     auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::SVGFileNode", e.what(), ftk::LogType::Error);
+                    logSystem->print("ibis::render::SVGInputNode", e.what(), ftk::LogType::Error);
                 }
             }
 
@@ -173,9 +173,9 @@ namespace ibis
         {
             std::shared_ptr<render::INode> out;
 
-            const auto imageExts = render::ImageFileNode::getExts();
-            const auto sequenceExts = render::ImageSequenceNode::getExts();
-            const auto svgExts = render::SVGFileNode::getExts();
+            const auto imageExts = render::ImageInputNode::getExts();
+            const auto sequenceExts = render::SequenceInputNode::getExts();
+            const auto svgExts = render::SVGInputNode::getExts();
 
             ftk::Path path(fileName);
             const std::string ext = path.getExt();
@@ -198,19 +198,19 @@ namespace ibis
                 }
                 json["StartFrame"] = startFrame;
                 json["EndFrame"] = endFrame;
-                out = render::ImageSequenceNode::create(context, json);
+                out = render::SequenceInputNode::create(context, json);
             }
             else if (std::find(imageExts.begin(), imageExts.end(), ext) != imageExts.end())
             {
                 nlohmann::json json;
                 json["Path"] = fileName;
-                out = render::ImageFileNode::create(context, json);
+                out = render::ImageInputNode::create(context, json);
             }
             else if (std::find(svgExts.begin(), svgExts.end(), ext) != svgExts.end())
             {
                 nlohmann::json json;
                 json["Path"] = fileName;
-                out = render::SVGFileNode::create(context, json);
+                out = render::SVGInputNode::create(context, json);
             }
             return out;
         }

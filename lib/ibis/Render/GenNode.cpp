@@ -273,6 +273,8 @@ namespace ibis
             attr["Font"] = ftk::getFont(ftk::Font::Regular);
             attr["FontSize"] = 64;
             attr["Color"] = ftk::Color4F(1.F, 1.F, 1.F);
+            attr["Margin"] = 10;
+            attr["Background"] = ftk::Color4F(0.F, 0.F, 0.F, 0.F);
             INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
             FTK_P();
             p.fontSystem = context->getSystem<ftk::FontSystem>();
@@ -310,8 +312,11 @@ namespace ibis
             const ftk::FontMetrics fontMetrics = p.fontSystem->getMetrics(fontInfo);
             const std::string text = _attr->getItem("Text");
             const ftk::Size2I textSize = p.fontSystem->getSize(text, fontInfo);
+            const int margin = _attr->getItem("Margin");
 
-            const ftk::gl::TextureInfo info(textSize, ftk::gl::TextureType::RGBA_U8);
+            const ftk::gl::TextureInfo info(
+                ftk::margin(textSize, margin),
+                ftk::gl::TextureType::RGBA_U8);
             if (info.isValid())
             {
                 if (ftk::gl::doCreate(_outputs[0], info))
@@ -321,12 +326,12 @@ namespace ibis
                 ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
                 render->setRenderSize(info.size);
                 render->setViewport(ftk::Box2I(0, 0, info.size.w, info.size.h));
-                render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                render->clearViewport(_attr->getItem("Background"));
                 render->setTransform(_getProjection(info.size));
                 render->drawText(
                     p.fontSystem->getGlyphs(text, fontInfo),
                     fontMetrics,
-                    ftk::V2I(),
+                    ftk::V2I(margin, margin),
                     _attr->getItem("Color"));
             }
             _outputInfo->setItemOnlyIfChanged(0, info);

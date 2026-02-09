@@ -428,6 +428,8 @@ namespace ibis
             std::shared_ptr<ftk::ComboBox> fontComboBox;
             std::shared_ptr<ftk::IntEditSlider> fontSizeEdit;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
+            std::shared_ptr<ftk::IntEditSlider> marginEdit;
+            std::shared_ptr<ftk::ColorSwatch> backgroundSwatch;
             std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -452,12 +454,20 @@ namespace ibis
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
+            p.marginEdit = ftk::IntEditSlider::create(context);
+            p.marginEdit->setRange(0, 512);
+
+            p.backgroundSwatch = ftk::ColorSwatch::create(context);
+            p.backgroundSwatch->setEditable(true);
+
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
             formLayout->addRow("Text:", p.textEdit);
             formLayout->addRow("Font:", p.fontComboBox);
             formLayout->addRow("Font size:", p.fontSizeEdit);
             formLayout->addRow("Color:", p.colorSwatch);
+            formLayout->addRow("Margin:", p.marginEdit);
+            formLayout->addRow("Background:", p.backgroundSwatch);
             p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
             p.bellows->setOpen(true);
             p.bellows->setWidget(formLayout);
@@ -494,6 +504,18 @@ namespace ibis
                     _callback({ { "Color", value } }, pressed);
                 });
 
+            p.marginEdit->setPressedCallback(
+                [this](int value, bool pressed)
+                {
+                    _callback({ { "Margin", value } }, pressed);
+                });
+
+            p.backgroundSwatch->setPressedCallback(
+                [this](const ftk::Color4F& value, bool pressed)
+                {
+                    _callback({ { "Background", value } }, pressed);
+                });
+
             p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
                 _node->observeAttr(),
                 [this](const std::map<std::string, nlohmann::json>& value)
@@ -514,6 +536,8 @@ namespace ibis
                     p.fontComboBox->setCurrentIndex(index);
                     p.fontSizeEdit->setValue(tmp["FontSize"]);
                     p.colorSwatch->setColor(tmp["Color"]);
+                    p.marginEdit->setValue(tmp["Margin"]);
+                    p.backgroundSwatch->setColor(tmp["Background"]);
                 });
         }
 

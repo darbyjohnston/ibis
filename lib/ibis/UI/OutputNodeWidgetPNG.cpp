@@ -22,7 +22,7 @@ namespace ibis
 {
     namespace ui
     {
-        struct SVGInputNodeWidget::Private
+        struct SVGFileNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::Bellows> bellows;
@@ -30,7 +30,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void SVGInputNodeWidget::_init(
+        void SVGFileNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
@@ -44,7 +44,7 @@ namespace ibis
             auto infoIcon = ftk::Icon::create(context, "Info");
             infoIcon->setTooltip(
                 ftk::Format("Supported file extensions:\n{0}").
-                arg(ftk::join(render::SVGInputNode::getExts(), ", ")));
+                arg(ftk::join(render::SVGFileNode::getExts(), ", ")));
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
@@ -86,35 +86,35 @@ namespace ibis
                 });
         }
 
-        SVGInputNodeWidget::SVGInputNodeWidget() :
+        SVGFileNodeWidget::SVGFileNodeWidget() :
             _p(new Private)
         {}
 
-        SVGInputNodeWidget::~SVGInputNodeWidget()
+        SVGFileNodeWidget::~SVGFileNodeWidget()
         {}
 
-        std::shared_ptr<SVGInputNodeWidget> SVGInputNodeWidget::create(
+        std::shared_ptr<SVGFileNodeWidget> SVGFileNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<SVGInputNodeWidget> out(new SVGInputNodeWidget);
+            std::shared_ptr<SVGFileNodeWidget> out(new SVGFileNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo SVGInputNodeWidget::getClassNodeInfo()
+        render::NodeInfo SVGFileNodeWidget::getClassNodeInfo()
         {
-            return render::SVGInputNode::getClassNodeInfo();
+            return render::SVGFileNode::getClassNodeInfo();
         }
 
-        ftk::Size2I SVGInputNodeWidget::getSizeHint() const
+        ftk::Size2I SVGFileNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void SVGInputNodeWidget::setGeometry(const ftk::Box2I& value)
+        void SVGFileNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

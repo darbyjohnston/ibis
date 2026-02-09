@@ -8,6 +8,7 @@ set(HEADERS
     InputNode.h
     MathNode.h
     NodeFactory.h
+    OutputNode.h
     RenderUtil.h
     TransformNode.h)
 
@@ -25,8 +26,10 @@ set(SOURCE
     TransformNode.cpp)
 if(ibis_OIIO)
     list(APPEND SOURCE InputNodeOIIO.cpp)
+    list(APPEND SOURCE OutputNodeOIIO.cpp)
 else()
     list(APPEND SOURCE InputNodePNG.cpp)
+    list(APPEND SOURCE OutputNodePNG.cpp)
 endif()
 
 set(LIBRARIES ibisCore ftk::ftkUI ftk::ftkGL)

@@ -9,8 +9,11 @@ namespace ibis
 {
     namespace ui
     {
-        //! Image file node widget.
-        class ImageFileNodeWidget : public INodeWidget
+        //! Get a tooltip for the supported file extensions.
+        std::string getExtTooltip(const std::vector<std::string>& exts);
+
+        //! Image input node widget.
+        class ImageInputNodeWidget : public INodeWidget
         {
         protected:
             void _init(
@@ -19,13 +22,13 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            ImageFileNodeWidget();
+            ImageInputNodeWidget();
 
         public:
-            virtual ~ImageFileNodeWidget();
+            virtual ~ImageInputNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<ImageFileNodeWidget> create(
+            static std::shared_ptr<ImageInputNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::INode>&,
@@ -40,8 +43,8 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! Image sequence node widget.
-        class ImageSequenceNodeWidget : public INodeWidget
+        //! Image sequence input node widget.
+        class SequenceInputNodeWidget : public INodeWidget
         {
         protected:
             void _init(
@@ -50,13 +53,13 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            ImageSequenceNodeWidget();
+            SequenceInputNodeWidget();
 
         public:
-            virtual ~ImageSequenceNodeWidget();
+            virtual ~SequenceInputNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<ImageSequenceNodeWidget> create(
+            static std::shared_ptr<SequenceInputNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::INode>&,
@@ -71,8 +74,8 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! SVG file node widget.
-        class SVGFileNodeWidget : public INodeWidget
+        //! SVG file input node widget.
+        class SVGInputNodeWidget : public INodeWidget
         {
         protected:
             void _init(
@@ -81,13 +84,13 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            SVGFileNodeWidget();
+            SVGInputNodeWidget();
 
         public:
-            virtual ~SVGFileNodeWidget();
+            virtual ~SVGInputNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<SVGFileNodeWidget> create(
+            static std::shared_ptr<SVGInputNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::INode>&,

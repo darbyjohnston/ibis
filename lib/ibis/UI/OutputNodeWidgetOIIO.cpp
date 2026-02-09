@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
+#include "OutputNodeWidget.h"
+
 #include "InputNodeWidget.h"
 
 #include <ibis/Models/Document.h>
 
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
-#include <ibis/Render/InputNode.h>
+#include <ibis/Render/OutputNode.h>
 
 #include <ftk/UI/Bellows.h>
-#include <ftk/UI/Icon.h>
+#include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
+#include <ftk/UI/Icon.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -22,15 +25,15 @@ namespace ibis
 {
     namespace ui
     {
-        struct SVGInputNodeWidget::Private
+        struct ImageOutputNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::Bellows> bellows;
 
-            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
+            std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
 
-        void SVGInputNodeWidget::_init(
+        void ImageOutputNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
@@ -44,7 +47,7 @@ namespace ibis
             auto infoIcon = ftk::Icon::create(context, "Info");
             infoIcon->setTooltip(
                 ftk::Format("Supported file extensions:\n{0}").
-                arg(ftk::join(render::SVGInputNode::getExts(), ", ")));
+                arg(getExtTooltip(render::ImageOutputNode::getExts())));
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
@@ -73,48 +76,45 @@ namespace ibis
                     }
                 });
 
-            p.observer = ftk::MapObserver<std::string, nlohmann::json>::create(
+            p.attrObserver = ftk::MapObserver<std::string, nlohmann::json>::create(
                 node->observeAttr(),
                 [this](const std::map<std::string, nlohmann::json>& value)
                 {
                     FTK_P();
-                    auto i = value.find("Path");
-                    if (i != value.end())
-                    {
-                        p.fileEdit->setPath(ftk::Path(i->second));
-                    }
+                    auto tmp = value;
+                    p.fileEdit->setPath(ftk::Path(tmp["Path"]));
                 });
         }
 
-        SVGInputNodeWidget::SVGInputNodeWidget() :
+        ImageOutputNodeWidget::ImageOutputNodeWidget() :
             _p(new Private)
         {}
 
-        SVGInputNodeWidget::~SVGInputNodeWidget()
+        ImageOutputNodeWidget::~ImageOutputNodeWidget()
         {}
 
-        std::shared_ptr<SVGInputNodeWidget> SVGInputNodeWidget::create(
+        std::shared_ptr<ImageOutputNodeWidget> ImageOutputNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<SVGInputNodeWidget> out(new SVGInputNodeWidget);
+            std::shared_ptr<ImageOutputNodeWidget> out(new ImageOutputNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo SVGInputNodeWidget::getClassNodeInfo()
+        render::NodeInfo ImageOutputNodeWidget::getClassNodeInfo()
         {
-            return render::SVGInputNode::getClassNodeInfo();
+            return render::ImageOutputNode::getClassNodeInfo();
         }
 
-        ftk::Size2I SVGInputNodeWidget::getSizeHint() const
+        ftk::Size2I ImageOutputNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void SVGInputNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ImageOutputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

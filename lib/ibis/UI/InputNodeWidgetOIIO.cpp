@@ -24,7 +24,30 @@ namespace ibis
 {
     namespace ui
     {
-        struct ImageFileNodeWidget::Private
+        std::string getExtTooltip(const std::vector<std::string>& exts)
+        {
+            std::vector<std::string> lines;
+            std::vector<std::string> tmp;
+            for (const auto& ext : exts)
+            {
+                if (tmp.size() >= 10)
+                {
+                    lines.push_back(ftk::join(tmp, ", "));
+                    tmp.clear();
+                }
+                else
+                {
+                    tmp.push_back(ext);
+                }
+            }
+            if (!tmp.empty())
+            {
+                lines.push_back(ftk::join(tmp, ", "));
+            }
+            return ftk::join(lines, ",\n");
+        }
+
+        struct ImageInputNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::ComboBox> subImageComboBox;
@@ -36,33 +59,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
 
-        namespace
-        {
-            std::string getExtTooltip(const std::vector<std::string>& exts)
-            {
-                std::vector<std::string> lines;
-                std::vector<std::string> tmp;
-                for (const auto& ext : exts)
-                {
-                    if (tmp.size() >= 10)
-                    {
-                        lines.push_back(ftk::join(tmp, ", "));
-                        tmp.clear();
-                    }
-                    else
-                    {
-                        tmp.push_back(ext);
-                    }
-                }
-                if (!tmp.empty())
-                {
-                    lines.push_back(ftk::join(tmp, ", "));
-                }
-                return ftk::join(lines, ",\n");
-            }
-        }
-
-        void ImageFileNodeWidget::_init(
+        void ImageInputNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
@@ -76,7 +73,7 @@ namespace ibis
             auto infoIcon = ftk::Icon::create(context, "Info");
             infoIcon->setTooltip(
                 ftk::Format("Supported file extensions:\n{0}").
-                arg(getExtTooltip(render::ImageFileNode::getExts())));
+                arg(getExtTooltip(render::ImageInputNode::getExts())));
 
             p.subImageComboBox = ftk::ComboBox::create(context);
 
@@ -131,16 +128,16 @@ namespace ibis
                         value));
                 });
 
-            auto imageFileNode = std::dynamic_pointer_cast<render::ImageFileNode>(node);
+            auto ImageInputNode = std::dynamic_pointer_cast<render::ImageInputNode>(node);
             p.subImagesObserver = ftk::ListObserver<std::string>::create(
-                imageFileNode->observeSubImages(),
+                ImageInputNode->observeSubImages(),
                 [this](const std::vector<std::string>& value)
                 {
                     _p->subImageComboBox->setItems(value);
                 });
 
             p.channelsObserver = ftk::ListObserver<std::string>::create(
-                imageFileNode->observeChannels(),
+                ImageInputNode->observeChannels(),
                 [this](const std::vector<std::string>& value)
                 {
                     _p->channelsComboBox->setItems(value);
@@ -158,41 +155,41 @@ namespace ibis
                 });
         }
 
-        ImageFileNodeWidget::ImageFileNodeWidget() :
+        ImageInputNodeWidget::ImageInputNodeWidget() :
             _p(new Private)
         {}
 
-        ImageFileNodeWidget::~ImageFileNodeWidget()
+        ImageInputNodeWidget::~ImageInputNodeWidget()
         {}
 
-        std::shared_ptr<ImageFileNodeWidget> ImageFileNodeWidget::create(
+        std::shared_ptr<ImageInputNodeWidget> ImageInputNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<ImageFileNodeWidget> out(new ImageFileNodeWidget);
+            std::shared_ptr<ImageInputNodeWidget> out(new ImageInputNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo ImageFileNodeWidget::getClassNodeInfo()
+        render::NodeInfo ImageInputNodeWidget::getClassNodeInfo()
         {
-            return render::ImageFileNode::getClassNodeInfo();
+            return render::ImageInputNode::getClassNodeInfo();
         }
 
-        ftk::Size2I ImageFileNodeWidget::getSizeHint() const
+        ftk::Size2I ImageInputNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void ImageFileNodeWidget::setGeometry(const ftk::Box2I& value)
+        void ImageInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
         }
 
-        struct ImageSequenceNodeWidget::Private
+        struct SequenceInputNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::ComboBox> subImageComboBox;
@@ -207,7 +204,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
 
-        void ImageSequenceNodeWidget::_init(
+        void SequenceInputNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
@@ -221,7 +218,7 @@ namespace ibis
             auto infoIcon = ftk::Icon::create(context, "Info");
             infoIcon->setTooltip(
                 ftk::Format("Supported file extensions:\n{0}").
-                arg(getExtTooltip(render::ImageSequenceNode::getExts())));
+                arg(getExtTooltip(render::SequenceInputNode::getExts())));
 
             p.subImageComboBox = ftk::ComboBox::create(context);
 
@@ -332,16 +329,16 @@ namespace ibis
                         static_cast<render::InputLoop>(value)));
                 });
 
-            auto imageSequenceNode = std::dynamic_pointer_cast<render::ImageSequenceNode>(node);
+            auto sequenceInputNode = std::dynamic_pointer_cast<render::SequenceInputNode>(node);
             p.subImagesObserver = ftk::ListObserver<std::string>::create(
-                imageSequenceNode->observeSubImages(),
+                sequenceInputNode->observeSubImages(),
                 [this](const std::vector<std::string>& value)
                 {
                     _p->subImageComboBox->setItems(value);
                 });
 
             p.channelsObserver = ftk::ListObserver<std::string>::create(
-                imageSequenceNode->observeChannels(),
+                sequenceInputNode->observeChannels(),
                 [this](const std::vector<std::string>& value)
                 {
                     _p->channelsComboBox->setItems(value);
@@ -362,35 +359,35 @@ namespace ibis
                 });
         }
 
-        ImageSequenceNodeWidget::ImageSequenceNodeWidget() :
+        SequenceInputNodeWidget::SequenceInputNodeWidget() :
             _p(new Private)
         {}
 
-        ImageSequenceNodeWidget::~ImageSequenceNodeWidget()
+        SequenceInputNodeWidget::~SequenceInputNodeWidget()
         {}
 
-        std::shared_ptr<ImageSequenceNodeWidget> ImageSequenceNodeWidget::create(
+        std::shared_ptr<SequenceInputNodeWidget> SequenceInputNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<ImageSequenceNodeWidget> out(new ImageSequenceNodeWidget);
+            std::shared_ptr<SequenceInputNodeWidget> out(new SequenceInputNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo ImageSequenceNodeWidget::getClassNodeInfo()
+        render::NodeInfo SequenceInputNodeWidget::getClassNodeInfo()
         {
-            return render::ImageSequenceNode::getClassNodeInfo();
+            return render::SequenceInputNode::getClassNodeInfo();
         }
 
-        ftk::Size2I ImageSequenceNodeWidget::getSizeHint() const
+        ftk::Size2I SequenceInputNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void ImageSequenceNodeWidget::setGeometry(const ftk::Box2I& value)
+        void SequenceInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);
