@@ -30,16 +30,18 @@ namespace ibis
 
             p.context = context;
 
+#if defined(IBIS_OIIO)
             p.nodes[ImageInputNode::getClassNodeInfo().id] = &ImageInputNode::create;
             p.info[ImageInputNode::getClassNodeInfo().id] = ImageInputNode::getClassNodeInfo();
             p.nodes[ImageOutputNode::getClassNodeInfo().id] = &ImageOutputNode::create;
             p.info[ImageOutputNode::getClassNodeInfo().id] = ImageOutputNode::getClassNodeInfo();
-            p.nodes[SVGInputNode::getClassNodeInfo().id] = &SVGInputNode::create;
-            p.info[SVGInputNode::getClassNodeInfo().id] = SVGInputNode::getClassNodeInfo();
             p.nodes[SequenceInputNode::getClassNodeInfo().id] = &SequenceInputNode::create;
             p.info[SequenceInputNode::getClassNodeInfo().id] = SequenceInputNode::getClassNodeInfo();
             p.nodes[SequenceOutputNode::getClassNodeInfo().id] = &SequenceOutputNode::create;
             p.info[SequenceOutputNode::getClassNodeInfo().id] = SequenceOutputNode::getClassNodeInfo();
+#endif // IBIS_OIIO
+            p.nodes[SVGInputNode::getClassNodeInfo().id] = &SVGInputNode::create;
+            p.info[SVGInputNode::getClassNodeInfo().id] = SVGInputNode::getClassNodeInfo();
 
             p.nodes[GradientNode::getClassNodeInfo().id] = &GradientNode::create;
             p.info[GradientNode::getClassNodeInfo().id] = GradientNode::getClassNodeInfo();

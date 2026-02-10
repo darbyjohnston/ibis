@@ -37,11 +37,13 @@ namespace ibis
 
             p.context = context;
 
+#if defined(IBIS_OIIO)
             p.nodes[ImageInputNodeWidget::getClassNodeInfo().id] = &ImageInputNodeWidget::create;
             p.nodes[ImageOutputNodeWidget::getClassNodeInfo().id] = &ImageOutputNodeWidget::create;
-            p.nodes[SVGInputNodeWidget::getClassNodeInfo().id] = &SVGInputNodeWidget::create;
             p.nodes[SequenceInputNodeWidget::getClassNodeInfo().id] = &SequenceInputNodeWidget::create;
             p.nodes[SequenceOutputNodeWidget::getClassNodeInfo().id] = &SequenceOutputNodeWidget::create;
+#endif // IBIS_OIIO
+            p.nodes[SVGInputNodeWidget::getClassNodeInfo().id] = &SVGInputNodeWidget::create;
 
             p.nodes[GradientNodeWidget::getClassNodeInfo().id] = &GradientNodeWidget::create;
             p.nodes[NoiseNodeWidget::getClassNodeInfo().id] = &NoiseNodeWidget::create;

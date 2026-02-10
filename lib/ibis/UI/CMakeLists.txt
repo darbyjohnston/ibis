@@ -66,10 +66,6 @@ if(ibis_OIIO)
     list(APPEND SOURCE
         InputNodeWidgetOIIO.cpp
         OutputNodeWidgetOIIO.cpp)
-else()
-    list(APPEND SOURCE
-        InputNodeWidgetPNG.cpp
-        OutputNodeWidgetPNG.cpp)
 endif()
 
 set(LIBRARIES ibisModels)

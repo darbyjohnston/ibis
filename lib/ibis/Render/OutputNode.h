@@ -21,6 +21,7 @@ namespace ibis
             virtual void write(const OTIO_NS::RationalTime&) = 0;
         };
 
+#if defined(IBIS_OIIO)
         //! Image output node.
         class ImageOutputNode : public IOutputNode
         {
@@ -82,5 +83,6 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+#endif // IBIS_OIIO
     }
 }

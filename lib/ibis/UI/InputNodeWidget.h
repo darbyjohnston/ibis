@@ -12,6 +12,7 @@ namespace ibis
         //! Get a tooltip for the supported file extensions.
         std::string getExtTooltip(const std::vector<std::string>& exts);
 
+#if defined(IBIS_OIIO)
         //! Image input node widget.
         class ImageInputNodeWidget : public INodeWidget
         {
@@ -73,6 +74,7 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+#endif // IBIS_OIIO
 
         //! SVG file input node widget.
         class SVGInputNodeWidget : public INodeWidget

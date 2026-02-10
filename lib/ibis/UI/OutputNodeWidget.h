@@ -9,6 +9,7 @@ namespace ibis
 {
     namespace ui
     {
+#if defined(IBIS_OIIO)
         //! Image output node widget.
         class ImageOutputNodeWidget : public INodeWidget
         {
@@ -70,5 +71,6 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+#endif // IBIS_OIIO
     }
 }

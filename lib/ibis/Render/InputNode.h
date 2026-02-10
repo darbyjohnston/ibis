@@ -27,6 +27,7 @@ namespace ibis
             const OTIO_NS::RationalTime&,
             const OTIO_NS::TimeRange&);
 
+#if defined(IBIS_OIIO)
         //! Image input node.
         class ImageInputNode : public INode
         {
@@ -94,6 +95,7 @@ namespace ibis
         private:
             FTK_PRIVATE();
         };
+#endif // IBIS_OIIO
 
         //! SVG file input node.
         class SVGInputNode : public INode
