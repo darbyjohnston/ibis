@@ -143,10 +143,10 @@ namespace ibis
 
             p.graphs["Objects"]->addSample(
                 ftk::ColorRole::Cyan,
-                ftk::gl::VBO::getObjectCount());
+                ftk::Image::getObjectCount());
             p.graphs["Objects"]->addSample(
                 ftk::ColorRole::Magenta,
-                ftk::gl::Texture::getObjectCount());
+                ftk::IWidget::getObjectCount());
 
             p.graphs["Memory"]->addSample(
                 ftk::ColorRole::Cyan,
