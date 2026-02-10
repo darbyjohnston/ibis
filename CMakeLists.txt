@@ -53,6 +53,8 @@ endif()
 
 if(NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS OFF)
+    # \bug Why is this necessary?
+    add_definitions(-DLUNASVG_BUILD_STATIC)
 endif()
 
 if(NOT CMAKE_POSITION_INDEPENDENT_CODE)

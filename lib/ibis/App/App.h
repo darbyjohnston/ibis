@@ -18,6 +18,7 @@ namespace ibis
 
     namespace models
     {
+        class Document;
         class DocumentModel;
         class MessagesModel;
         class SettingsModel;
@@ -70,8 +71,11 @@ namespace ibis
 
     private:
         void _createModels();
+        void _createWindow();
+        void _createObservers();
 
-        bool _renderFrame();
+        void _render(const std::shared_ptr<models::Document>&);
+        void _renderFrame();
 
         FTK_PRIVATE();
     };

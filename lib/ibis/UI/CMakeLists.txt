@@ -68,10 +68,8 @@ if(ibis_OIIO)
         OutputNodeWidgetOIIO.cpp)
 endif()
 
-set(LIBRARIES ibisModels)
-
 add_library(ibisUI ${HEADERS} ${SOURCE})
-target_link_libraries(ibisUI ${LIBRARIES})
+target_link_libraries(ibisUI ibisModels)
 set_target_properties(ibisUI PROPERTIES FOLDER lib)
 set_target_properties(ibisUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

@@ -5,6 +5,7 @@
 
 #include "MainWindow.h"
 
+#include <ibis/UI/Init.h>
 #include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ibis/Models/Document.h>
@@ -17,9 +18,6 @@
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/NodeFactory.h>
 #include <ibis/Render/OutputNode.h>
-
-#include <ibis/UI/Init.h>
-#include <ibis/UI/NodeWidgetFactory.h>
 
 #include <ftk/UI/DialogSystem.h>
 #include <ftk/UI/FileBrowser.h>
@@ -214,30 +212,19 @@ namespace ibis
         {
             try
             {
-                // Create a new renderer.
-                p.render.reset(new Private::Render);
-                p.render->graph = document->getGraph();
-                p.render->render = _context->getSystem<ftk::gl::System>()->getRenderFactory()->createRender(
-                    _context->getLogSystem(),
-                    _context->getSystem<ftk::FontSystem>());
-                const OTIO_NS::TimeRange& timeRange = document->getTimeModel()->getTimeRange();
-                p.render->timeRange = timeRange;
-                p.render->rate = timeRange.duration().rate();
-                p.render->frame = timeRange.start_time().value();
+                _render(document);
 
-                // Create a progress dialog.
                 p.render->dialog = ftk::ProgressDialog::create(
                     _context,
                     "Render",
                     "Rendering:");
-                p.render->dialog->setRange(0.0, timeRange.duration().value() - 1.0);
+                p.render->dialog->setRange(0.0, p.render->timeRange.duration().value() - 1.0);
                 p.render->dialog->setMessage(ftk::Format("Frame: {0} / {1}").
-                    arg(timeRange.start_time().value()).
-                    arg(timeRange.end_time_inclusive().value()));
+                    arg(p.render->timeRange.start_time().value()).
+                    arg(p.render->timeRange.end_time_inclusive().value()));
                 p.render->dialog->setCloseCallback([this]{ _p->render.reset(); });
                 p.render->dialog->open(p.window);
 
-                // Start a timer to render the frames.
                 p.render->timer = ftk::Timer::create(_context);
                 p.render->timer->setRepeating(true);
                 p.render->timer->start(
@@ -245,23 +232,26 @@ namespace ibis
                     [this]
                     {
                         FTK_P();
-                        if (_renderFrame())
+                        const int64_t start = p.render->timeRange.start_time().value();
+                        p.render->dialog->setValue(p.render->frame - start);
+                        p.render->dialog->setMessage(ftk::Format("Frame: {0} / {1}").
+                            arg(p.render->frame - start).
+                            arg(static_cast<int64_t>(p.render->timeRange.duration().value())));
+                        bool error = false;
+                        try
                         {
-                            const int64_t start = p.render->timeRange.start_time().value();
-                            p.render->dialog->setValue(p.render->frame - start);
-                            const int64_t end = p.render->timeRange.end_time_inclusive().value();
-                            if (p.render->frame <= end)
-                            {
-                                p.render->dialog->setMessage(ftk::Format("Frame: {0} / {1}").
-                                    arg(p.render->frame - start).
-                                    arg(static_cast<int64_t>(p.render->timeRange.duration().value())));
-                            }
-                            else
-                            {
-                                p.render->dialog->close();
-                            }
+                            _renderFrame();
                         }
-                        else
+                        catch (const std::exception& e)
+                        {
+                            error = true;
+                            _context->getSystem<ftk::DialogSystem>()->message(
+                                "ERROR",
+                                ftk::Format("Error: {0}").arg(e.what()),
+                                p.window);
+                        }
+                        const int64_t end = p.render->timeRange.end_time_inclusive().value();
+                        if (error || p.render->frame > end)
                         {
                             p.render->dialog->close();
                         }
@@ -284,27 +274,14 @@ namespace ibis
         ui::init(_context);
 
         _createModels();
-
-        ftk::Size2I windowSize(1700, 960);
-        p.settingsModel->getT("/MainWindow/Size", windowSize);
-        p.window = MainWindow::create(
-            _context,
-            std::dynamic_pointer_cast<App>(shared_from_this()),
-            windowSize);
-
-        p.styleSettingsObserver = ftk::Observer<models::StyleSettings>::create(
-            p.settingsModel->observeStyle(),
-            [this](const models::StyleSettings& value)
-            {
-                getStyle()->setColorControls(value.colorControls);
-                setColorStyle(value.colorStyle);
-                setDisplayScale(value.displayScale);
-            });
+        _createWindow();
+        _createObservers();
 
         for (const auto& input : p.cmdLine.inputs->getList())
         {
             open(ftk::Path(input));
         }
+
         if (!p.documentModel->getCurrent())
         {
             newDocument();
@@ -335,40 +312,66 @@ namespace ibis
         p.documentModel = models::DocumentModel::create(_context);
     }
 
-    bool App::_renderFrame()
+    void App::_createWindow()
     {
         FTK_P();
-        bool out = false;
-        try
-        {
-            // Note that this size is arbitrary.
-            p.render->render->begin(ftk::Size2I(512, 512));
+        ftk::Size2I windowSize(1700, 960);
+        p.settingsModel->getT("/MainWindow/Size", windowSize);
+        p.window = MainWindow::create(
+            _context,
+            std::dynamic_pointer_cast<App>(shared_from_this()),
+            windowSize);
+    }
 
-            const OTIO_NS::RationalTime time(p.render->frame, p.render->rate);
-            for (const auto& node : p.render->graph->getLeafNodes())
+    void App::_createObservers()
+    {
+        FTK_P();
+        p.styleSettingsObserver = ftk::Observer<models::StyleSettings>::create(
+            p.settingsModel->observeStyle(),
+            [this](const models::StyleSettings& value)
             {
-                node->exec(p.render->render, time);
-            }
+                getStyle()->setColorControls(value.colorControls);
+                setColorStyle(value.colorStyle);
+                setDisplayScale(value.displayScale);
+            });
+    }
 
-            for (const auto& node : p.render->graph->getNodes())
-            {
-                if (auto output = std::dynamic_pointer_cast<render::IOutputNode>(node))
-                {
-                    output->write(time);
-                }
-            }
+    void App::_render(const std::shared_ptr<models::Document>& document)
+    {
+        FTK_P();
+        p.render.reset(new Private::Render);
+        p.render->graph = document->getGraph();
+        p.render->render = _context->getSystem<ftk::gl::System>()->getRenderFactory()->createRender(
+            _context->getLogSystem(),
+            _context->getSystem<ftk::FontSystem>());
+        const OTIO_NS::TimeRange& timeRange = document->getTimeModel()->getTimeRange();
+        p.render->timeRange = timeRange;
+        p.render->rate = timeRange.duration().rate();
+        p.render->frame = timeRange.start_time().value();
+    }
 
-            p.render->render->end();
-            ++(p.render->frame);
-            out = true;
-        }
-        catch (const std::exception& e)
+    void App::_renderFrame()
+    {
+        FTK_P();
+
+        // Note that the size is arbitrary.
+        p.render->render->begin(ftk::Size2I(512, 512));
+
+        const OTIO_NS::RationalTime time(p.render->frame, p.render->rate);
+        for (const auto& node : p.render->graph->getLeafNodes())
         {
-            _context->getSystem<ftk::DialogSystem>()->message(
-                "ERROR",
-                ftk::Format("Error: {0}").arg(e.what()),
-                p.window);
+            node->exec(p.render->render, time);
         }
-        return out;
+
+        for (const auto& node : p.render->graph->getNodes())
+        {
+            if (auto output = std::dynamic_pointer_cast<render::IOutputNode>(node))
+            {
+                output->write(time);
+            }
+        }
+
+        p.render->render->end();
+        ++(p.render->frame);
     }
 }
