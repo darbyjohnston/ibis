@@ -176,13 +176,13 @@ namespace ibis
             ftk::Path path(fileName);
             const std::string ext = path.getExt();
 #if defined(IBIS_OIIO)
+            const auto imageExts = render::ImageInputNode::getExts();
             const auto sequenceExts = render::SequenceInputNode::getExts();
             if (std::find(sequenceExts.begin(), sequenceExts.end(), ext) != sequenceExts.end() &&
                 path.hasNum())
             {
                 path = ftk::expandSeq(path);
             }
-            const auto imageExts = render::ImageInputNode::getExts();
 #endif // IBIS_OIIO
             const auto svgExts = render::SVGInputNode::getExts();
 

@@ -247,8 +247,6 @@ namespace ibis
                 const auto j = p.nodeToPos.find(i.first);
                 if (j != p.nodeToPos.end())
                 {
-                    j->second.x = ftk::clamp(j->second.x, 0, value.w() - sizeHint.w);
-                    j->second.y = ftk::clamp(j->second.y, 0, value.h() - sizeHint.h);
                     pos = j->second;
                 }
                 i.second->setGeometry(ftk::Box2I(pos + value.min, sizeHint));
@@ -431,13 +429,19 @@ namespace ibis
             case Private::MouseMode::MoveNodes:
                 if (p.mouse.move.has_value() && !p.mouse.autoScrollTimer)
                 {
+                    const ftk::Box2I& g = getGeometry();
+                    const int w = g.w();
+                    const int h = g.h();
                     const ftk::V2I offset = event.pos - event.prev;
                     for (const auto i : p.mouse.moveNodes)
                     {
                         const auto j = p.nodeToPos.find(i);
-                        if (j != p.nodeToPos.end())
+                        const auto k = p.nodeToWidget.find(i);
+                        if (j != p.nodeToPos.end() && k != p.nodeToWidget.end())
                         {
-                            j->second = j->second + offset;
+                            const ftk::Box2I& g2 = k->second->getGeometry();
+                            j->second.x = ftk::clamp(j->second.x + offset.x, 0, w - g2.w());
+                            j->second.y = ftk::clamp(j->second.y + offset.y, 0, h - g2.h());
                         }
                     }
                     setSizeUpdate();
@@ -1090,14 +1094,19 @@ namespace ibis
                 case Private::MouseMode::MoveNodes:
                     if (p.mouse.move.has_value())
                     {
+                        const ftk::Box2I& g = getGeometry();
+                        const int w = g.w();
+                        const int h = g.h();
                         const ftk::V2I offset = scrollWidget->getScrollPos() - scrollPosPrev;
                         for (const auto i : p.mouse.moveNodes)
                         {
                             const auto j = p.nodeToPos.find(i);
-                            if (j != p.nodeToPos.end())
+                            const auto k = p.nodeToWidget.find(i);
+                            if (j != p.nodeToPos.end() && k != p.nodeToWidget.end())
                             {
-                                j->second.x += offset.x;
-                                j->second.y += offset.y;
+                                const ftk::Box2I& g2 = k->second->getGeometry();
+                                j->second.x = ftk::clamp(j->second.x + offset.x, 0, w - g2.w());
+                                j->second.y = ftk::clamp(j->second.y + offset.y, 0, h - g2.h());
                             }
                         }
                         setSizeUpdate();
