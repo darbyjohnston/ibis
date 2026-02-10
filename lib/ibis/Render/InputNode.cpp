@@ -174,8 +174,8 @@ namespace ibis
             std::shared_ptr<render::INode> out;
 
             ftk::Path path(fileName);
-#if defined(IBIS_OIIO)
             const std::string ext = path.getExt();
+#if defined(IBIS_OIIO)
             const auto sequenceExts = render::SequenceInputNode::getExts();
             if (std::find(sequenceExts.begin(), sequenceExts.end(), ext) != sequenceExts.end() &&
                 path.hasNum())
