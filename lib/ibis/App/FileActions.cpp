@@ -77,6 +77,15 @@ namespace ibis
             });
         p.actions["CloseAll"]->setTooltip("Close all files.");
 
+        p.actions["Render"] = ftk::Action::create(
+            "Render",
+            ftk::KeyShortcut(ftk::Key::R, ftk::commandKeyModifier),
+            [appWeak]
+            {
+                appWeak.lock()->render();
+            });
+        p.actions["Render"]->setTooltip("Render the current file.");
+
         p.actions["Exit"] = ftk::Action::create(
             "Exit",
             ftk::KeyShortcut(ftk::Key::Q, ftk::commandKeyModifier),

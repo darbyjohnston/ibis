@@ -22,6 +22,7 @@ set(SOURCE
     InputNode.cpp
     MathNode.cpp
     NodeFactory.cpp
+    OutputNode.cpp
     RenderUtil.cpp
     TransformNode.cpp)
 if(ibis_OIIO)

@@ -38,6 +38,8 @@ namespace ibis
             p.info[SVGInputNode::getClassNodeInfo().id] = SVGInputNode::getClassNodeInfo();
             p.nodes[SequenceInputNode::getClassNodeInfo().id] = &SequenceInputNode::create;
             p.info[SequenceInputNode::getClassNodeInfo().id] = SequenceInputNode::getClassNodeInfo();
+            p.nodes[SequenceOutputNode::getClassNodeInfo().id] = &SequenceOutputNode::create;
+            p.info[SequenceOutputNode::getClassNodeInfo().id] = SequenceOutputNode::getClassNodeInfo();
 
             p.nodes[GradientNode::getClassNodeInfo().id] = &GradientNode::create;
             p.info[GradientNode::getClassNodeInfo().id] = GradientNode::getClassNodeInfo();

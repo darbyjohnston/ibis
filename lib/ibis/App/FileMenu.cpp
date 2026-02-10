@@ -31,6 +31,8 @@ namespace ibis
         addAction(actions["CloseAll"]);
         p.recentMenu = addSubMenu("Recent");
         addDivider();
+        addAction(actions["Render"]);
+        addDivider();
         addAction(actions["Exit"]);
     }
 

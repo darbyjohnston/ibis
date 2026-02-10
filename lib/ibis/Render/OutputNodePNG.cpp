@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "InputNode.h"
+#include "OutputNode.h"
 
 #include <ibis/Core/Time.h>
 
 #include <ftk/GL/GL.h>
+#include <ftk/GL/Util.h>
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/IRender.h>
-#include <ftk/Core/ImageIO.h>
 #include <ftk/Core/Path.h>
 #include <ftk/Core/String.h>
 
@@ -17,263 +17,100 @@ namespace ibis
 {
     namespace render
     {
-        struct ImageFileNode::Private
+        struct ImageOutputNode::Private
         {
-            std::string path;
-            std::shared_ptr<ftk::Image> image;
-
-            std::shared_ptr<ftk::ObservableList<std::string> > subImageNames;
-            std::shared_ptr<ftk::ObservableList<std::string> > channelNames;
         };
 
-        void ImageFileNode::_init(
+        void ImageOutputNode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
             NodeAttr attr;
-            attr["Path"] = "";
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
-            FTK_P();
-
-            p.path = _attr->getItem("Path");
-
-            p.subImageNames = ftk::ObservableList<std::string>::create();
-            p.channelNames = ftk::ObservableList<std::string>::create();
+            attr["Dir"] = "";
+            attr["FileName"] = "";
+            IOutputNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
-        ImageFileNode::ImageFileNode() :
+        ImageOutputNode::ImageOutputNode() :
             _p(new Private)
         {}
 
-        ImageFileNode::~ImageFileNode()
+        ImageOutputNode::~ImageOutputNode()
         {}
 
-        NodeInfo ImageFileNode::getClassNodeInfo()
+        NodeInfo ImageOutputNode::getClassNodeInfo()
         {
-            return { "ImageFile", "Image File", "Input" };
+            return { "ImageOutput", "Image Output", "I/O" };
         }
 
-        std::vector<std::string> ImageFileNode::getExts()
+        std::vector<std::string> ImageOutputNode::getExts()
         {
             return std::vector<std::string>({ ".png" });
         }
 
-        std::shared_ptr<INode> ImageFileNode::create(
+        std::shared_ptr<INode> ImageOutputNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
-            std::shared_ptr<ImageFileNode> out(new ImageFileNode);
+            std::shared_ptr<ImageOutputNode> out(new ImageOutputNode);
             out->_init(context, json);
             return out;
         }
 
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageFileNode::observeSubImages() const
-        {
-            return _p->subImageNames;
-        }
-
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageFileNode::observeChannels() const
-        {
-            return _p->channelNames;
-        }
-
-        bool ImageFileNode::setAttr(const NodeAttr& value)
+        void ImageOutputNode::write()
         {
             FTK_P();
-            NodeAttr tmp = value;
-            auto i = tmp.find("Path");
-            if (i != tmp.end() &&
-                i->second.is_string() &&
-                static_cast<std::string>(i->second) != p.path)
+            const std::string dir = _attr->getItem("Dir");
+            const std::string fileName = _attr->getItem("FileName");
+            if (_outputs[0] && !fileName.empty())
             {
-                p.path = i->second;
-                p.image.reset();
-                _outputs[0].reset();
-            }
-            return INode::setAttr(tmp);
-        }
-
-        void ImageFileNode::exec(
-            const std::shared_ptr<ftk::IRender>& render,
-            const OTIO_NS::RationalTime& time)
-        {
-            INode::exec(render, time);
-            FTK_P();
-
-            if (!p.path.empty())
-            {
-                if (!p.image)
+                const ftk::ImageType type = ftk::gl::getImageType(_outputs[0]->getType());
+                if (type != ftk::ImageType::None)
                 {
+                    auto image = ftk::Image::create(_outputs[0]->getSize(), type);
+                    {
+                        ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
+                        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+#if defined(FTK_API_GL_4_1)
+                        glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+#endif // FTK_API_GL_4_1
+                        glReadPixels(
+                            0,
+                            0,
+                            _outputs[0]->getWidth(),
+                            _outputs[0]->getHeight(),
+                            ftk::gl::getReadPixelsFormat(image->getType()),
+                            ftk::gl::getReadPixelsType(image->getType()),
+                            image->getData());
+                    }
                     try
                     {
-                        auto ioSystem = _context.lock()->getSystem<ftk::ImageIO>();
-                        if (auto read = ioSystem->read(std::filesystem::u8path(p.path)))
-                        {
-                            p.image = read->read();
-                        }
                     }
                     catch (const std::exception& e)
                     {
                         auto logSystem = _context.lock()->getLogSystem();
-                        logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
+                        logSystem->print("ibis::render::ImageOutputNode", e.what(), ftk::LogType::Error);
                     }
                 }
             }
-
-            ftk::gl::TextureInfo info;
-            if (p.image)
-            {
-                info.size = p.image->getSize();
-                info.type = ftk::gl::getTextureType(p.image->getType());
-                if (info.isValid())
-                {
-                    if (ftk::gl::doCreate(_outputs[0], info))
-                    {
-                        _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
-                    }
-                    ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    const ftk::Box2I g(0, 0, info.size.w, info.size.h);
-                    render->setRenderSize(info.size);
-                    render->setViewport(g);
-                    render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
-                    render->setTransform(_getProjection(info.size));
-                    ftk::ImageOptions imageOptions;
-                    imageOptions.cache = false;
-                    render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
-                }
-            }
-            _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
-        struct ImageSequenceNode::Private
-        {
-            std::string path;
-            OTIO_NS::RationalTime time = invalidTime;
-            std::shared_ptr<ftk::Image> image;
-
-            std::shared_ptr<ftk::ObservableList<std::string> > subImageNames;
-            std::shared_ptr<ftk::ObservableList<std::string> > channelNames;
-        };
-
-        void ImageSequenceNode::_init(
-            const std::shared_ptr<ftk::Context>& context,
-            const nlohmann::json& json)
-        {
-            NodeAttr attr;
-            attr["Path"] = "";
-            attr["StartFrame"] = 0;
-            attr["EndFrame"] = 0;
-            attr["Loop"] = InputLoop::None;
-            INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
-            FTK_P();
-
-            p.path = _attr->getItem("Path");
-
-            p.subImageNames = ftk::ObservableList<std::string>::create();
-            p.channelNames = ftk::ObservableList<std::string>::create();
-        }
-
-        ImageSequenceNode::ImageSequenceNode() :
-            _p(new Private)
-        {}
-
-        ImageSequenceNode::~ImageSequenceNode()
-        {}
-
-        NodeInfo ImageSequenceNode::getClassNodeInfo()
-        {
-            return { "ImageSequence", "Image Sequence", "Input" };
-        }
-
-        std::vector<std::string> ImageSequenceNode::getExts()
-        {
-            return ImageFileNode::getExts();
-        }
-
-        std::shared_ptr<INode> ImageSequenceNode::create(
-            const std::shared_ptr<ftk::Context>& context,
-            const nlohmann::json& json)
-        {
-            std::shared_ptr<ImageSequenceNode> out(new ImageSequenceNode);
-            out->_init(context, json);
-            return out;
-        }
-
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageSequenceNode::observeSubImages() const
-        {
-            return _p->subImageNames;
-        }
-
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageSequenceNode::observeChannels() const
-        {
-            return _p->channelNames;
-        }
-
-        bool ImageSequenceNode::setAttr(const NodeAttr& value)
-        {
-            FTK_P();
-            NodeAttr tmp = value;
-            auto i = tmp.find("Path");
-            if (i != tmp.end() &&
-                i->second.is_string() &&
-                static_cast<std::string>(i->second) != p.path)
-            {
-                p.path = i->second;
-                p.time = invalidTime;
-                p.image.reset();
-                _outputs[0].reset();
-            }
-            return INode::setAttr(tmp);
-        }
-
-        void ImageSequenceNode::exec(
+        void ImageOutputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {
-            INode::exec(render, time);
+            IOutputNode::exec(render, time);
             FTK_P();
 
-            const int startFrame = _attr->getItem("StartFrame");
-            const int endFrame = _attr->getItem("EndFrame");
-            const InputLoop loop = _attr->getItem("Loop");
-
-            const OTIO_NS::TimeRange timeRange(
-                OTIO_NS::RationalTime(startFrame, time.rate()),
-                OTIO_NS::RationalTime(endFrame - startFrame + 1, time.rate()));
-            const OTIO_NS::RationalTime time2 = getInputLoop(
-                loop,
-                time + timeRange.start_time(),
-                timeRange);
-            if (time2 != p.time || !timeRange.contains(time2))
-            {
-                p.time = time2;
-                p.image.reset();
-                _outputs[0].reset();
-            }
-
-            if (!p.path.empty() && !p.image)
-            {
-                try
-                {
-                    auto ioSystem = _context.lock()->getSystem<ftk::ImageIO>();
-                    const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
-                    if (auto read = ioSystem->read(std::filesystem::u8path(fileName)))
-                    {
-                        p.image = read->read();
-                    }
-                }
-                catch (const std::exception& e)
-                {
-                    auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::ImageSequenceNode", e.what(), ftk::LogType::Error);
-                }
-            }
-
             ftk::gl::TextureInfo info;
-            if (p.image)
+            if (_inputs->getItem(0).node)
             {
-                info.size = p.image->getSize();
-                info.type = ftk::gl::getTextureType(p.image->getType());
+                const auto& input0 = _inputs->getItem(0).node->getOutputs();
+                if (!input0.empty() && input0.front())
+                {
+                    info.size = input0.front()->getSize();
+                    info.type = input0.front()->getType();
+                }
                 if (info.isValid())
                 {
                     if (ftk::gl::doCreate(_outputs[0], info))
@@ -281,15 +118,17 @@ namespace ibis
                         _outputs[0] = ftk::gl::OffscreenBuffer::create(info);
                     }
                     ftk::gl::OffscreenBufferBinding binding(_outputs[0]);
-                    const ftk::Box2I g(0, 0, info.size.w, info.size.h);
                     render->setRenderSize(info.size);
-                    render->setViewport(g);
+                    const ftk::Box2I vp(0, 0, info.size.w, info.size.h);
+                    render->setViewport(vp);
                     render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
                     render->setTransform(_getProjection(info.size));
-                    ftk::ImageOptions imageOptions;
-                    imageOptions.cache = false;
-                    render->drawImage(p.image, g, ftk::Color4F(1.F, 1.F, 1.F), imageOptions);
+                    render->drawTexture(input0.front()->getColorID(), vp, true);
                 }
+            }
+            if (!_inputs->getItem(0).node || !info.isValid())
+            {
+                _outputs[0].reset();
             }
             _outputInfo->setItemOnlyIfChanged(0, info);
         }

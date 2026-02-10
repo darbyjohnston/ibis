@@ -7,6 +7,8 @@
 #include <ftk/UI/RecentFilesModel.h>
 #include <ftk/Core/Path.h>
 
+#include <opentimelineio/version.h>
+
 namespace ibis
 {
     namespace render
@@ -62,11 +64,14 @@ namespace ibis
         void open(const ftk::Path&);
         void open();
         void save();
+        void render();
 
         void run() override;
 
     private:
         void _createModels();
+
+        bool _renderFrame();
 
         FTK_PRIVATE();
     };

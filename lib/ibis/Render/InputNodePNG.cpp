@@ -17,7 +17,7 @@ namespace ibis
 {
     namespace render
     {
-        struct ImageFileNode::Private
+        struct ImageInputNode::Private
         {
             std::string path;
             std::shared_ptr<ftk::Image> image;
@@ -26,7 +26,7 @@ namespace ibis
             std::shared_ptr<ftk::ObservableList<std::string> > channelNames;
         };
 
-        void ImageFileNode::_init(
+        void ImageInputNode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
@@ -41,43 +41,43 @@ namespace ibis
             p.channelNames = ftk::ObservableList<std::string>::create();
         }
 
-        ImageFileNode::ImageFileNode() :
+        ImageInputNode::ImageInputNode() :
             _p(new Private)
         {}
 
-        ImageFileNode::~ImageFileNode()
+        ImageInputNode::~ImageInputNode()
         {}
 
-        NodeInfo ImageFileNode::getClassNodeInfo()
+        NodeInfo ImageInputNode::getClassNodeInfo()
         {
-            return { "ImageFile", "Image File", "Input" };
+            return { "ImageInput", "Image Input", "I/O" };
         }
 
-        std::vector<std::string> ImageFileNode::getExts()
+        std::vector<std::string> ImageInputNode::getExts()
         {
             return std::vector<std::string>({ ".png" });
         }
 
-        std::shared_ptr<INode> ImageFileNode::create(
+        std::shared_ptr<INode> ImageInputNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
-            std::shared_ptr<ImageFileNode> out(new ImageFileNode);
+            std::shared_ptr<ImageInputNode> out(new ImageInputNode);
             out->_init(context, json);
             return out;
         }
 
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageFileNode::observeSubImages() const
+        std::shared_ptr<ftk::IObservableList<std::string> > ImageInputNode::observeSubImages() const
         {
             return _p->subImageNames;
         }
 
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageFileNode::observeChannels() const
+        std::shared_ptr<ftk::IObservableList<std::string> > ImageInputNode::observeChannels() const
         {
             return _p->channelNames;
         }
 
-        bool ImageFileNode::setAttr(const NodeAttr& value)
+        bool ImageInputNode::setAttr(const NodeAttr& value)
         {
             FTK_P();
             NodeAttr tmp = value;
@@ -93,7 +93,7 @@ namespace ibis
             return INode::setAttr(tmp);
         }
 
-        void ImageFileNode::exec(
+        void ImageInputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {
@@ -115,7 +115,7 @@ namespace ibis
                     catch (const std::exception& e)
                     {
                         auto logSystem = _context.lock()->getLogSystem();
-                        logSystem->print("ibis::render::ImageFileNode", e.what(), ftk::LogType::Error);
+                        logSystem->print("ibis::render::ImageInputNode", e.what(), ftk::LogType::Error);
                     }
                 }
             }
@@ -145,7 +145,7 @@ namespace ibis
             _outputInfo->setItemOnlyIfChanged(0, info);
         }
 
-        struct ImageSequenceNode::Private
+        struct SequenceInputNode::Private
         {
             std::string path;
             OTIO_NS::RationalTime time = invalidTime;
@@ -155,7 +155,7 @@ namespace ibis
             std::shared_ptr<ftk::ObservableList<std::string> > channelNames;
         };
 
-        void ImageSequenceNode::_init(
+        void SequenceInputNode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
@@ -173,43 +173,43 @@ namespace ibis
             p.channelNames = ftk::ObservableList<std::string>::create();
         }
 
-        ImageSequenceNode::ImageSequenceNode() :
+        SequenceInputNode::SequenceInputNode() :
             _p(new Private)
         {}
 
-        ImageSequenceNode::~ImageSequenceNode()
+        SequenceInputNode::~SequenceInputNode()
         {}
 
-        NodeInfo ImageSequenceNode::getClassNodeInfo()
+        NodeInfo SequenceInputNode::getClassNodeInfo()
         {
-            return { "ImageSequence", "Image Sequence", "Input" };
+            return { "SequenceInput", "Sequence Input", "I/O" };
         }
 
-        std::vector<std::string> ImageSequenceNode::getExts()
+        std::vector<std::string> SequenceInputNode::getExts()
         {
-            return ImageFileNode::getExts();
+            return ImageInputNode::getExts();
         }
 
-        std::shared_ptr<INode> ImageSequenceNode::create(
+        std::shared_ptr<INode> SequenceInputNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
-            std::shared_ptr<ImageSequenceNode> out(new ImageSequenceNode);
+            std::shared_ptr<SequenceInputNode> out(new SequenceInputNode);
             out->_init(context, json);
             return out;
         }
 
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageSequenceNode::observeSubImages() const
+        std::shared_ptr<ftk::IObservableList<std::string> > SequenceInputNode::observeSubImages() const
         {
             return _p->subImageNames;
         }
 
-        std::shared_ptr<ftk::IObservableList<std::string> > ImageSequenceNode::observeChannels() const
+        std::shared_ptr<ftk::IObservableList<std::string> > SequenceInputNode::observeChannels() const
         {
             return _p->channelNames;
         }
 
-        bool ImageSequenceNode::setAttr(const NodeAttr& value)
+        bool SequenceInputNode::setAttr(const NodeAttr& value)
         {
             FTK_P();
             NodeAttr tmp = value;
@@ -226,7 +226,7 @@ namespace ibis
             return INode::setAttr(tmp);
         }
 
-        void ImageSequenceNode::exec(
+        void SequenceInputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
         {
@@ -265,7 +265,7 @@ namespace ibis
                 catch (const std::exception& e)
                 {
                     auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::ImageSequenceNode", e.what(), ftk::LogType::Error);
+                    logSystem->print("ibis::render::SequenceInputNode", e.what(), ftk::LogType::Error);
                 }
             }
 
