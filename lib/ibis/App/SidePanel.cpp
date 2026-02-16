@@ -185,7 +185,10 @@ namespace ibis
                 p.layout);
             break;
         case SidePanel::Diag:
-            p.currentWidget = ui::DiagWidget::create(context, p.layout);
+            p.currentWidget = ui::DiagWidget::create(
+                context,
+                app->getDiagModel(),
+                p.layout);
             break;
         case SidePanel::SysLog:
             p.currentWidget = ui::SysLogWidget::create(

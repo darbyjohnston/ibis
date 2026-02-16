@@ -4,10 +4,15 @@
 #pragma once
 
 #include <ftk/UI/App.h>
-#include <ftk/UI/RecentFilesModel.h>
 #include <ftk/Core/Path.h>
 
 #include <opentimelineio/version.h>
+
+namespace ftk
+{
+    class DiagModel;
+    class RecentFilesModel;
+}
 
 namespace ibis
 {
@@ -53,6 +58,7 @@ namespace ibis
 
         const std::shared_ptr<models::SettingsModel>& getSettingsModel() const;
         const std::shared_ptr<models::MessagesModel>& getMessagesModel() const;
+        const std::shared_ptr<ftk::DiagModel>& getDiagModel() const;
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
         const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;
         const std::shared_ptr<render::NodeFactory>& getNodeFactory() const;

@@ -3,15 +3,8 @@
 
 #include "DiagWidget.h"
 
-#include <ftk/UI/GraphWidget.h>
-#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/DiagWidget.h>
 #include <ftk/UI/ScrollWidget.h>
-#include <ftk/GL/Mesh.h>
-#include <ftk/GL/OffscreenBuffer.h>
-#include <ftk/GL/Shader.h>
-#include <ftk/GL/Texture.h>
-#include <ftk/Core/Format.h>
-#include <ftk/Core/Timer.h>
 
 namespace ibis
 {
@@ -19,73 +12,24 @@ namespace ibis
     {
         struct DiagWidget::Private
         {
-            std::map<std::string, std::shared_ptr<ftk::GraphWidget> > graphs;
-            std::shared_ptr<ftk::Timer> timer;
+            std::shared_ptr<ftk::DiagWidget> widget;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
         };
 
         void DiagWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::DiagModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::DiagWidget", parent);
             FTK_P();
 
-            p.graphs["GLObjects"] = ftk::GraphWidget::create(
-                context,
-                "OpenGL Objects",
-                {
-                    { ftk::ColorRole::Cyan, "Meshes: {0}" },
-                    { ftk::ColorRole::Magenta, "Textures: {0}" },
-                    { ftk::ColorRole::Yellow, "Buffers: {0}" },
-                    { ftk::ColorRole::Red, "Shaders: {0}" }
-                });
-
-            p.graphs["GLMemory"] = ftk::GraphWidget::create(
-                context,
-                "OpenGL Memory",
-                {
-                    { ftk::ColorRole::Cyan, "Meshes: {0}MB" },
-                    { ftk::ColorRole::Magenta, "Textures: {0}MB" },
-                    { ftk::ColorRole::Yellow, "Buffers: {0}MB" }
-                });
-
-            p.graphs["Objects"] = ftk::GraphWidget::create(
-                context,
-                "Objects",
-                {
-                    { ftk::ColorRole::Cyan, "Images: {0}" },
-                    { ftk::ColorRole::Magenta, "Widgets: {0}" }
-                });
-
-            p.graphs["Memory"] = ftk::GraphWidget::create(
-                context,
-                "Memory",
-                {
-                    { ftk::ColorRole::Cyan, "Images: {0}MB" }
-                });
-
-            auto layout = ftk::VerticalLayout::create(context);
-            layout->setMarginRole(ftk::SizeRole::Margin);
-            for (const auto& i : p.graphs)
-            {
-                i.second->setParent(layout);
-            }
+            p.widget = ftk::DiagWidget::create(context, model);
+            p.widget->setMarginRole(ftk::SizeRole::Margin);
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
-            p.scrollWidget->setWidget(layout);
             p.scrollWidget->setBorder(false);
-
-            _widgetUpdate();
-
-            p.timer = ftk::Timer::create(context);
-            p.timer->setRepeating(true);
-            p.timer->start(
-                std::chrono::milliseconds(1000),
-                [this]
-                {
-                    _widgetUpdate();
-                });
+            p.scrollWidget->setWidget(p.widget);
         }
 
         DiagWidget::DiagWidget() :
@@ -97,10 +41,11 @@ namespace ibis
 
         std::shared_ptr<DiagWidget> DiagWidget::create(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::DiagModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<DiagWidget> out(new DiagWidget);
-            out->_init(context, parent);
+            out->_init(context, model, parent);
             return out;
         }
 
@@ -113,44 +58,6 @@ namespace ibis
         {
             IWidget::setGeometry(value);
             _p->scrollWidget->setGeometry(value);
-        }
-
-        void DiagWidget::_widgetUpdate()
-        {
-            FTK_P();
-            p.graphs["GLObjects"]->addSample(
-                ftk::ColorRole::Cyan,
-                ftk::gl::VBO::getObjectCount());
-            p.graphs["GLObjects"]->addSample(
-                ftk::ColorRole::Magenta,
-                ftk::gl::Texture::getObjectCount());
-            p.graphs["GLObjects"]->addSample(
-                ftk::ColorRole::Yellow,
-                ftk::gl::OffscreenBuffer::getObjectCount());
-            p.graphs["GLObjects"]->addSample(
-                ftk::ColorRole::Red,
-                ftk::gl::Shader::getObjectCount());
-
-            p.graphs["GLMemory"]->addSample(
-                ftk::ColorRole::Cyan,
-                ftk::gl::VBO::getTotalByteCount() / ftk::megabyte);
-            p.graphs["GLMemory"]->addSample(
-                ftk::ColorRole::Magenta,
-                ftk::gl::Texture::getTotalByteCount() / ftk::megabyte);
-            p.graphs["GLMemory"]->addSample(
-                ftk::ColorRole::Yellow,
-                ftk::gl::OffscreenBuffer::getTotalByteCount() / ftk::megabyte);
-
-            p.graphs["Objects"]->addSample(
-                ftk::ColorRole::Cyan,
-                ftk::Image::getObjectCount());
-            p.graphs["Objects"]->addSample(
-                ftk::ColorRole::Magenta,
-                ftk::IWidget::getObjectCount());
-
-            p.graphs["Memory"]->addSample(
-                ftk::ColorRole::Cyan,
-                ftk::Image::getTotalByteCount() / ftk::megabyte);
         }
     }
 }

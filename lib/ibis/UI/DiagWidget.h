@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include <ibis/UI/NodeDragDrop.h>
+#include <ftk/UI/IWidget.h>
 
-#include <ibis/Render/NodeFactory.h>
-
-#include <ftk/UI/IMouseWidget.h>
+namespace ftk
+{
+    class DiagModel;
+}
 
 namespace ibis
 {
@@ -19,6 +20,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::DiagModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             DiagWidget();
@@ -29,14 +31,13 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<DiagWidget> create(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::DiagModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;
             void setGeometry(const ftk::Box2I&) override;
 
         private:
-            void _widgetUpdate();
-
             FTK_PRIVATE();
         };
     }
