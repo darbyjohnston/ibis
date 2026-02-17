@@ -106,6 +106,7 @@ namespace ibis
             IWidget::_init(context, "ibis::NodeGraphCanvas", parent);
             FTK_P();
 
+            setBackgroundRole(ftk::ColorRole::Base);
             setAcceptsKeyFocus(true);
 
             p.document = document;
@@ -366,7 +367,7 @@ namespace ibis
                             ftk::V2I(g.min.x + x, g.max.y)));
                     }
                 }
-                event.render->drawLines(lines, event.style->getColorRole(ftk::ColorRole::Border));
+                event.render->drawLines(lines, event.style->getColorRole(ftk::ColorRole::Button));
             }
 
             // Draw shadows.

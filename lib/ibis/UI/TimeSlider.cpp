@@ -116,7 +116,7 @@ namespace ibis
 
             // Draw the background.
             const ftk::Box2I& g = getGeometry();
-            event.render->drawRect(g, event.style->getColorRole(ftk::ColorRole::Base));
+            event.render->drawRect(g, event.style->getColorRole(ftk::ColorRole::Window));
 
             // Draw the frames.
             const ftk::Box2I g2 = ftk::margin(g, -p.size.margin, 0, -p.size.margin, 0);
