@@ -42,6 +42,17 @@ namespace ibis
             return !(*this == other);
         }
 
+        bool WindowSettings::operator == (const WindowSettings& other) const
+        {
+            return
+                bufferType == other.bufferType;
+        }
+
+        bool WindowSettings::operator != (const WindowSettings& other) const
+        {
+            return !(*this == other);
+        }
+
         struct SettingsModel::Private
         {
             std::shared_ptr<ftk::Observable<CanvasSettings> > canvas;
@@ -49,6 +60,7 @@ namespace ibis
             std::shared_ptr<ftk::Observable<FileBrowserSettings> > fileBrowser;
             float defaultDisplayScale = 1.F;
             std::shared_ptr<ftk::Observable<StyleSettings> > style;
+            std::shared_ptr<ftk::Observable<WindowSettings> > window;
         };
 
         SettingsModel::SettingsModel(
@@ -77,6 +89,10 @@ namespace ibis
             style.displayScale = defaultDisplayScale;
             getT("/Style", style);
             p.style = ftk::Observable<StyleSettings>::create(style);
+
+            WindowSettings window;
+            getT("/Window", window);
+            p.window = ftk::Observable<WindowSettings>::create(window);
         }
         
         SettingsModel::~SettingsModel()
@@ -90,6 +106,7 @@ namespace ibis
                 setT("/FileBrowser", fileBrowser);
             }
             setT("/Style", p.style->get());
+            setT("/Window", p.window->get());
         }
 
         std::shared_ptr<SettingsModel> SettingsModel::create(
@@ -108,6 +125,7 @@ namespace ibis
             StyleSettings style;
             style.displayScale = p.defaultDisplayScale;
             setStyle(style);
+            setWindow(WindowSettings());
         }
 
         const CanvasSettings& SettingsModel::getCanvas() const
@@ -162,6 +180,21 @@ namespace ibis
             _p->style->setIfChanged(value);
         }
 
+        const WindowSettings& SettingsModel::getWindow() const
+        {
+            return _p->window->get();
+        }
+
+        std::shared_ptr<ftk::IObservable<WindowSettings> > SettingsModel::observeWindow() const
+        {
+            return _p->window;
+        }
+
+        void SettingsModel::setWindow(const WindowSettings& value)
+        {
+            _p->window->setIfChanged(value);
+        }
+
         void to_json(nlohmann::json& json, const CanvasSettings& value)
         {
             json["MiniMap"] = value.miniMap;
@@ -180,6 +213,16 @@ namespace ibis
             json["ColorStyle"] = to_string(value.colorStyle);
         }
 
+        void to_json(nlohmann::json& json, const WindowSettings& value)
+        {
+            json["BufferType"] = to_string(value.bufferType);
+        }
+
+        void from_json(const nlohmann::json& json, CanvasSettings& value)
+        {
+            json.at("MiniMap").get_to(value.miniMap);
+        }
+
         void from_json(const nlohmann::json& json, FileBrowserSettings& value)
         {
             json.at("NativeFileDialog").get_to(value.nativeFileDialog);
@@ -193,9 +236,9 @@ namespace ibis
             json.at("ColorControls").get_to(value.colorControls);
         }
 
-        void from_json(const nlohmann::json& json, CanvasSettings& value)
+        void from_json(const nlohmann::json& json, WindowSettings& value)
         {
-            json.at("MiniMap").get_to(value.miniMap);
+            from_string(json.at("BufferType").get<std::string>(), value.bufferType);
         }
     }
 }

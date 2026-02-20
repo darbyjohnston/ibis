@@ -70,6 +70,7 @@ namespace ibis
         std::shared_ptr<ftk::ListObserver<std::shared_ptr<models::Document> > > documentsObserver;
         std::shared_ptr<ftk::Observer<std::shared_ptr<models::Document> > > currentObserver;
         std::shared_ptr<ftk::Observer<int> > currentIndexObserver;
+        std::shared_ptr<ftk::Observer<models::WindowSettings> > windowSettingsObserver;
     };
 
     void MainWindow::_init(
@@ -212,6 +213,13 @@ namespace ibis
                 FTK_P();
                 p.documentTabBar->setCurrent(value);
                 p.documentLayout->setCurrentIndex(value);
+            });
+
+        p.windowSettingsObserver = ftk::Observer<models::WindowSettings>::create(
+            app->getSettingsModel()->observeWindow(),
+            [this](const models::WindowSettings& value)
+            {
+                setBufferType(value.bufferType);
             });
 
         p.documentTabBar->setCallback(

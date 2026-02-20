@@ -5,6 +5,7 @@
 
 #include <ftk/UI/App.h>
 #include <ftk/UI/FileBrowser.h>
+#include <ftk/UI/IWindow.h>
 #include <ftk/UI/Settings.h>
 
 namespace ibis
@@ -39,6 +40,16 @@ namespace ibis
 
             bool operator == (const StyleSettings&) const;
             bool operator != (const StyleSettings&) const;
+        };
+
+        //! Window settings.
+        struct WindowSettings
+        {
+
+            ftk::WindowBufferType bufferType = ftk::windowBufferTypeDefault;
+
+            bool operator == (const WindowSettings&) const;
+            bool operator != (const WindowSettings&) const;
         };
 
         //! This model provides settings that are saved and restored.
@@ -91,6 +102,15 @@ namespace ibis
 
             ///@}
 
+            //! \name Window
+            ///@{
+
+            const WindowSettings& getWindow() const;
+            std::shared_ptr<ftk::IObservable<WindowSettings> > observeWindow() const;
+            void setWindow(const WindowSettings&);
+
+            ///@}
+
         private:
             FTK_PRIVATE();
         };
@@ -101,10 +121,12 @@ namespace ibis
         void to_json(nlohmann::json&, const CanvasSettings&);
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const StyleSettings&);
+        void to_json(nlohmann::json&, const WindowSettings&);
 
         void from_json(const nlohmann::json&, CanvasSettings&);
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, StyleSettings&);
+        void from_json(const nlohmann::json&, WindowSettings&);
 
         ///@}
     }

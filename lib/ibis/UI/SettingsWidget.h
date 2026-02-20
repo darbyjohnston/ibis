@@ -101,6 +101,36 @@ namespace ibis
             FTK_PRIVATE();
         };
 
+        //! Window settings widget.
+        class WindowSettingsWidget : public ftk::IWidget
+        {
+            FTK_NON_COPYABLE(WindowSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::SettingsModel>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            WindowSettingsWidget();
+
+        public:
+            virtual ~WindowSettingsWidget();
+
+            static std::shared_ptr<WindowSettingsWidget> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::SettingsModel>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            ftk::Size2I getSizeHint() const override;
+            void setGeometry(const ftk::Box2I&) override;
+
+        private:
+            void _widgetUpdate(const models::WindowSettings&);
+
+            FTK_PRIVATE();
+        };
+
         //! Settings widget.
         class SettingsWidget : public ftk::IWidget
         {

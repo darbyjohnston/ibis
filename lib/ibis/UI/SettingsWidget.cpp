@@ -313,6 +313,86 @@ namespace ibis
                 -1);
         }
 
+        struct WindowSettingsWidget::Private
+        {
+            std::shared_ptr<models::SettingsModel> model;
+
+            std::shared_ptr<ftk::ComboBox> bufferTypeComboBox;
+            std::shared_ptr<ftk::FormLayout> layout;
+
+            std::shared_ptr<ftk::Observer<models::WindowSettings> > settingsObserver;
+        };
+
+        void WindowSettingsWidget::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<models::SettingsModel>& model,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init(context, "ibis::ui::WindowSettingsWidget", parent);
+            FTK_P();
+
+            p.model = model;
+
+            p.bufferTypeComboBox = ftk::ComboBox::create(context, ftk::getWindowBufferTypeLabels());
+            p.bufferTypeComboBox->setHStretch(ftk::Stretch::Expanding);
+
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
+            p.layout->addRow("Buffer type:", p.bufferTypeComboBox);
+
+            p.settingsObserver = ftk::Observer<models::WindowSettings>::create(
+                model->observeWindow(),
+                [this](const models::WindowSettings& value)
+                {
+                    _widgetUpdate(value);
+                });
+
+            p.bufferTypeComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    FTK_P();
+                    auto settings = p.model->getWindow();
+                    settings.bufferType = static_cast<ftk::WindowBufferType>(value);
+                    p.model->setWindow(settings);
+                });
+        }
+
+        WindowSettingsWidget::WindowSettingsWidget() :
+            _p(new Private)
+        {}
+
+        WindowSettingsWidget::~WindowSettingsWidget()
+        {}
+
+        std::shared_ptr<WindowSettingsWidget> WindowSettingsWidget::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<models::SettingsModel>& model,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<WindowSettingsWidget>(new WindowSettingsWidget);
+            out->_init(context, model, parent);
+            return out;
+        }
+
+        ftk::Size2I WindowSettingsWidget::getSizeHint() const
+        {
+            return _p->layout->getSizeHint();
+        }
+
+        void WindowSettingsWidget::setGeometry(const ftk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void WindowSettingsWidget::_widgetUpdate(const models::WindowSettings& value)
+        {
+            FTK_P();
+
+            p.bufferTypeComboBox->setCurrentIndex(static_cast<int>(value.bufferType));
+        }
+
         struct SettingsWidget::Private
         {
             std::map<std::string, std::shared_ptr<ftk::Bellows> > bellows;
@@ -338,6 +418,8 @@ namespace ibis
 #endif // FTK_NFD
             p.bellows["Style"] = ftk::Bellows::create(context, "Style", layout);
             p.bellows["Style"]->setWidget(StyleSettingsWidget::create(context, model));
+            p.bellows["Window"] = ftk::Bellows::create(context, "Window", layout);
+            p.bellows["Window"]->setWidget(WindowSettingsWidget::create(context, model));
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
             p.scrollWidget->setBorder(false);
