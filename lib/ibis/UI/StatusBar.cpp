@@ -3,9 +3,8 @@
 
 #include <ibis/UI/StatusBar.h>
 
-#include <ibis/Models/MessagesModel.h>
-
 #include <ftk/UI/Label.h>
+#include <ftk/UI/SysLogModel.h>
 #include <ftk/Core/Timer.h>
 
 namespace ibis
@@ -22,7 +21,7 @@ namespace ibis
 
         void StatusBar::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<models::MessagesModel>& model,
+            const std::shared_ptr<ftk::SysLogModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             IMouseWidget::_init(context, "ibis::ui::StatusBar", parent);
@@ -45,14 +44,16 @@ namespace ibis
                 [this](const std::vector<std::string>& items)
                 {
                     FTK_P();
+                    p.label->setText(!items.empty() ? items.back() : std::string());
+                    p.label->setTooltip(!items.empty() ? items.back() : std::string());
                     if (!items.empty())
                     {
-                        p.label->setText(items.back());
                         p.timer->start(
                             std::chrono::seconds(5),
                             [this]
                             {
-                                _p->label->setText("");
+                                _p->label->setText(std::string());
+                                _p->label->setTooltip(std::string());
                             });
                     }
                 });
@@ -67,7 +68,7 @@ namespace ibis
 
         std::shared_ptr<StatusBar> StatusBar::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<models::MessagesModel>& model,
+            const std::shared_ptr<ftk::SysLogModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<StatusBar>(new StatusBar);

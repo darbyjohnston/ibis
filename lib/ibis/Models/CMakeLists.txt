@@ -1,7 +1,6 @@
 set(HEADERS
     Document.h
     DocumentModel.h
-    MessagesModel.h
     NodeSelectionModel.h
     SettingsModel.h
     TimeModel.h
@@ -10,7 +9,6 @@ set(HEADERS
 set(SOURCE
     Document.cpp
     DocumentModel.cpp
-    MessagesModel.cpp
     NodeSelectionModel.cpp
     SettingsModel.cpp
     TimeModel.cpp

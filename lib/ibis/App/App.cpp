@@ -10,7 +10,6 @@
 
 #include <ibis/Models/Document.h>
 #include <ibis/Models/DocumentModel.h>
-#include <ibis/Models/MessagesModel.h>
 #include <ibis/Models/SettingsModel.h>
 #include <ibis/Models/TimeModel.h>
 #include <ibis/Models/TimeUnitsModel.h>
@@ -24,6 +23,7 @@
 #include <ftk/UI/FileBrowser.h>
 #include <ftk/UI/ProgressDialog.h>
 #include <ftk/UI/RecentFilesModel.h>
+#include <ftk/UI/SysLogModel.h>
 #include <ftk/GL/System.h>
 #include <ftk/Core/CmdLine.h>
 #include <ftk/Core/FileIO.h>
@@ -41,7 +41,7 @@ namespace ibis
         CmdLine cmdLine;
 
         std::shared_ptr<models::SettingsModel> settingsModel;
-        std::shared_ptr<models::MessagesModel> messagesModel;
+        std::shared_ptr<ftk::SysLogModel> sysLogModel;
         std::shared_ptr<ftk::DiagModel> diagModel;
         std::shared_ptr<ftk::RecentFilesModel> recentFilesModel;
         std::shared_ptr<models::TimeUnitsModel> timeUnitsModel;
@@ -113,9 +113,9 @@ namespace ibis
         return _p->settingsModel;
     }
 
-    const std::shared_ptr<models::MessagesModel>& App::getMessagesModel() const
+    const std::shared_ptr<ftk::SysLogModel>& App::getSysLogModel() const
     {
-        return _p->messagesModel;
+        return _p->sysLogModel;
     }
 
     const std::shared_ptr<ftk::DiagModel>& App::getDiagModel() const
@@ -305,7 +305,7 @@ namespace ibis
             _context,
             ftk::getSettingsPath("ibis", "ibis.json"),
             getDefaultDisplayScale());
-        p.messagesModel = models::MessagesModel::create(_context);
+        p.sysLogModel = ftk::SysLogModel::create(_context);
         p.diagModel = ftk::DiagModel::create(_context);
         p.recentFilesModel = ftk::RecentFilesModel::create(_context);
         auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();

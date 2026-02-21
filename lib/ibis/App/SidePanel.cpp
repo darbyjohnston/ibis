@@ -181,7 +181,7 @@ namespace ibis
             p.currentWidget = ui::MessagesWidget::create(
                 context,
                 app->getSettingsModel(),
-                app->getMessagesModel(),
+                app->getSysLogModel(),
                 p.layout);
             break;
         case SidePanel::Diag:
@@ -194,7 +194,7 @@ namespace ibis
             p.currentWidget = ui::SysLogWidget::create(
                 context,
                 app->getSettingsModel(),
-                app->getMessagesModel(),
+                app->getSysLogModel(),
                 p.layout);
             break;
         default: break;

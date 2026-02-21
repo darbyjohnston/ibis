@@ -5,13 +5,13 @@
 
 #include <ftk/UI/IMouseWidget.h>
 
+namespace ftk
+{
+    class SysLogModel;
+}
+
 namespace ibis
 {
-    namespace models
-    {
-        class MessagesModel;
-    }
-
     namespace ui
     {
         //! Status bar.
@@ -22,7 +22,7 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<models::MessagesModel>&,
+                const std::shared_ptr<ftk::SysLogModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
             StatusBar();
@@ -33,7 +33,7 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<StatusBar> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<models::MessagesModel>&,
+                const std::shared_ptr<ftk::SysLogModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setCallback(const std::function<void(void)>&);

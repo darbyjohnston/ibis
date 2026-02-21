@@ -3,13 +3,13 @@
 
 #include "MessagesWidget.h"
 
-#include <ibis/Models/MessagesModel.h>
 #include <ibis/Models/SettingsModel.h>
 
 #include <ftk/UI/CheckBox.h>
 #include <ftk/UI/ClipboardSystem.h>
 #include <ftk/UI/PushButton.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/SysLogModel.h>
 #include <ftk/UI/TextEdit.h>
 #include <ftk/Core/String.h>
 
@@ -33,7 +33,7 @@ namespace ibis
         void MessagesWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::SettingsModel>& settings,
-            const std::shared_ptr<models::MessagesModel>& model,
+            const std::shared_ptr<ftk::SysLogModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::MessagesWidget", parent);
@@ -97,7 +97,7 @@ namespace ibis
         std::shared_ptr<MessagesWidget> MessagesWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::SettingsModel>& settings,
-            const std::shared_ptr<models::MessagesModel>& model,
+            const std::shared_ptr<ftk::SysLogModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<MessagesWidget> out(new MessagesWidget);

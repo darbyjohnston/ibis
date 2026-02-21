@@ -12,6 +12,7 @@ namespace ftk
 {
     class DiagModel;
     class RecentFilesModel;
+    class SysLogModel;
 }
 
 namespace ibis
@@ -25,7 +26,6 @@ namespace ibis
     {
         class Document;
         class DocumentModel;
-        class MessagesModel;
         class SettingsModel;
         class TimeUnitsModel;
     }
@@ -57,7 +57,7 @@ namespace ibis
             std::vector<std::string>&);
 
         const std::shared_ptr<models::SettingsModel>& getSettingsModel() const;
-        const std::shared_ptr<models::MessagesModel>& getMessagesModel() const;
+        const std::shared_ptr<ftk::SysLogModel>& getSysLogModel() const;
         const std::shared_ptr<ftk::DiagModel>& getDiagModel() const;
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
         const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;

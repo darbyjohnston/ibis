@@ -127,7 +127,7 @@ namespace ibis
         p.documentLayout = ftk::StackLayout::create(context);
         p.documentLayout->setVStretch(ftk::Stretch::Expanding);
 
-        p.statusBar = ui::StatusBar::create(context, app->getMessagesModel());
+        p.statusBar = ui::StatusBar::create(context, app->getSysLogModel());
 
         p.layout = ftk::VerticalLayout::create(context);
         p.layout->setSpacingRole(ftk::SizeRole::None);

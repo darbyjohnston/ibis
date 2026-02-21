@@ -9,11 +9,15 @@
 
 #include <ftk/UI/IMouseWidget.h>
 
+namespace ftk
+{
+    class SysLogModel;
+}
+
 namespace ibis
 {
     namespace models
     {
-        class MessagesModel;
         class SettingsModel;
     }
 
@@ -26,7 +30,7 @@ namespace ibis
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::SettingsModel>&,
-                const std::shared_ptr<models::MessagesModel>&,
+                const std::shared_ptr<ftk::SysLogModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             SysLogWidget();
@@ -38,7 +42,7 @@ namespace ibis
             static std::shared_ptr<SysLogWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::SettingsModel>&,
-                const std::shared_ptr<models::MessagesModel>&,
+                const std::shared_ptr<ftk::SysLogModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;
