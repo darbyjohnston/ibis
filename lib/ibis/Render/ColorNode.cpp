@@ -220,7 +220,7 @@ namespace ibis
             return ftk::saturation(ftk::V3F(v, v, v));
         }
 
-        void TintNode::_init(
+        void HueNode::_init(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
@@ -229,27 +229,27 @@ namespace ibis
             IColorMatrixNode::_init(context, getClassNodeInfo(), 1, 1, attr, json);
         }
 
-        TintNode::~TintNode()
+        HueNode::~HueNode()
         {}
 
-        NodeInfo TintNode::getClassNodeInfo()
+        NodeInfo HueNode::getClassNodeInfo()
         {
-            return { "Tint", "Tint", "Color" };
+            return { "Hue", "Hue", "Color" };
         }
 
-        std::shared_ptr<INode> TintNode::create(
+        std::shared_ptr<INode> HueNode::create(
             const std::shared_ptr<ftk::Context>& context,
             const nlohmann::json& json)
         {
-            std::shared_ptr<TintNode> out(new TintNode);
+            std::shared_ptr<HueNode> out(new HueNode);
             out->_init(context, json);
             return out;
         }
 
-        ftk::M44F TintNode::_getColorMatrix() const
+        ftk::M44F HueNode::_getColorMatrix() const
         {
             const float v = static_cast<float>(_attr->getItem("Value")) / 360.F;
-            return ftk::tint(v);
+            return ftk::hue(v);
         }
 
         struct InvertNode::Private

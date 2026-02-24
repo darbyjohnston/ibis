@@ -110,6 +110,10 @@ namespace ibis
                 // Execute the leaf nodes.
                 for (const auto& node : graph->getLeafNodes())
                 {
+                    node->execInit(t);
+                }
+                for (const auto& node : graph->getLeafNodes())
+                {
                     node->exec(render, t);
                 }
 

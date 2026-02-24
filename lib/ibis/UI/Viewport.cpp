@@ -312,17 +312,11 @@ namespace ibis
 
                 for (const auto& node : p.document->getGraph()->getLeafNodes())
                 {
-                    try
-                    {
-                        node->exec(event.render, p.currentTime);
-                    }
-                    catch (const std::exception& e)
-                    {
-                        if (auto context = getContext())
-                        {
-                            context->log("ibis::ui::Viewport", e.what(), ftk::LogType::Error);
-                        }
-                    }
+                    node->execInit(p.currentTime);
+                }
+                for (const auto& node : p.document->getGraph()->getLeafNodes())
+                {
+                    node->exec(event.render, p.currentTime);
                 }
             }
 

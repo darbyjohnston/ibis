@@ -364,6 +364,10 @@ namespace ibis
         const OTIO_NS::RationalTime time(p.render->frame, p.render->rate);
         for (const auto& node : p.render->graph->getLeafNodes())
         {
+            node->execInit(time);
+        }
+        for (const auto& node : p.render->graph->getLeafNodes())
+        {
             node->exec(p.render->render, time);
         }
 

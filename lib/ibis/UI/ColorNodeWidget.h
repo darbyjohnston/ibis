@@ -102,8 +102,8 @@ namespace ibis
             FTK_PRIVATE();
         };
 
-        //! Tint node widget.
-        class TintNodeWidget : public IInteractionNodeWidget
+        //! Color hue node widget.
+        class HueNodeWidget : public IInteractionNodeWidget
         {
         protected:
             void _init(
@@ -112,13 +112,13 @@ namespace ibis
                 const std::shared_ptr<render::INode>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
-            TintNodeWidget();
+            HueNodeWidget();
 
         public:
-            virtual ~TintNodeWidget();
+            virtual ~HueNodeWidget();
 
             //! Create a new widget.
-            static std::shared_ptr<TintNodeWidget> create(
+            static std::shared_ptr<HueNodeWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<models::Document>&,
                 const std::shared_ptr<render::INode>&,

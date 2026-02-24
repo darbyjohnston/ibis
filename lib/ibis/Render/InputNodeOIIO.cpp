@@ -15,6 +15,8 @@
 #include <OpenImageIO/filesystem.h>
 #include <OpenImageIO/imagebufalgo.h>
 
+#include <future>
+
 namespace ibis
 {
     namespace render
@@ -254,12 +256,68 @@ namespace ibis
             }
         }
 
+        namespace
+        {
+            typedef std::pair<std::shared_ptr<ftk::Image>, std::string> LoadResult;
+
+            LoadResult load(
+                const std::string& fileName,
+                int subImage,
+                int channelGroup)
+            {
+                std::pair<std::shared_ptr<ftk::Image>, std::string> out;
+                try
+                {
+                    const auto oiioInput = OIIO::ImageInput::open(fileName);
+                    if (!oiioInput)
+                    {
+                        throw std::runtime_error(OIIO::geterror());
+                    }
+                    auto subImages = getSubImages(oiioInput.get());
+                    std::optional<ChannelGroup> group;
+                    if (subImage >= 0 &&
+                        subImage < subImages.size() &&
+                        channelGroup >= 0 &&
+                        channelGroup < subImages[subImage].channels.size())
+                    {
+                        group = subImages[subImage].channels[channelGroup];
+                    }
+                    if (!group.has_value())
+                    {
+                        std::stringstream ss;
+                        ss << "Unsupported file: " << fileName;
+                        throw std::runtime_error(ss.str());
+                    }
+
+                    ftk::ImageInfo imageInfo(group->size, group->type);
+                    imageInfo.layout.mirror.y = true;
+                    out.first = ftk::Image::create(imageInfo);
+                    if (!oiioInput->read_image(
+                        subImage,
+                        0,
+                        group->start,
+                        group->start + ftk::getChannelCount(group->type),
+                        group->oiioFormat,
+                        out.first->getData()))
+                    {
+                        throw std::runtime_error(OIIO::geterror());
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    out.second = e.what();
+                }
+                return out;
+            }
+        }
+
         struct ImageInputNode::Private
         {
             std::string path;
             std::vector<SubImage> subImages;
             int subImage = 0;
             int channelGroup = 0;
+            std::future<LoadResult> future;
             std::shared_ptr<ftk::Image> image;
 
             std::shared_ptr<ftk::ObservableList<std::string> > subImageNames;
@@ -413,6 +471,17 @@ namespace ibis
             return INode::setAttr(tmp);
         }
 
+        void ImageInputNode::execInit(const OTIO_NS::RationalTime& time)
+        {
+            INode::execInit(time);
+            FTK_P();
+
+            if (!p.path.empty() && !p.image)
+            {
+                p.future = std::async(&load, p.path, p.subImage, p.channelGroup);
+            }
+        }
+
         void ImageInputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
@@ -420,52 +489,17 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            if (!p.path.empty())
+            if (p.future.valid())
             {
-                if (!p.image)
+                const auto result = p.future.get();
+                if (!result.first)
                 {
-                    try
-                    {
-                        const auto oiioInput = OIIO::ImageInput::open(p.path);
-                        if (!oiioInput)
-                        {
-                            throw std::runtime_error(OIIO::geterror());
-                        }
-                        auto subImages = getSubImages(oiioInput.get());
-                        std::optional<ChannelGroup> group;
-                        if (p.subImage >= 0 &&
-                            p.subImage < subImages.size() &&
-                            p.channelGroup >= 0 &&
-                            p.channelGroup < subImages[p.subImage].channels.size())
-                        {
-                            group = subImages[p.subImage].channels[p.channelGroup];
-                        }
-                        if (!group.has_value())
-                        {
-                            std::stringstream ss;
-                            ss << "Unsupported file: " << p.path;
-                            throw std::runtime_error(ss.str());
-                        }
-
-                        ftk::ImageInfo imageInfo(group->size, group->type);
-                        imageInfo.layout.mirror.y = true;
-                        p.image = ftk::Image::create(imageInfo);
-                        if (!oiioInput->read_image(
-                            p.subImage,
-                            0,
-                            group->start,
-                            group->start + ftk::getChannelCount(group->type),
-                            group->oiioFormat,
-                            p.image->getData()))
-                        {
-                            throw std::runtime_error(OIIO::geterror());
-                        }
-                    }
-                    catch (const std::exception& e)
-                    {
-                        auto logSystem = _context.lock()->getLogSystem();
-                        logSystem->print("ibis::render::ImageInputNode", e.what(), ftk::LogType::Error);
-                    }
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::ImageInputNode", result.second, ftk::LogType::Error);
+                }
+                else
+                {
+                    p.image = result.first;
                 }
             }
 
@@ -506,6 +540,7 @@ namespace ibis
             int subImage = 0;
             int channelGroup = 0;
             OTIO_NS::RationalTime time = invalidTime;
+            std::future<LoadResult> future;
             std::shared_ptr<ftk::Image> image;
 
             std::shared_ptr<ftk::ObservableList<std::string> > subImageNames;
@@ -646,6 +681,36 @@ namespace ibis
             return INode::setAttr(tmp);
         }
 
+        void SequenceInputNode::execInit(const OTIO_NS::RationalTime& time)
+        {
+            INode::execInit(time);
+            FTK_P();
+
+            const int startFrame = _attr->getItem("StartFrame");
+            const int endFrame = _attr->getItem("EndFrame");
+            const InputLoop loop = _attr->getItem("Loop");
+
+            const OTIO_NS::TimeRange timeRange(
+                OTIO_NS::RationalTime(startFrame, time.rate()),
+                OTIO_NS::RationalTime(endFrame - startFrame + 1, time.rate()));
+            const OTIO_NS::RationalTime time2 = getInputLoop(
+                loop,
+                time + timeRange.start_time(),
+                timeRange);
+            if (time2 != p.time || !timeRange.contains(time2))
+            {
+                p.time = time2;
+                p.image.reset();
+                _outputs[0].reset();
+            }
+
+            if (!p.path.empty() && !p.image)
+            {
+                const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
+                p.future = std::async(&load, fileName, p.subImage, p.channelGroup);
+            }
+        }
+
         void SequenceInputNode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)
@@ -653,7 +718,7 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            const int startFrame = _attr->getItem("StartFrame");
+            /*const int startFrame = _attr->getItem("StartFrame");
             const int endFrame = _attr->getItem("EndFrame");
             const InputLoop loop = _attr->getItem("Loop");
 
@@ -715,6 +780,19 @@ namespace ibis
                 {
                     auto logSystem = _context.lock()->getLogSystem();
                     logSystem->print("ibis::render::SequenceInputNode", e.what(), ftk::LogType::Error);
+                }
+            }*/
+            if (p.future.valid())
+            {
+                const auto result = p.future.get();
+                if (!result.first)
+                {
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print("ibis::render::SequenceInputNode", result.second, ftk::LogType::Error);
+                }
+                else
+                {
+                    p.image = result.first;
                 }
             }
 

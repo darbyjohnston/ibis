@@ -54,10 +54,10 @@ namespace ibis
 
             p.nodes[BrightnessNodeWidget::getClassNodeInfo().id] = &BrightnessNodeWidget::create;
             p.nodes[ContrastNodeWidget::getClassNodeInfo().id] = &ContrastNodeWidget::create;
+            p.nodes[HueNodeWidget::getClassNodeInfo().id] = &HueNodeWidget::create;
             p.nodes[LevelsNodeWidget::getClassNodeInfo().id] = &LevelsNodeWidget::create;
             p.nodes[SaturationNodeWidget::getClassNodeInfo().id] = &SaturationNodeWidget::create;
             p.nodes[SoftClipNodeWidget::getClassNodeInfo().id] = &SoftClipNodeWidget::create;
-            p.nodes[TintNodeWidget::getClassNodeInfo().id] = &TintNodeWidget::create;
 
             p.nodes[CropNodeWidget::getClassNodeInfo().id] = &CropNodeWidget::create;
             p.nodes[MirrorNodeWidget::getClassNodeInfo().id] = &MirrorNodeWidget::create;

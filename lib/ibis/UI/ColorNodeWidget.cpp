@@ -250,7 +250,7 @@ namespace ibis
             _p->bellows->setGeometry(value);
         }
 
-        struct TintNodeWidget::Private
+        struct HueNodeWidget::Private
         {
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
@@ -258,7 +258,7 @@ namespace ibis
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
 
-        void TintNodeWidget::_init(
+        void HueNodeWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
@@ -294,35 +294,35 @@ namespace ibis
                 });
         }
 
-        TintNodeWidget::TintNodeWidget() :
+        HueNodeWidget::HueNodeWidget() :
             _p(new Private)
         {}
 
-        TintNodeWidget::~TintNodeWidget()
+        HueNodeWidget::~HueNodeWidget()
         {}
 
-        std::shared_ptr<TintNodeWidget> TintNodeWidget::create(
+        std::shared_ptr<HueNodeWidget> HueNodeWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<models::Document>& document,
             const std::shared_ptr<render::INode>& node,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
-            std::shared_ptr<TintNodeWidget> out(new TintNodeWidget);
+            std::shared_ptr<HueNodeWidget> out(new HueNodeWidget);
             out->_init(context, document, node, parent);
             return out;
         }
 
-        render::NodeInfo TintNodeWidget::getClassNodeInfo()
+        render::NodeInfo HueNodeWidget::getClassNodeInfo()
         {
-            return render::TintNode::getClassNodeInfo();
+            return render::HueNode::getClassNodeInfo();
         }
 
-        ftk::Size2I TintNodeWidget::getSizeHint() const
+        ftk::Size2I HueNodeWidget::getSizeHint() const
         {
             return _p->bellows->getSizeHint();
         }
 
-        void TintNodeWidget::setGeometry(const ftk::Box2I& value)
+        void HueNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
             _p->bellows->setGeometry(value);

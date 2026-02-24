@@ -138,6 +138,17 @@ namespace ibis
             return out;
         }
 
+        void INode::execInit(const OTIO_NS::RationalTime& time)
+        {
+            for (const auto& input : _inputs->get())
+            {
+                if (input.node)
+                {
+                    input.node->execInit(time);
+                }
+            }
+        }
+
         void INode::exec(
             const std::shared_ptr<ftk::IRender>& render,
             const OTIO_NS::RationalTime& time)

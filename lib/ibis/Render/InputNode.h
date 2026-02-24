@@ -54,6 +54,7 @@ namespace ibis
 
             bool setAttr(const NodeAttr&) override;
 
+            void execInit(const OTIO_NS::RationalTime&) override;
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
                 const OTIO_NS::RationalTime&) override;
@@ -88,6 +89,7 @@ namespace ibis
 
             bool setAttr(const NodeAttr&) override;
 
+            void execInit(const OTIO_NS::RationalTime&) override;
             void exec(
                 const std::shared_ptr<ftk::IRender>&,
                 const OTIO_NS::RationalTime&) override;

@@ -113,6 +113,9 @@ namespace ibis
             //! Set an attribute.
             bool setAttr(const std::string&, const nlohmann::json&);
 
+            //! Initialize the node for execution.
+            virtual void execInit(const OTIO_NS::RationalTime&);
+
             //! Execute the node.
             virtual void exec(
                 const std::shared_ptr<ftk::IRender>&,

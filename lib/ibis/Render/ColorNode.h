@@ -108,18 +108,18 @@ namespace ibis
             ftk::M44F _getColorMatrix() const override;
         };
 
-        //! Tint node.
-        class TintNode : public IColorMatrixNode
+        //! Color hue node.
+        class HueNode : public IColorMatrixNode
         {
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const nlohmann::json&);
 
-            TintNode() = default;
+            HueNode() = default;
 
         public:
-            virtual ~TintNode();
+            virtual ~HueNode();
 
             static NodeInfo getClassNodeInfo();
 

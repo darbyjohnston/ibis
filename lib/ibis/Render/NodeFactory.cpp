@@ -59,6 +59,8 @@ namespace ibis
             p.info[BrightnessNode::getClassNodeInfo().id] = BrightnessNode::getClassNodeInfo();
             p.nodes[ContrastNode::getClassNodeInfo().id] = &ContrastNode::create;
             p.info[ContrastNode::getClassNodeInfo().id] = ContrastNode::getClassNodeInfo();
+            p.nodes[HueNode::getClassNodeInfo().id] = &HueNode::create;
+            p.info[HueNode::getClassNodeInfo().id] = HueNode::getClassNodeInfo();
             p.nodes[InvertNode::getClassNodeInfo().id] = &InvertNode::create;
             p.info[InvertNode::getClassNodeInfo().id] = InvertNode::getClassNodeInfo();
             p.nodes[LevelsNode::getClassNodeInfo().id] = &LevelsNode::create;
@@ -67,8 +69,6 @@ namespace ibis
             p.info[SaturationNode::getClassNodeInfo().id] = SaturationNode::getClassNodeInfo();
             p.nodes[SoftClipNode::getClassNodeInfo().id] = &SoftClipNode::create;
             p.info[SoftClipNode::getClassNodeInfo().id] = SoftClipNode::getClassNodeInfo();
-            p.nodes[TintNode::getClassNodeInfo().id] = &TintNode::create;
-            p.info[TintNode::getClassNodeInfo().id] = TintNode::getClassNodeInfo();
 
             p.nodes[CropNode::getClassNodeInfo().id] = &CropNode::create;
             p.info[CropNode::getClassNodeInfo().id] = CropNode::getClassNodeInfo();
