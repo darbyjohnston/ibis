@@ -5,11 +5,6 @@
 
 #include <ftk/UI/IWidget.h>
 
-namespace ftk
-{
-    class DiagModel;
-}
-
 namespace ibis
 {
     namespace ui
@@ -20,7 +15,6 @@ namespace ibis
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ftk::DiagModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             DiagWidget();
@@ -31,7 +25,6 @@ namespace ibis
             //! Create a new widget.
             static std::shared_ptr<DiagWidget> create(
                 const std::shared_ptr<ftk::Context>&,
-                const std::shared_ptr<ftk::DiagModel>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             ftk::Size2I getSizeHint() const override;

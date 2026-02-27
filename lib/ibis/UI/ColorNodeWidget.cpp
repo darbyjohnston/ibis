@@ -10,6 +10,7 @@
 #include <ftk/UI/Bellows.h>
 #include <ftk/UI/DoubleEditSlider.h>
 #include <ftk/UI/FormLayout.h>
+#include <ftk/UI/IntEditSlider.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -252,7 +253,7 @@ namespace ibis
 
         struct HueNodeWidget::Private
         {
-            std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
+            std::shared_ptr<ftk::IntEditSlider> valueSlider;
             std::shared_ptr<ftk::Bellows> bellows;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -267,9 +268,9 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.valueSlider = ftk::DoubleEditSlider::create(context);
-            p.valueSlider->setRange(0.0, 360.0);
-            p.valueSlider->setDefaultValue(0.0);
+            p.valueSlider = ftk::IntEditSlider::create(context);
+            p.valueSlider->setRange(0, 360);
+            p.valueSlider->setDefaultValue(0);
 
             auto formLayout = ftk::FormLayout::create(context);
             formLayout->setMarginRole(ftk::SizeRole::Margin);
@@ -279,7 +280,7 @@ namespace ibis
             p.bellows->setWidget(formLayout);
 
             p.valueSlider->setPressedCallback(
-                [this](double value, bool pressed)
+                [this](int value, bool pressed)
                 {
                     _callback({ { "Value", value } }, pressed);
                 });

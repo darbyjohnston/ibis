@@ -18,7 +18,6 @@
 #include <ibis/Render/NodeFactory.h>
 #include <ibis/Render/OutputNode.h>
 
-#include <ftk/UI/DiagModel.h>
 #include <ftk/UI/DialogSystem.h>
 #include <ftk/UI/FileBrowser.h>
 #include <ftk/UI/ProgressDialog.h>
@@ -42,7 +41,6 @@ namespace ibis
 
         std::shared_ptr<models::SettingsModel> settingsModel;
         std::shared_ptr<ftk::SysLogModel> sysLogModel;
-        std::shared_ptr<ftk::DiagModel> diagModel;
         std::shared_ptr<ftk::RecentFilesModel> recentFilesModel;
         std::shared_ptr<models::TimeUnitsModel> timeUnitsModel;
         std::shared_ptr<render::NodeFactory> nodeFactory;
@@ -116,11 +114,6 @@ namespace ibis
     const std::shared_ptr<ftk::SysLogModel>& App::getSysLogModel() const
     {
         return _p->sysLogModel;
-    }
-
-    const std::shared_ptr<ftk::DiagModel>& App::getDiagModel() const
-    {
-        return _p->diagModel;
     }
 
     const std::shared_ptr<ftk::RecentFilesModel>& App::getRecentFilesModel() const
@@ -306,7 +299,6 @@ namespace ibis
             ftk::getSettingsPath("ibis", "ibis.json"),
             getDefaultDisplayScale());
         p.sysLogModel = ftk::SysLogModel::create(_context);
-        p.diagModel = ftk::DiagModel::create(_context);
         p.recentFilesModel = ftk::RecentFilesModel::create(_context);
         auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
         fileBrowserSystem->setRecentFilesModel(p.recentFilesModel);

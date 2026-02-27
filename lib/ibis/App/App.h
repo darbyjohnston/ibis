@@ -10,7 +10,6 @@
 
 namespace ftk
 {
-    class DiagModel;
     class RecentFilesModel;
     class SysLogModel;
 }
@@ -58,7 +57,6 @@ namespace ibis
 
         const std::shared_ptr<models::SettingsModel>& getSettingsModel() const;
         const std::shared_ptr<ftk::SysLogModel>& getSysLogModel() const;
-        const std::shared_ptr<ftk::DiagModel>& getDiagModel() const;
         const std::shared_ptr<ftk::RecentFilesModel>& getRecentFilesModel() const;
         const std::shared_ptr<models::TimeUnitsModel>& getTimeUnitsModel() const;
         const std::shared_ptr<render::NodeFactory>& getNodeFactory() const;

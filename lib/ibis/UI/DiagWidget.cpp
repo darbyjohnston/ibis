@@ -18,13 +18,12 @@ namespace ibis
 
         void DiagWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ftk::DiagModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::DiagWidget", parent);
             FTK_P();
 
-            p.widget = ftk::DiagWidget::create(context, model);
+            p.widget = ftk::DiagWidget::create(context);
             p.widget->setMarginRole(ftk::SizeRole::Margin);
 
             p.scrollWidget = ftk::ScrollWidget::create(context, ftk::ScrollType::Both, shared_from_this());
@@ -41,11 +40,10 @@ namespace ibis
 
         std::shared_ptr<DiagWidget> DiagWidget::create(
             const std::shared_ptr<ftk::Context>& context,
-            const std::shared_ptr<ftk::DiagModel>& model,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<DiagWidget> out(new DiagWidget);
-            out->_init(context, model, parent);
+            out->_init(context, parent);
             return out;
         }
 
