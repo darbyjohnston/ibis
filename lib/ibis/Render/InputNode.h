@@ -99,6 +99,40 @@ namespace ibis
         };
 #endif // IBIS_OIIO
 
+#if defined(IBIS_USD)
+        //! USD input node.
+        class USDInputNode : public INode
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json&);
+
+            USDInputNode();
+
+        public:
+            virtual ~USDInputNode();
+
+            static NodeInfo getClassNodeInfo();
+
+            static std::vector<std::string> getExts();
+
+            static std::shared_ptr<INode> create(
+                const std::shared_ptr<ftk::Context>&,
+                const nlohmann::json & = {});
+
+            bool setAttr(const NodeAttr&) override;
+
+            void execInit(const OTIO_NS::RationalTime&) override;
+            void exec(
+                const std::shared_ptr<ftk::IRender>&,
+                const OTIO_NS::RationalTime&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+#endif // IBIS_USD
+
         //! SVG file input node.
         class SVGInputNode : public INode
         {

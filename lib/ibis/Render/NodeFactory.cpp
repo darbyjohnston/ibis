@@ -40,6 +40,10 @@ namespace ibis
             p.nodes[SequenceOutputNode::getClassNodeInfo().id] = &SequenceOutputNode::create;
             p.info[SequenceOutputNode::getClassNodeInfo().id] = SequenceOutputNode::getClassNodeInfo();
 #endif // IBIS_OIIO
+#if defined(IBIS_USD)
+            p.nodes[USDInputNode::getClassNodeInfo().id] = &USDInputNode::create;
+            p.info[USDInputNode::getClassNodeInfo().id] = USDInputNode::getClassNodeInfo();
+#endif // IBIS_OIIO
             p.nodes[SVGInputNode::getClassNodeInfo().id] = &SVGInputNode::create;
             p.info[SVGInputNode::getClassNodeInfo().id] = SVGInputNode::getClassNodeInfo();
 

@@ -67,6 +67,9 @@ if(ibis_OIIO)
         InputNodeWidgetOIIO.cpp
         OutputNodeWidgetOIIO.cpp)
 endif()
+if(ibis_USD)
+    list(APPEND SOURCE InputNodeWidgetUSD.cpp)
+endif()
 
 add_library(ibisUI ${HEADERS} ${SOURCE})
 target_link_libraries(ibisUI ibisModels)

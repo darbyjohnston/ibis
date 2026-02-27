@@ -478,7 +478,12 @@ namespace ibis
 
             if (!p.path.empty() && !p.image)
             {
-                p.future = std::async(&load, p.path, p.subImage, p.channelGroup);
+                p.future = std::async(
+                    std::launch::async,
+                    &load,
+                    p.path,
+                    p.subImage,
+                    p.channelGroup);
             }
         }
 
@@ -526,11 +531,6 @@ namespace ibis
                 }
             }
             _outputInfo->setItemOnlyIfChanged(0, info);
-        }
-
-        std::vector<std::string> SequenceInputNode::getExts()
-        {
-            return ImageInputNode::getExts();
         }
 
         struct SequenceInputNode::Private
@@ -599,6 +599,11 @@ namespace ibis
         NodeInfo SequenceInputNode::getClassNodeInfo()
         {
             return { "SequenceInput", "Sequence Input", "I/O" };
+        }
+
+        std::vector<std::string> SequenceInputNode::getExts()
+        {
+            return ImageInputNode::getExts();
         }
 
         std::shared_ptr<INode> SequenceInputNode::create(
@@ -718,70 +723,6 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            /*const int startFrame = _attr->getItem("StartFrame");
-            const int endFrame = _attr->getItem("EndFrame");
-            const InputLoop loop = _attr->getItem("Loop");
-
-            const OTIO_NS::TimeRange timeRange(
-                OTIO_NS::RationalTime(startFrame, time.rate()),
-                OTIO_NS::RationalTime(endFrame - startFrame + 1, time.rate()));
-            const OTIO_NS::RationalTime time2 = getInputLoop(
-                loop,
-                time + timeRange.start_time(),
-                timeRange);
-            if (time2 != p.time || !timeRange.contains(time2))
-            {
-                p.time = time2;
-                p.image.reset();
-                _outputs[0].reset();
-            }
-
-            if (!p.path.empty() && !p.image)
-            {
-                try
-                {
-                    const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
-                    const auto oiioInput = OIIO::ImageInput::open(fileName);
-                    if (!oiioInput)
-                    {
-                        throw std::runtime_error(OIIO::geterror());
-                    }
-                    auto subImages = getSubImages(oiioInput.get());
-                    std::optional<ChannelGroup> group;
-                    if (p.subImage >= 0 &&
-                        p.subImage < subImages.size() &&
-                        p.channelGroup >= 0 &&
-                        p.channelGroup < subImages[p.subImage].channels.size())
-                    {
-                        group = subImages[p.subImage].channels[p.channelGroup];
-                    }
-                    if (!group.has_value())
-                    {
-                        std::stringstream ss;
-                        ss << "Unsupported file: " << fileName;
-                        throw std::runtime_error(ss.str());
-                    }
-
-                    ftk::ImageInfo imageInfo(group->size, group->type);
-                    imageInfo.layout.mirror.y = true;
-                    p.image = ftk::Image::create(imageInfo);
-                    if (!oiioInput->read_image(
-                        p.subImage,
-                        0,
-                        group->start,
-                        group->start + ftk::getChannelCount(group->type),
-                        group->oiioFormat,
-                        p.image->getData()))
-                    {
-                        throw std::runtime_error(OIIO::geterror());
-                    }
-                }
-                catch (const std::exception& e)
-                {
-                    auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::SequenceInputNode", e.what(), ftk::LogType::Error);
-                }
-            }*/
             if (p.future.valid())
             {
                 const auto result = p.future.get();

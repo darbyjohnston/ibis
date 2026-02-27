@@ -26,9 +26,12 @@ set(SOURCE
     RenderUtil.cpp
     TransformNode.cpp)
 if(ibis_OIIO)
-    list(APPEND HEADERS InputNodeOIIO.cpp)
     list(APPEND SOURCE InputNodeOIIO.cpp)
     list(APPEND SOURCE OutputNodeOIIO.cpp)
+endif()
+if(ibis_USD)
+    list(APPEND HEADERS USDPrivate.h)
+    list(APPEND SOURCE InputNodeUSD.cpp USDRender.cpp)
 endif()
 
 set(LIBRARIES ibisCore ftk::ftkUI ftk::ftkGL)
@@ -39,6 +42,9 @@ if(ibis_OIIO)
         # \bug OIIO link bug?
         list(APPEND LIBRARIES_PRIVATE TIFF::TIFF)
     endif()
+endif()
+if(ibis_USD)
+    list(APPEND LIBRARIES_PRIVATE tf usd usdGeom usdImagingGL usdAppUtils hd)
 endif()
 
 add_library(ibisRender ${HEADERS} ${SOURCE})

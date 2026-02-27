@@ -76,6 +76,39 @@ namespace ibis
         };
 #endif // IBIS_OIIO
 
+#if defined(IBIS_USD)
+        //! USD input node widget.
+        class USDInputNodeWidget : public INodeWidget
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent);
+
+            USDInputNodeWidget();
+
+        public:
+            virtual ~USDInputNodeWidget();
+
+            //! Create a new widget.
+            static std::shared_ptr<USDInputNodeWidget> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+            static render::NodeInfo getClassNodeInfo();
+
+            ftk::Size2I getSizeHint() const override;
+            void setGeometry(const ftk::Box2I&) override;
+
+        private:
+            FTK_PRIVATE();
+        };
+#endif // IBIS_USD
+
         //! SVG file input node widget.
         class SVGInputNodeWidget : public INodeWidget
         {
