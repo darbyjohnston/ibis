@@ -9,7 +9,6 @@
 
 #include <ftk/Core/Image.h>
 #include <ftk/Core/LogSystem.h>
-#include <ftk/Core/Path.h>
 
 #include <opentimelineio/version.h>
 
@@ -22,6 +21,7 @@ namespace ibis
 {
     namespace usd
     {
+        //! USD drawing mode.
         enum class DrawMode
         {
             Points,
@@ -38,6 +38,7 @@ namespace ibis
         };
         FTK_ENUM(DrawMode);
 
+        //! USD options.
         struct Options
         {
             int           renderWidth = 1920;
@@ -52,10 +53,26 @@ namespace ibis
             bool operator != (const Options&) const;
         };
 
+        //! USD file information.
         struct Info
         {
-            ftk::ImageInfo     image;
-            OTIO_NS::TimeRange timeRange;
+            OTIO_NS::TimeRange timeRange = OTIO_NS::TimeRange(
+                OTIO_NS::RationalTime(0.0, 0.0),
+                OTIO_NS::RationalTime(0.0, 0.0));
+        };
+
+        //! USD information request.
+        struct InfoRequest
+        {
+            int64_t id = -1;
+            std::future<Info> future;
+        };
+
+        //! USD render request.
+        struct Request
+        {
+            int64_t id = -1;
+            std::future<std::shared_ptr<ftk::Image> > future;
         };
 
         //! USD renderer.
@@ -74,17 +91,15 @@ namespace ibis
                 const std::shared_ptr<ftk::LogSystem>&);
             
             //! Get information.
-            std::future<Info> getInfo(
-                int64_t id,
-                const ftk::Path& path,
-                const Options&);
+            InfoRequest getInfo(
+                const std::string& path,
+                const Options& = Options());
             
             //! Render an image.
-            std::future<std::shared_ptr<ftk::Image> > render(
-                int64_t id,
-                const ftk::Path& path,
+            Request render(
+                const std::string& path,
                 const OTIO_NS::RationalTime& time,
-                const Options&);
+                const Options& = Options());
 
             //! Cancel requests.
             void cancelRequests(int64_t id);

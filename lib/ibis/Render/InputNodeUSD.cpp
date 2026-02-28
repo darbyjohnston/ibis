@@ -3,6 +3,8 @@
 
 #include "InputNode.h"
 
+#include "USDRender.h"
+
 #include <ibis/Core/Time.h>
 
 #include <ftk/GL/GL.h>
@@ -12,16 +14,24 @@
 #include <ftk/Core/Path.h>
 #include <ftk/Core/String.h>
 
-#include <future>
+#include <atomic>
 
 namespace ibis
 {
     namespace render
     {
+        namespace
+        {
+            std::atomic<size_t> objectCount = 0;
+            std::shared_ptr<usd::Render> render;
+        }
+
         struct USDInputNode::Private
         {
             std::string path;
             OTIO_NS::RationalTime time = invalidTime;
+            usd::Info info;
+            usd::Request request;
             std::shared_ptr<ftk::Image> image;
         };
 
@@ -37,24 +47,30 @@ namespace ibis
             INode::_init(context, getClassNodeInfo(), 0, 1, attr, json);
             FTK_P();
 
+            ++objectCount;
+            if (1 == objectCount)
+            {
+                render = usd::Render::create(context->getLogSystem());
+            }
+
             p.path = _attr->getItem("Path");
 
             if (!p.path.empty())
             {
-                /*try
+                p.info = render->getInfo(p.path).future.get();
+                if (p.info.timeRange.is_valid_range())
                 {
-                    const auto oiioInput = OIIO::ImageInput::open(p.path);
-                    if (!oiioInput)
-                    {
-                        throw std::runtime_error(OIIO::geterror());
-                    }
-                    p.subImages = getSubImages(oiioInput.get());
+                    attr["StartFrame"] = p.info.timeRange.start_time().value();
+                    attr["EndFrame"] = p.info.timeRange.end_time_inclusive().value();
                 }
-                catch (const std::exception& e)
+                else
                 {
                     auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::SequenceInputNode", e.what(), ftk::LogType::Error);
-                }*/
+                    logSystem->print(
+                        "ibis::render::USDInputNode",
+                        ftk::Format("Cannot open: {0}").arg(p.path),
+                        ftk::LogType::Error);
+                }
             }
         }
 
@@ -63,7 +79,14 @@ namespace ibis
         {}
 
         USDInputNode::~USDInputNode()
-        {}
+        {
+            FTK_P();
+            --objectCount;
+            if (0 == objectCount)
+            {
+                render.reset();
+            }
+        }
 
         NodeInfo USDInputNode::getClassNodeInfo()
         {
@@ -98,22 +121,19 @@ namespace ibis
                 p.image.reset();
                 _outputs[0].reset();
 
-                if (!p.path.empty())
+                p.info = render->getInfo(p.path).future.get();
+                if (p.info.timeRange.is_valid_range())
                 {
-                    /*try
-                    {
-                        const auto oiioInput = OIIO::ImageInput::open(p.path);
-                        if (!oiioInput)
-                        {
-                            throw std::runtime_error(OIIO::geterror());
-                        }
-                        p.subImages = getSubImages(oiioInput.get());
-                    }
-                    catch (const std::exception& e)
-                    {
-                        auto logSystem = _context.lock()->getLogSystem();
-                        logSystem->print("ibis::render::SequenceInputNode", e.what(), ftk::LogType::Error);
-                    }*/
+                    tmp["StartFrame"] = p.info.timeRange.start_time().value();
+                    tmp["EndFrame"] = p.info.timeRange.end_time_inclusive().value();
+                }
+                else
+                {
+                    auto logSystem = _context.lock()->getLogSystem();
+                    logSystem->print(
+                        "ibis::render::USDInputNode",
+                        ftk::Format("Cannot open: {0}").arg(p.path),
+                        ftk::LogType::Error);
                 }
             }
             return INode::setAttr(tmp);
@@ -144,8 +164,7 @@ namespace ibis
 
             if (!p.path.empty() && !p.image)
             {
-                //const std::string fileName = ftk::Path(p.path).getFrame(time2.value(), true);
-                //p.future = std::async(&load, fileName, p.subImage, p.channelGroup);
+                p.request = render->render(p.path, time2);
             }
         }
 
@@ -156,19 +175,18 @@ namespace ibis
             INode::exec(render, time);
             FTK_P();
 
-            /*if (p.future.valid())
+            if (p.request.future.valid())
             {
-                const auto result = p.future.get();
-                if (!result.first)
+                p.image = p.request.future.get();
+                if (!p.image)
                 {
                     auto logSystem = _context.lock()->getLogSystem();
-                    logSystem->print("ibis::render::SequenceInputNode", result.second, ftk::LogType::Error);
+                    logSystem->print(
+                        "ibis::render::USDInputNode",
+                        ftk::Format("Cannot render {0} time: {1}").arg(p.path).arg(time.value()),
+                        ftk::LogType::Error);
                 }
-                else
-                {
-                    p.image = result.first;
-                }
-            }*/
+            }
 
             ftk::gl::TextureInfo info;
             if (p.image)

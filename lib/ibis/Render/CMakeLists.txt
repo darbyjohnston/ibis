@@ -30,7 +30,7 @@ if(ibis_OIIO)
     list(APPEND SOURCE OutputNodeOIIO.cpp)
 endif()
 if(ibis_USD)
-    list(APPEND HEADERS USDPrivate.h)
+    list(APPEND HEADERS USDRender.h)
     list(APPEND SOURCE InputNodeUSD.cpp USDRender.cpp)
 endif()
 

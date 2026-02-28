@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the ibis compositor project.
 
-#include "USDPrivate.h"
+#include "USDRender.h"
 
 #include <ftk/GL/GL.h>
 #include <ftk/GL/Init.h>
@@ -48,7 +48,7 @@ namespace ibis
             struct InfoRequest
             {
                 int64_t id = -1;
-                ftk::Path path;
+                std::string path;
                 Options options;
                 std::promise<Info> promise;
             };
@@ -56,7 +56,7 @@ namespace ibis
             struct Request
             {
                 int64_t id = -1;
-                ftk::Path path;
+                std::string path;
                 OTIO_NS::RationalTime time;
                 Options options;
                 std::promise<std::shared_ptr<ftk::Image> > promise;
@@ -80,7 +80,6 @@ namespace ibis
             struct Thread
             {
                 ftk::LRUCache<std::string, StageCacheItem> stageCache;
-                std::unique_ptr<ftk::TmpDir> tmpDir;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;
@@ -231,17 +230,23 @@ namespace ibis
             return out;
         }
         
-        std::future<Info> Render::getInfo(
-            int64_t id,
-            const ftk::Path& path,
+        namespace
+        {
+            std::atomic<int64_t> requestID = 0;
+        }
+
+        InfoRequest Render::getInfo(
+            const std::string& path,
             const Options& options)
         {
             FTK_P();
             auto request = std::make_shared<Private::InfoRequest>();
-            request->id = id;
+            request->id = ++requestID;
             request->path = path;
             request->options = options;
-            auto future = request->promise.get_future();
+            InfoRequest out;
+            out.id = request->id;
+            out.future = request->promise.get_future();
             bool valid = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -259,22 +264,23 @@ namespace ibis
             {
                 request->promise.set_value(Info());
             }
-            return future;
+            return out;
         }
 
-        std::future<std::shared_ptr<ftk::Image> > Render::render(
-            int64_t id,
-            const ftk::Path& path,
+        Request Render::render(
+            const std::string& path,
             const OTIO_NS::RationalTime& time,
             const Options& options)
         {
             FTK_P();
             auto request = std::make_shared<Private::Request>();
-            request->id = id;
+            request->id = ++requestID;
             request->path = path;
             request->time = time;
             request->options = options;
-            auto future = request->promise.get_future();
+            Request out;
+            out.id = request->id;
+            out.future = request->promise.get_future();
             bool valid = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -292,7 +298,7 @@ namespace ibis
             {
                 request->promise.set_value(nullptr);
             }
-            return future;
+            return out;
         }
         
         void Render::cancelRequests(int64_t id)
@@ -436,12 +442,12 @@ namespace ibis
         }
 
         void Render::_open(
-            const std::string& fileName,
+            const std::string& path,
             UsdStageRefPtr& stage,
             std::shared_ptr<UsdImagingGLEngine>& engine)
         {
             FTK_P();
-            stage = UsdStage::Open(fileName);
+            stage = UsdStage::Open(path);
             const bool gpuEnabled = true;
             engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
             if (stage && engine)
@@ -460,12 +466,12 @@ namespace ibis
                         "tl::usd::Render",
                         ftk::Format(
                             "\n"
-                            "    * File name: {0}\n"
+                            "    * Path: {0}\n"
                             "    * Time code: {1}-{2}:{3}\n"
                             "    * GPU enabled: {4}\n"
                             "    * Renderer ID: {5}\n"
                             "    * Renderer AOVs available: {6}").
-                        arg(fileName).
+                        arg(path).
                         arg(stage->GetStartTimeCode()).
                         arg(stage->GetEndTimeCode()).
                         arg(stage->GetTimeCodesPerSecond()).
@@ -531,12 +537,12 @@ namespace ibis
                 std::string cameraName = options.cameraName;
                 if (infoRequest)
                 {
-                    const std::string fileName = infoRequest->path.getFileName(true);
+                    const std::string path = infoRequest->path;
                     Private::StageCacheItem stageCacheItem;
-                    if (!p.thread.stageCache.get(fileName, stageCacheItem))
+                    if (!p.thread.stageCache.get(path, stageCacheItem))
                     {
-                        _open(fileName, stageCacheItem.stage, stageCacheItem.engine);
-                        p.thread.stageCache.add(fileName, stageCacheItem);
+                        _open(path, stageCacheItem.stage, stageCacheItem.engine);
+                        p.thread.stageCache.add(path, stageCacheItem);
                     }
                     Info info;
                     if (stageCacheItem.stage)
@@ -544,31 +550,10 @@ namespace ibis
                         const double startTimeCode = stageCacheItem.stage->GetStartTimeCode();
                         const double endTimeCode = stageCacheItem.stage->GetEndTimeCode();
                         const double timeCodesPerSecond = stageCacheItem.stage->GetTimeCodesPerSecond();
-                        GfCamera gfCamera;
-                        auto camera = getCamera(stageCacheItem.stage, cameraName);
-                        if (camera)
-                        {
-                            //std::cout << fileName << " camera: " <<
-                            //    camera.GetPath().GetAsToken().GetText() << std::endl;
-                            gfCamera = camera.GetCamera(startTimeCode);
-                        }
-                        else
-                        {
-                            gfCamera = getCameraToFrameStage(stageCacheItem.stage, startTimeCode, purposes);
-                        }
-                        float aspectRatio = gfCamera.GetAspectRatio();
-                        if (GfIsClose(aspectRatio, 0.F, 1e-4))
-                        {
-                            aspectRatio = 1.F;
-                        }
-                        info.image = ftk::ImageInfo(
-                            options.renderWidth,
-                            options.renderWidth / aspectRatio,
-                            ftk::ImageType::RGBA_F16);
                         info.timeRange = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                             OTIO_NS::RationalTime(startTimeCode, timeCodesPerSecond),
                             OTIO_NS::RationalTime(endTimeCode, timeCodesPerSecond));
-                        //std::cout << fileName << " range: " << info.videoTime << std::endl;
+                        //std::cout << path << " range: " << info.timeRange << std::endl;
                     }
                     infoRequest->promise.set_value(info);
                 }
@@ -580,18 +565,18 @@ namespace ibis
                     try
                     {
                         // Check the stage cache for a previously opened stage.
-                        const std::string fileName = request->path.getFileName(true);
+                        const std::string path = request->path;
                         Private::StageCacheItem stageCacheItem;
-                        if (!p.thread.stageCache.get(fileName, stageCacheItem))
+                        if (!p.thread.stageCache.get(path, stageCacheItem))
                         {
-                            _open(fileName, stageCacheItem.stage, stageCacheItem.engine);
-                            p.thread.stageCache.add(fileName, stageCacheItem);
+                            _open(path, stageCacheItem.stage, stageCacheItem.engine);
+                            p.thread.stageCache.add(path, stageCacheItem);
                         }
                         if (stageCacheItem.stage && stageCacheItem.engine)
                         {
                             const double timeCode = request->time.rescaled_to(
                                 stageCacheItem.stage->GetTimeCodesPerSecond()).value();
-                            //std::cout << fileName << " timeCode: " << timeCode << std::endl;
+                            //std::cout << path << " timeCode: " << timeCode << std::endl;
 
                             // Setup the camera.
                             GfCamera gfCamera;
