@@ -353,7 +353,14 @@ namespace ibis
         {}
 
         NodeGraphWidget::~NodeGraphWidget()
-        {}
+        {
+            FTK_P();
+            if (p.popup)
+            {
+                p.popup->setCloseCallback(nullptr);
+                p.popup->close();
+            }
+        }
 
         std::shared_ptr<NodeGraphWidget> NodeGraphWidget::create(
             const std::shared_ptr<ftk::Context>& context,

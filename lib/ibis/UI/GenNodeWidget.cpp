@@ -13,7 +13,7 @@
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FloatEditSlider.h>
 #include <ftk/UI/FormLayout.h>
-#include <ftk/UI/IntEditSlider.h>
+#include <ftk/UI/IntEditShuttle.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/TextEdit.h>
 #include <ftk/Core/String.h>
@@ -24,8 +24,8 @@ namespace ibis
     {
         struct SolidColorNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> widthSlider;
-            std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::IntEditShuttle> widthEdit;
+            std::shared_ptr<ftk::IntEditShuttle> heightEdit;
             std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
             std::shared_ptr<ftk::FormLayout> layout;
@@ -42,13 +42,13 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.widthSlider = ftk::IntEditSlider::create(context);
-            p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setLargeStep(100);
+            p.widthEdit = ftk::IntEditShuttle::create(context);
+            p.widthEdit->setRange(1, 4096);
+            p.widthEdit->setLargeStep(100);
 
-            p.heightSlider = ftk::IntEditSlider::create(context);
-            p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setLargeStep(100);
+            p.heightEdit = ftk::IntEditShuttle::create(context);
+            p.heightEdit->setRange(1, 4096);
+            p.heightEdit->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
 
@@ -57,12 +57,12 @@ namespace ibis
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
-            p.layout->addRow("Width:", p.widthSlider);
-            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Width:", p.widthEdit);
+            p.layout->addRow("Height:", p.heightEdit);
             p.layout->addRow("Type:", p.typeComboBox);
             p.layout->addRow("Color:", p.colorSwatch);
 
-            p.widthSlider->setPressedCallback(
+            p.widthEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -70,7 +70,7 @@ namespace ibis
                     _callback({ { "Size", size } }, pressed);
                 });
 
-            p.heightSlider->setPressedCallback(
+            p.heightEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -101,8 +101,8 @@ namespace ibis
                     FTK_P();
                     auto tmp = value;
                     const ftk::Size2I size = tmp["Size"];
-                    p.widthSlider->setValue(size.w);
-                    p.heightSlider->setValue(size.h);
+                    p.widthEdit->setValue(size.w);
+                    p.heightEdit->setValue(size.h);
                     const ftk::gl::TextureType type = tmp["Type"];
                     p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.colorSwatch->setColor(tmp["Color"]);
@@ -145,8 +145,8 @@ namespace ibis
 
         struct GradientNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> widthSlider;
-            std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::IntEditShuttle> widthEdit;
+            std::shared_ptr<ftk::IntEditShuttle> heightEdit;
             std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::ColorSwatch> color0Swatch;
             std::shared_ptr<ftk::ColorSwatch> color1Swatch;
@@ -165,13 +165,13 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.widthSlider = ftk::IntEditSlider::create(context);
-            p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setLargeStep(100);
+            p.widthEdit = ftk::IntEditShuttle::create(context);
+            p.widthEdit->setRange(1, 4096);
+            p.widthEdit->setLargeStep(100);
 
-            p.heightSlider = ftk::IntEditSlider::create(context);
-            p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setLargeStep(100);
+            p.heightEdit = ftk::IntEditShuttle::create(context);
+            p.heightEdit->setRange(1, 4096);
+            p.heightEdit->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
 
@@ -185,14 +185,14 @@ namespace ibis
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
-            p.layout->addRow("Width:", p.widthSlider);
-            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Width:", p.widthEdit);
+            p.layout->addRow("Height:", p.heightEdit);
             p.layout->addRow("Type:", p.typeComboBox);
             p.layout->addRow("Color 0:", p.color0Swatch);
             p.layout->addRow("Color 1:", p.color1Swatch);
             p.layout->addRow("Orientation:", p.orientationComboBox);
 
-            p.widthSlider->setPressedCallback(
+            p.widthEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -200,7 +200,7 @@ namespace ibis
                     _callback({ { "Size", size } }, pressed);
                 });
 
-            p.heightSlider->setPressedCallback(
+            p.heightEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -247,8 +247,8 @@ namespace ibis
                     FTK_P();
                     auto tmp = value;
                     const ftk::Size2I size = tmp["Size"];
-                    p.widthSlider->setValue(size.w);
-                    p.heightSlider->setValue(size.h);
+                    p.widthEdit->setValue(size.w);
+                    p.heightEdit->setValue(size.h);
                     const ftk::gl::TextureType type = tmp["Type"];
                     p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.color0Swatch->setColor(tmp["Color0"]);
@@ -293,8 +293,8 @@ namespace ibis
 
         struct NoiseNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> widthSlider;
-            std::shared_ptr<ftk::IntEditSlider> heightSlider;
+            std::shared_ptr<ftk::IntEditShuttle> widthEdit;
+            std::shared_ptr<ftk::IntEditShuttle> heightEdit;
             std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::FloatEditSlider> scaleSlider;
             std::shared_ptr<ftk::FormLayout> layout;
@@ -311,13 +311,13 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.widthSlider = ftk::IntEditSlider::create(context);
-            p.widthSlider->setRange(1, 4096);
-            p.widthSlider->setLargeStep(100);
+            p.widthEdit = ftk::IntEditShuttle::create(context);
+            p.widthEdit->setRange(1, 4096);
+            p.widthEdit->setLargeStep(100);
 
-            p.heightSlider = ftk::IntEditSlider::create(context);
-            p.heightSlider->setRange(1, 4096);
-            p.heightSlider->setLargeStep(100);
+            p.heightEdit = ftk::IntEditShuttle::create(context);
+            p.heightEdit->setRange(1, 4096);
+            p.heightEdit->setLargeStep(100);
 
             p.typeComboBox = ftk::ComboBox::create(context, ftk::gl::getTextureTypeLabels());
 
@@ -326,12 +326,12 @@ namespace ibis
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
-            p.layout->addRow("Width:", p.widthSlider);
-            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Width:", p.widthEdit);
+            p.layout->addRow("Height:", p.heightEdit);
             p.layout->addRow("Type:", p.typeComboBox);
             p.layout->addRow("Scale:", p.scaleSlider);
 
-            p.widthSlider->setPressedCallback(
+            p.widthEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -339,7 +339,7 @@ namespace ibis
                     _callback({ { "Size", size } }, pressed);
                 });
 
-            p.heightSlider->setPressedCallback(
+            p.heightEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::Size2I size = _node->getAttr("Size");
@@ -370,8 +370,8 @@ namespace ibis
                     FTK_P();
                     auto tmp = value;
                     const ftk::Size2I size = tmp["Size"];
-                    p.widthSlider->setValue(size.w);
-                    p.heightSlider->setValue(size.h);
+                    p.widthEdit->setValue(size.w);
+                    p.heightEdit->setValue(size.h);
                     const ftk::gl::TextureType type = tmp["Type"];
                     p.typeComboBox->setCurrentIndex(static_cast<int>(type));
                     p.scaleSlider->setValue(tmp["Scale"]);
@@ -416,9 +416,9 @@ namespace ibis
         {
             std::shared_ptr<ftk::TextEdit> textEdit;
             std::shared_ptr<ftk::ComboBox> fontComboBox;
-            std::shared_ptr<ftk::IntEditSlider> fontSizeEdit;
+            std::shared_ptr<ftk::IntEditShuttle> fontSizeEdit;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
-            std::shared_ptr<ftk::IntEditSlider> marginEdit;
+            std::shared_ptr<ftk::IntEditShuttle> marginEdit;
             std::shared_ptr<ftk::ColorSwatch> backgroundSwatch;
             std::shared_ptr<ftk::FormLayout> layout;
 
@@ -439,13 +439,13 @@ namespace ibis
 
             p.fontComboBox = ftk::ComboBox::create(context, ftk::getFontLabels());
 
-            p.fontSizeEdit = ftk::IntEditSlider::create(context);
+            p.fontSizeEdit = ftk::IntEditShuttle::create(context);
             p.fontSizeEdit->setRange(1, 512);
 
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
-            p.marginEdit = ftk::IntEditSlider::create(context);
+            p.marginEdit = ftk::IntEditShuttle::create(context);
             p.marginEdit->setRange(0, 512);
 
             p.backgroundSwatch = ftk::ColorSwatch::create(context);
