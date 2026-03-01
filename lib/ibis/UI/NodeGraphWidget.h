@@ -4,6 +4,7 @@
 #pragma once
 
 #include <ftk/UI/IMouseWidget.h>
+#include <ftk/UI/IWidgetPopup.h>
 
 namespace ibis
 {
@@ -12,8 +13,15 @@ namespace ibis
         class INode;
     }
 
+    namespace models
+    {
+        class Document;
+    }
+
     namespace ui
     {
+        class NodeWidgetFactory;
+
         //! Base class for node graph port widgets.
         class INodeGraphPort : public ftk::IMouseWidget
         {
@@ -102,6 +110,34 @@ namespace ibis
             FTK_PRIVATE();
         };
 
+        //! Node graph widget popup.
+        class NodeGraphPopup : public ftk::IWidgetPopup
+        {
+        protected:
+            void _init(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
+                const std::shared_ptr<ftk::IWidget>& parent);
+
+            NodeGraphPopup();
+
+        public:
+            virtual ~NodeGraphPopup();
+
+            //! Create a new widget.
+            static std::shared_ptr<NodeGraphPopup> create(
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
+
+        private:
+            FTK_PRIVATE();
+        };
+
         //! Node graph widget.
         class NodeGraphWidget : public ftk::IWidget
         {
@@ -109,6 +145,8 @@ namespace ibis
             void _init(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
             NodeGraphWidget();
@@ -120,6 +158,8 @@ namespace ibis
             static std::shared_ptr<NodeGraphWidget> create(
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::INode>&,
+                const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             const std::shared_ptr<render::INode>& getNode() const;
@@ -140,6 +180,8 @@ namespace ibis
             void mouseReleaseEvent(ftk::MouseClickEvent&) override;
 
         private:
+            void _showPopup();
+
             FTK_PRIVATE();
         };
     }

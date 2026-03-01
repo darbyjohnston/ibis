@@ -9,7 +9,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/InputNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
 #include <ftk/UI/Icon.h>
@@ -30,7 +29,7 @@ namespace ibis
             std::shared_ptr<ftk::IntEdit> startFrameEdit;
             std::shared_ptr<ftk::IntEdit> endFrameEdit;
             std::shared_ptr<ftk::ComboBox> loopComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
@@ -54,15 +53,12 @@ namespace ibis
 
             p.loopComboBox = ftk::ComboBox::create(context, render::getInputLoopLabels());
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Path:", p.fileEdit);
-            formLayout->addRow("Start frame:", p.startFrameEdit);
-            formLayout->addRow("End frame:", p.endFrameEdit);
-            formLayout->addRow("Loop:", p.loopComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Path:", p.fileEdit);
+            p.layout->addRow("Start frame:", p.startFrameEdit);
+            p.layout->addRow("End frame:", p.endFrameEdit);
+            p.layout->addRow("Loop:", p.loopComboBox);
 
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
@@ -162,13 +158,13 @@ namespace ibis
 
         ftk::Size2I USDInputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void USDInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

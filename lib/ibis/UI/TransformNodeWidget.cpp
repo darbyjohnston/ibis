@@ -9,7 +9,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/TransformNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/CheckBox.h>
 #include <ftk/UI/FloatEditSlider.h>
 #include <ftk/UI/IntEditSlider.h>
@@ -24,7 +23,7 @@ namespace ibis
         {
             std::shared_ptr<ftk::IntEditSlider> widthEdit;
             std::shared_ptr<ftk::IntEditSlider> heightEdit;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -44,13 +43,10 @@ namespace ibis
             p.heightEdit = ftk::IntEditSlider::create(context);
             p.heightEdit->setRange(1, 8192);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Width:", p.widthEdit);
-            formLayout->addRow("Height:", p.heightEdit);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Width:", p.widthEdit);
+            p.layout->addRow("Height:", p.heightEdit);
 
             p.widthEdit->setPressedCallback(
                 [this](int value, bool pressed)
@@ -100,13 +96,13 @@ namespace ibis
 
         ftk::Size2I ResizeNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void ResizeNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct CropNodeWidget::Private
@@ -115,7 +111,7 @@ namespace ibis
             std::shared_ptr<ftk::IntEditSlider> yEdit;
             std::shared_ptr<ftk::IntEditSlider> widthEdit;
             std::shared_ptr<ftk::IntEditSlider> heightEdit;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -141,15 +137,12 @@ namespace ibis
             p.heightEdit = ftk::IntEditSlider::create(context);
             p.heightEdit->setRange(1, 8192);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("X:", p.xEdit);
-            formLayout->addRow("Y:", p.yEdit);
-            formLayout->addRow("Width:", p.widthEdit);
-            formLayout->addRow("Height:", p.heightEdit);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("X:", p.xEdit);
+            p.layout->addRow("Y:", p.yEdit);
+            p.layout->addRow("Width:", p.widthEdit);
+            p.layout->addRow("Height:", p.heightEdit);
 
             p.xEdit->setPressedCallback(
                 [this](int value, bool pressed)
@@ -213,20 +206,20 @@ namespace ibis
 
         ftk::Size2I CropNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void CropNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct MirrorNodeWidget::Private
         {
             std::shared_ptr<ftk::CheckBox> hCheckBox;
             std::shared_ptr<ftk::CheckBox> vCheckBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -246,13 +239,10 @@ namespace ibis
             p.vCheckBox = ftk::CheckBox::create(context);
             p.vCheckBox->setHStretch(ftk::Stretch::Expanding);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Horizontal:", p.hCheckBox);
-            formLayout->addRow("Vertical:", p.vCheckBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Horizontal:", p.hCheckBox);
+            p.layout->addRow("Vertical:", p.vCheckBox);
 
             p.hCheckBox->setCheckedCallback(
                 [this](bool value)
@@ -310,19 +300,19 @@ namespace ibis
 
         ftk::Size2I MirrorNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void MirrorNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct RotateNodeWidget::Private
         {
             std::shared_ptr<ftk::FloatEditSlider> rotateEdit;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -339,12 +329,9 @@ namespace ibis
             p.rotateEdit = ftk::FloatEditSlider::create(context);
             p.rotateEdit->setRange(0.F, 360.F);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Rotate:", p.rotateEdit);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Rotate:", p.rotateEdit);
 
             p.rotateEdit->setPressedCallback(
                 [this](float value, bool pressed)
@@ -387,13 +374,13 @@ namespace ibis
 
         ftk::Size2I RotateNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void RotateNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

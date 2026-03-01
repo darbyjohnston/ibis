@@ -9,7 +9,6 @@
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/IntEditSlider.h>
@@ -24,7 +23,7 @@ namespace ibis
             std::shared_ptr<ftk::ComboBox> modeComboBox;
             std::shared_ptr<ftk::IntEditSlider> xSlider;
             std::shared_ptr<ftk::IntEditSlider> ySlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -47,14 +46,11 @@ namespace ibis
             p.ySlider->setRange(-4096, 4096);
             p.ySlider->setDefaultValue(0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Operator:", p.modeComboBox);
-            formLayout->addRow("X offset:", p.xSlider);
-            formLayout->addRow("Y offset:", p.ySlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Operator:", p.modeComboBox);
+            p.layout->addRow("X offset:", p.xSlider);
+            p.layout->addRow("Y offset:", p.ySlider);
 
             p.modeComboBox->setIndexCallback(
                 [this](int value)
@@ -117,13 +113,13 @@ namespace ibis
 
         ftk::Size2I OverNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void OverNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

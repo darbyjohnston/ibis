@@ -9,7 +9,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/MathNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/DoubleEditSlider.h>
 #include <ftk/UI/FormLayout.h>
@@ -23,7 +22,7 @@ namespace ibis
         {
             std::shared_ptr<ftk::ComboBox> operatorComboBox;
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -42,13 +41,10 @@ namespace ibis
             p.valueSlider = ftk::DoubleEditSlider::create(context);
             p.valueSlider->setRange(0.0, 2.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Operator:", p.operatorComboBox);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Operator:", p.operatorComboBox);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.operatorComboBox->setIndexCallback(
                 [this](int value)
@@ -102,13 +98,13 @@ namespace ibis
 
         ftk::Size2I ArithmeticNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void ArithmeticNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

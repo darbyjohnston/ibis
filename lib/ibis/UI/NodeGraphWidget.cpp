@@ -3,6 +3,8 @@
 
 #include "NodeGraphWidget.h"
 
+#include "NodeWidgetFactory.h"
+
 #include <ibis/Render/INode.h>
 #include <ibis/Render/RenderUtil.h>
 
@@ -11,6 +13,7 @@
 #include <ftk/UI/Icon.h>
 #include <ftk/UI/Menu.h>
 #include <ftk/UI/RowLayout.h>
+#include <ftk/UI/ToolButton.h>
 #include <ftk/GL/GL.h>
 #include <ftk/Core/Format.h>
 
@@ -187,36 +190,78 @@ namespace ibis
             }
         }
 
+        struct NodeGraphPopup::Private
+        {
+        };
+
+        void NodeGraphPopup::_init(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            IWidgetPopup::_init(context, "ibis::render::NodeGraphPopup", parent);
+            setWidget(widgetFactory->createWidget(document, node));
+        }
+
+        NodeGraphPopup::NodeGraphPopup() :
+            _p(new Private)
+        {}
+
+        NodeGraphPopup::~NodeGraphPopup()
+        {}
+
+        std::shared_ptr<NodeGraphPopup> NodeGraphPopup::create(
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
+            const std::shared_ptr<ftk::IWidget>& parent)
+        {
+            std::shared_ptr<NodeGraphPopup> out(new NodeGraphPopup);
+            out->_init(context, node, document, widgetFactory, parent);
+            return out;
+        }
+
         struct NodeGraphWidget::Private
         {
             std::shared_ptr<render::INode> node;
+            std::shared_ptr<models::Document> document;
+            std::shared_ptr<NodeWidgetFactory> widgetFactory;
             bool selected = false;
             bool view = false;
 
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
+            std::shared_ptr<ftk::ToolButton> editButton;
+            std::shared_ptr<ftk::ToolButton> viewButton;
             std::shared_ptr<NodeGraphThumbnail> thumbnail;
-            std::shared_ptr<ftk::Label> imageInfoLabel;
             std::shared_ptr<ftk::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<ftk::Action> > actions;
+            std::shared_ptr<NodeGraphPopup> popup;
+
             std::shared_ptr<ftk::Menu> menu;
 
             int borderSize = 0;
             int keyFocusSize = 0;
 
             std::function<void(const std::shared_ptr<render::INode>&)> viewCallback;
-
-            std::shared_ptr<ftk::ListObserver<ftk::gl::TextureInfo> > outputInfoObserver;
         };
 
         void NodeGraphWidget::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             IWidget::_init(context, "ibis::NodeGraphWidget", parent);
             FTK_P();
 
             p.node = node;
+            p.document = document;
+            p.widgetFactory = widgetFactory;
 
             for (const auto& i : node->getInputs())
             {
@@ -230,54 +275,76 @@ namespace ibis
 
             auto label = ftk::Label::create(context, node->getNodeInfo().name);
             label->setHAlign(ftk::HAlign::Center);
-            label->setMarginRole(ftk::SizeRole::MarginInside);
+            label->setMarginRole(ftk::SizeRole::MarginSmall);
+
+            p.editButton = ftk::ToolButton::create(context);
+            p.editButton->setIcon("Edit");
+            p.editButton->setTooltip("Edit the node attributes.");
+
+            p.viewButton = ftk::ToolButton::create(context);
+            p.viewButton->setCheckable(true);
+            p.viewButton->setIcon("View");
+            p.viewButton->setTooltip("Set the view node.");
 
             p.thumbnail = NodeGraphThumbnail::create(context, node);
 
-            p.imageInfoLabel = ftk::Label::create(context);
-            p.imageInfoLabel->setFontInfo(ftk::FontInfo(ftk::getFont(ftk::Font::Mono), 10));
-            p.imageInfoLabel->setMarginRole(ftk::SizeRole::MarginInside);
+            p.actions["Edit"] = ftk::Action::create(
+                "Edit",
+                [this]
+                {
+                    _showPopup();
+                });
+            p.actions["SetView"] = ftk::Action::create(
+                "Set View",
+                [this](bool value)
+                {
+                    FTK_P();
+                    if (p.viewCallback)
+                    {
+                        p.viewCallback(value ? p.node : nullptr);
+                    }
+                });
 
             p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
 
             auto vLayout = ftk::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
             for (const auto& i : p.inputs)
             {
                 i->setParent(vLayout);
             }
 
             vLayout = ftk::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
             auto hLayout = ftk::HorizontalLayout::create(context, vLayout);
-            hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            hLayout->setSpacingRole(ftk::SizeRole::None);
             label->setParent(hLayout);
+            p.editButton->setParent(hLayout);
+            p.viewButton->setParent(hLayout);
             p.thumbnail->setParent(vLayout);
-            p.imageInfoLabel->setParent(vLayout);
 
             vLayout = ftk::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
             for (const auto& i : p.outputs)
             {
                 i->setParent(vLayout);
             }
 
-            p.outputInfoObserver = ftk::ListObserver<ftk::gl::TextureInfo>::create(
-                node->observeOutputInfo(),
-                [this](const std::vector<ftk::gl::TextureInfo>& value)
+            p.editButton->setClickedCallback(
+                [this]
+                {
+                    _showPopup();
+                });
+
+            p.viewButton->setCheckedCallback(
+                [this](bool value)
                 {
                     FTK_P();
-                    std::string text;
-                    if (!value.empty() && value.front().type != ftk::gl::TextureType::None)
+                    if (p.viewCallback)
                     {
-                        const auto& info = value.front();
-                        text = ftk::Format("{0}x{1} {3}").
-                            arg(info.size.w).
-                            arg(info.size.h).
-                            arg(info.type);
+                        p.viewCallback(value ? p.node : nullptr);
                     }
-                    p.imageInfoLabel->setText(text);
                 });
         }
 
@@ -291,10 +358,12 @@ namespace ibis
         std::shared_ptr<NodeGraphWidget> NodeGraphWidget::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<render::INode>& node,
+            const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeGraphWidget> out(new NodeGraphWidget);
-            out->_init(context, node, parent);
+            out->_init(context, node, document, widgetFactory, parent);
             return out;
         }
 
@@ -325,10 +394,9 @@ namespace ibis
         void NodeGraphWidget::setView(bool value)
         {
             FTK_P();
-            if (value == p.view)
-                return;
             p.view = value;
-            setDrawUpdate();
+            p.viewButton->setChecked(value);
+            p.actions["SetView"]->setChecked(value);
         }
 
         void NodeGraphWidget::setViewCallback(const std::function<void(const std::shared_ptr<render::INode>&)>& value)
@@ -370,9 +438,7 @@ namespace ibis
             const ftk::Box2I g2 = ftk::margin(g, -(p.selected ? p.keyFocusSize : p.borderSize));
             event.render->drawRect(
                 g2,
-                event.style->getColorRole(p.view ? ftk::ColorRole::Green : ftk::ColorRole::Button));
-
-            // Draw the thumbnail.
+                event.style->getColorRole(ftk::ColorRole::Button));
         }
 
         void NodeGraphWidget::mousePressEvent(ftk::MouseClickEvent& event)
@@ -383,17 +449,8 @@ namespace ibis
             {
                 event.accept = true;
                 p.menu = ftk::Menu::create(getContext());
-                auto action = ftk::Action::create(
-                    "Set View",
-                    [this]
-                    {
-                        FTK_P();
-                        if (p.viewCallback)
-                        {
-                            p.viewCallback(p.node);
-                        }
-                    });
-                p.menu->addAction(action);
+                p.menu->addAction(p.actions["Edit"]);
+                p.menu->addAction(p.actions["SetView"]);
 
                 std::weak_ptr<NodeGraphWidget> weak(std::dynamic_pointer_cast<NodeGraphWidget>(shared_from_this()));
                 p.menu->setCloseCallback(
@@ -413,6 +470,33 @@ namespace ibis
         void NodeGraphWidget::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
             event.accept = true;
+        }
+
+        void NodeGraphWidget::_showPopup()
+        {
+            FTK_P();
+            if (auto context = getContext())
+            {
+                if (!p.popup)
+                {
+                    p.popup = NodeGraphPopup::create(
+                        context,
+                        p.node,
+                        p.document,
+                        p.widgetFactory);
+                    p.popup->open(getWindow(), getGeometry());
+                    p.popup->setCloseCallback(
+                        [this]
+                        {
+                            _p->popup.reset();
+                        });
+                }
+                else
+                {
+                    p.popup->close();
+                    p.popup.reset();
+                }
+            }
         }
     }
 }

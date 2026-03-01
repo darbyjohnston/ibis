@@ -11,7 +11,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/OutputNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
 #include <ftk/UI/FormLayout.h>
@@ -30,7 +29,7 @@ namespace ibis
             std::shared_ptr<ftk::FileEdit> dirEdit;
             std::shared_ptr<ftk::LineEdit> baseNameEdit;
             std::shared_ptr<ftk::ComboBox> extComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
@@ -51,14 +50,11 @@ namespace ibis
 
             p.extComboBox = ftk::ComboBox::create(context, render::ImageOutputNode::getExts());
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Directory:", p.dirEdit);
-            formLayout->addRow("Base name:", p.baseNameEdit);
-            formLayout->addRow("Extension:", p.extComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Directory:", p.dirEdit);
+            p.layout->addRow("Base name:", p.baseNameEdit);
+            p.layout->addRow("Extension:", p.extComboBox);
 
             p.dirEdit->setCallback(
                 [this](const ftk::Path& value)
@@ -143,13 +139,13 @@ namespace ibis
 
         ftk::Size2I ImageOutputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void ImageOutputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct SequenceOutputNodeWidget::Private
@@ -158,7 +154,7 @@ namespace ibis
             std::shared_ptr<ftk::LineEdit> baseNameEdit;
             std::shared_ptr<ftk::IntEdit> padEdit;
             std::shared_ptr<ftk::ComboBox> extComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > attrObserver;
         };
@@ -182,15 +178,12 @@ namespace ibis
 
             p.extComboBox = ftk::ComboBox::create(context, render::ImageOutputNode::getExts());
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Directory:", p.dirEdit);
-            formLayout->addRow("Base name:", p.baseNameEdit);
-            formLayout->addRow("Zero padding:", p.padEdit);
-            formLayout->addRow("Extension:", p.extComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Directory:", p.dirEdit);
+            p.layout->addRow("Base name:", p.baseNameEdit);
+            p.layout->addRow("Zero padding:", p.padEdit);
+            p.layout->addRow("Extension:", p.extComboBox);
 
             p.dirEdit->setCallback(
                 [this](const ftk::Path& value)
@@ -286,13 +279,13 @@ namespace ibis
 
         ftk::Size2I SequenceOutputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SequenceOutputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

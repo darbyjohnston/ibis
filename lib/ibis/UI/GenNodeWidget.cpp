@@ -9,7 +9,6 @@
 #include <ibis/Render/Graph.h>
 #include <ibis/Render/GraphCmd.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ColorSwatch.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FloatEditSlider.h>
@@ -29,7 +28,7 @@ namespace ibis
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -56,15 +55,12 @@ namespace ibis
             p.colorSwatch = ftk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Width:", p.widthSlider);
-            formLayout->addRow("Height:", p.heightSlider);
-            formLayout->addRow("Type:", p.typeComboBox);
-            formLayout->addRow("Color:", p.colorSwatch);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Width:", p.widthSlider);
+            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Type:", p.typeComboBox);
+            p.layout->addRow("Color:", p.colorSwatch);
 
             p.widthSlider->setPressedCallback(
                 [this](int value, bool pressed)
@@ -138,13 +134,13 @@ namespace ibis
 
         ftk::Size2I SolidColorNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SolidColorNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct GradientNodeWidget::Private
@@ -155,7 +151,7 @@ namespace ibis
             std::shared_ptr<ftk::ColorSwatch> color0Swatch;
             std::shared_ptr<ftk::ColorSwatch> color1Swatch;
             std::shared_ptr<ftk::ComboBox> orientationComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -187,17 +183,14 @@ namespace ibis
 
             p.orientationComboBox = ftk::ComboBox::create(context, ftk::getOrientationLabels());
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Width:", p.widthSlider);
-            formLayout->addRow("Height:", p.heightSlider);
-            formLayout->addRow("Type:", p.typeComboBox);
-            formLayout->addRow("Color 0:", p.color0Swatch);
-            formLayout->addRow("Color 1:", p.color1Swatch);
-            formLayout->addRow("Orientation:", p.orientationComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Width:", p.widthSlider);
+            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Type:", p.typeComboBox);
+            p.layout->addRow("Color 0:", p.color0Swatch);
+            p.layout->addRow("Color 1:", p.color1Swatch);
+            p.layout->addRow("Orientation:", p.orientationComboBox);
 
             p.widthSlider->setPressedCallback(
                 [this](int value, bool pressed)
@@ -289,13 +282,13 @@ namespace ibis
 
         ftk::Size2I GradientNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void GradientNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct NoiseNodeWidget::Private
@@ -304,7 +297,7 @@ namespace ibis
             std::shared_ptr<ftk::IntEditSlider> heightSlider;
             std::shared_ptr<ftk::ComboBox> typeComboBox;
             std::shared_ptr<ftk::FloatEditSlider> scaleSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -331,15 +324,12 @@ namespace ibis
             p.scaleSlider = ftk::FloatEditSlider::create(context);
             p.scaleSlider->setRange(.001F, 100.F);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Width:", p.widthSlider);
-            formLayout->addRow("Height:", p.heightSlider);
-            formLayout->addRow("Type:", p.typeComboBox);
-            formLayout->addRow("Scale:", p.scaleSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Width:", p.widthSlider);
+            p.layout->addRow("Height:", p.heightSlider);
+            p.layout->addRow("Type:", p.typeComboBox);
+            p.layout->addRow("Scale:", p.scaleSlider);
 
             p.widthSlider->setPressedCallback(
                 [this](int value, bool pressed)
@@ -413,13 +403,13 @@ namespace ibis
 
         ftk::Size2I NoiseNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void NoiseNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct TextNodeWidget::Private
@@ -430,7 +420,7 @@ namespace ibis
             std::shared_ptr<ftk::ColorSwatch> colorSwatch;
             std::shared_ptr<ftk::IntEditSlider> marginEdit;
             std::shared_ptr<ftk::ColorSwatch> backgroundSwatch;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -445,6 +435,7 @@ namespace ibis
             FTK_P();
 
             p.textEdit = ftk::TextEdit::create(context);
+            p.textEdit->setSizeHintRole(ftk::SizeRole::ScrollAreaSmall);
 
             p.fontComboBox = ftk::ComboBox::create(context, ftk::getFontLabels());
 
@@ -460,17 +451,14 @@ namespace ibis
             p.backgroundSwatch = ftk::ColorSwatch::create(context);
             p.backgroundSwatch->setEditable(true);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Text:", p.textEdit);
-            formLayout->addRow("Font:", p.fontComboBox);
-            formLayout->addRow("Font size:", p.fontSizeEdit);
-            formLayout->addRow("Color:", p.colorSwatch);
-            formLayout->addRow("Margin:", p.marginEdit);
-            formLayout->addRow("Background:", p.backgroundSwatch);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Text:", p.textEdit);
+            p.layout->addRow("Font:", p.fontComboBox);
+            p.layout->addRow("Font size:", p.fontSizeEdit);
+            p.layout->addRow("Color:", p.colorSwatch);
+            p.layout->addRow("Margin:", p.marginEdit);
+            p.layout->addRow("Background:", p.backgroundSwatch);
 
             p.textEdit->setCallback(
                 [this](const std::vector<std::string>& text)
@@ -566,13 +554,13 @@ namespace ibis
 
         ftk::Size2I TextNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void TextNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

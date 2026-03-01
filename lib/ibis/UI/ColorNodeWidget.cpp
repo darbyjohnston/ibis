@@ -7,7 +7,6 @@
 
 #include <ibis/Render/ColorNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/DoubleEditSlider.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/IntEditSlider.h>
@@ -20,7 +19,7 @@ namespace ibis
         struct BrightnessNodeWidget::Private
         {
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -38,12 +37,9 @@ namespace ibis
             p.valueSlider->setRange(0.0, 4.0);
             p.valueSlider->setDefaultValue(1.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -86,19 +82,19 @@ namespace ibis
 
         ftk::Size2I BrightnessNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void BrightnessNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct ContrastNodeWidget::Private
         {
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -116,12 +112,9 @@ namespace ibis
             p.valueSlider->setRange(0.0, 4.0);
             p.valueSlider->setDefaultValue(1.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -164,19 +157,19 @@ namespace ibis
 
         ftk::Size2I ContrastNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void ContrastNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct SaturationNodeWidget::Private
         {
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -194,12 +187,9 @@ namespace ibis
             p.valueSlider->setRange(0.0, 4.0);
             p.valueSlider->setDefaultValue(1.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -242,19 +232,19 @@ namespace ibis
 
         ftk::Size2I SaturationNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SaturationNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct HueNodeWidget::Private
         {
             std::shared_ptr<ftk::IntEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -272,12 +262,9 @@ namespace ibis
             p.valueSlider->setRange(0, 360);
             p.valueSlider->setDefaultValue(0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.valueSlider->setPressedCallback(
                 [this](int value, bool pressed)
@@ -320,19 +307,19 @@ namespace ibis
 
         ftk::Size2I HueNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void HueNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct LevelsNodeWidget::Private
         {
             std::map<std::string, std::shared_ptr<ftk::DoubleEditSlider> > sliders;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -362,16 +349,13 @@ namespace ibis
             p.sliders["OutHigh"]->setRange(0.0, 1.0);
             p.sliders["OutHigh"]->setDefaultValue(1.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("In low:", p.sliders["InLow"]);
-            formLayout->addRow("In high:", p.sliders["InHigh"]);
-            formLayout->addRow("Gamma:", p.sliders["Gamma"]);
-            formLayout->addRow("Out low:", p.sliders["OutLow"]);
-            formLayout->addRow("Out high:", p.sliders["OutHigh"]);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("In low:", p.sliders["InLow"]);
+            p.layout->addRow("In high:", p.sliders["InHigh"]);
+            p.layout->addRow("Gamma:", p.sliders["Gamma"]);
+            p.layout->addRow("Out low:", p.sliders["OutLow"]);
+            p.layout->addRow("Out high:", p.sliders["OutHigh"]);
 
             p.sliders["InLow"]->setPressedCallback(
                 [this](double value, bool pressed)
@@ -478,19 +462,19 @@ namespace ibis
 
         ftk::Size2I LevelsNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void LevelsNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct SoftClipNodeWidget::Private
         {
             std::shared_ptr<ftk::DoubleEditSlider> valueSlider;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -508,12 +492,9 @@ namespace ibis
             p.valueSlider->setRange(0.0, 1.0);
             p.valueSlider->setDefaultValue(0.0);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
-            formLayout->addRow("Value:", p.valueSlider);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout->addRow("Value:", p.valueSlider);
 
             p.valueSlider->setPressedCallback(
                 [this](double value, bool pressed)
@@ -557,13 +538,13 @@ namespace ibis
 
         ftk::Size2I SoftClipNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SoftClipNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             IInteractionNodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

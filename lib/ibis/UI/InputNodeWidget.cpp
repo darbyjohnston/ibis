@@ -9,7 +9,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/InputNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/Icon.h>
 #include <ftk/UI/FileEdit.h>
 #include <ftk/UI/FormLayout.h>
@@ -25,7 +24,7 @@ namespace ibis
         struct SVGInputNodeWidget::Private
         {
             std::shared_ptr<ftk::FileEdit> fileEdit;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
         };
@@ -46,17 +45,14 @@ namespace ibis
                 ftk::Format("Supported file extensions:\n{0}").
                 arg(ftk::join(render::SVGInputNode::getExts(), ", ")));
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
             auto hLayout = ftk::HorizontalLayout::create(context);
             hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             hLayout->setHStretch(ftk::Stretch::Expanding);
             p.fileEdit->setParent(hLayout);
             infoIcon->setParent(hLayout);
-            formLayout->addRow("Path:", hLayout);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout->addRow("Path:", hLayout);
 
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
@@ -111,13 +107,13 @@ namespace ibis
 
         ftk::Size2I SVGInputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SVGInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

@@ -9,7 +9,6 @@
 #include <ibis/Render/GraphCmd.h>
 #include <ibis/Render/InputNode.h>
 
-#include <ftk/UI/Bellows.h>
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FileEdit.h>
 #include <ftk/UI/Icon.h>
@@ -52,7 +51,7 @@ namespace ibis
             std::shared_ptr<ftk::FileEdit> fileEdit;
             std::shared_ptr<ftk::ComboBox> subImageComboBox;
             std::shared_ptr<ftk::ComboBox> channelsComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::ListObserver<std::string> > subImagesObserver;
             std::shared_ptr<ftk::ListObserver<std::string> > channelsObserver;
@@ -79,19 +78,16 @@ namespace ibis
 
             p.channelsComboBox = ftk::ComboBox::create(context);
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
             auto hLayout = ftk::HorizontalLayout::create(context);
             hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             hLayout->setHStretch(ftk::Stretch::Expanding);
             p.fileEdit->setParent(hLayout);
             infoIcon->setParent(hLayout);
-            formLayout->addRow("Path:", hLayout);
-            formLayout->addRow("Sub-image:", p.subImageComboBox);
-            formLayout->addRow("Channels:", p.channelsComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout->addRow("Path:", hLayout);
+            p.layout->addRow("Sub-image:", p.subImageComboBox);
+            p.layout->addRow("Channels:", p.channelsComboBox);
 
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
@@ -180,13 +176,13 @@ namespace ibis
 
         ftk::Size2I ImageInputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void ImageInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
 
         struct SequenceInputNodeWidget::Private
@@ -197,7 +193,7 @@ namespace ibis
             std::shared_ptr<ftk::IntEdit> startFrameEdit;
             std::shared_ptr<ftk::IntEdit> endFrameEdit;
             std::shared_ptr<ftk::ComboBox> loopComboBox;
-            std::shared_ptr<ftk::Bellows> bellows;
+            std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::ListObserver<std::string> > subImagesObserver;
             std::shared_ptr<ftk::ListObserver<std::string> > channelsObserver;
@@ -232,22 +228,19 @@ namespace ibis
 
             p.loopComboBox = ftk::ComboBox::create(context, render::getInputLoopLabels());
 
-            auto formLayout = ftk::FormLayout::create(context);
-            formLayout->setMarginRole(ftk::SizeRole::Margin);
+            p.layout = ftk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(ftk::SizeRole::Margin);
             auto hLayout = ftk::HorizontalLayout::create(context);
             hLayout->setSpacingRole(ftk::SizeRole::SpacingTool);
             hLayout->setHStretch(ftk::Stretch::Expanding);
             p.fileEdit->setParent(hLayout);
             infoIcon->setParent(hLayout);
-            formLayout->addRow("Path:", hLayout);
-            formLayout->addRow("Sub-image:", p.subImageComboBox);
-            formLayout->addRow("Channels:", p.channelsComboBox);
-            formLayout->addRow("Start frame:", p.startFrameEdit);
-            formLayout->addRow("End frame:", p.endFrameEdit);
-            formLayout->addRow("Loop:", p.loopComboBox);
-            p.bellows = ftk::Bellows::create(context, getNodeInfo().name, shared_from_this());
-            p.bellows->setOpen(true);
-            p.bellows->setWidget(formLayout);
+            p.layout->addRow("Path:", hLayout);
+            p.layout->addRow("Sub-image:", p.subImageComboBox);
+            p.layout->addRow("Channels:", p.channelsComboBox);
+            p.layout->addRow("Start frame:", p.startFrameEdit);
+            p.layout->addRow("End frame:", p.endFrameEdit);
+            p.layout->addRow("Loop:", p.loopComboBox);
 
             p.fileEdit->setCallback(
                 [this](const ftk::Path& path)
@@ -384,13 +377,13 @@ namespace ibis
 
         ftk::Size2I SequenceInputNodeWidget::getSizeHint() const
         {
-            return _p->bellows->getSizeHint();
+            return _p->layout->getSizeHint();
         }
 
         void SequenceInputNodeWidget::setGeometry(const ftk::Box2I& value)
         {
             INodeWidget::setGeometry(value);
-            _p->bellows->setGeometry(value);
+            _p->layout->setGeometry(value);
         }
     }
 }

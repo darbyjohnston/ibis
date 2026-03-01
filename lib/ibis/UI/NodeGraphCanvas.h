@@ -25,6 +25,7 @@ namespace ibis
     {
         class INodePort;
         class NodeGraphWidget;
+        class NodeWidgetFactory;
 
         //! Node graph canvas.
         class NodeGraphCanvas : public ftk::IWidget
@@ -34,6 +35,7 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::NodeFactory>&,
                 const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
                 const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
                 const std::shared_ptr<ftk::IWidget>& parent);
 
@@ -47,6 +49,7 @@ namespace ibis
                 const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<render::NodeFactory>&,
                 const std::shared_ptr<models::Document>&,
+                const std::shared_ptr<NodeWidgetFactory>&,
                 const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
                 const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 

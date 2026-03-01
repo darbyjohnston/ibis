@@ -25,6 +25,7 @@ namespace ibis
         {
             std::shared_ptr<models::Document> document;
             std::shared_ptr<render::NodeFactory> nodeFactory;
+            std::shared_ptr<NodeWidgetFactory> widgetFactory;
             std::map<std::string, std::shared_ptr<ftk::Action> > editActions;
             ftk::Size2I canvasSize = ftk::Size2I(2000, 2000);
             bool grid = true;
@@ -100,6 +101,7 @@ namespace ibis
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<render::NodeFactory>& nodeFactory,
             const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
             const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
@@ -111,6 +113,7 @@ namespace ibis
 
             p.document = document;
             p.nodeFactory = nodeFactory;
+            p.widgetFactory = widgetFactory;
             p.editActions = editActions;
 
             _graphUpdate();
@@ -190,11 +193,12 @@ namespace ibis
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<render::NodeFactory>& nodeFactory,
             const std::shared_ptr<models::Document>& document,
+            const std::shared_ptr<NodeWidgetFactory>& widgetFactory,
             const std::map<std::string, std::shared_ptr<ftk::Action> >& editActions,
             const std::shared_ptr<ftk::IWidget>& parent)
         {
             std::shared_ptr<NodeGraphCanvas> out(new NodeGraphCanvas);
-            out->_init(context, nodeFactory, document, editActions, parent);
+            out->_init(context, nodeFactory, document, widgetFactory, editActions, parent);
             return out;
         }
 
@@ -1019,7 +1023,12 @@ namespace ibis
                 const auto j = p.nodeToWidget.find(node);
                 if (j == p.nodeToWidget.end())
                 {
-                    widget = NodeGraphWidget::create(getContext(), node, shared_from_this());
+                    widget = NodeGraphWidget::create(
+                        getContext(),
+                        node,
+                        p.document,
+                        p.widgetFactory,
+                        shared_from_this());
                     widget->setViewCallback(
                         [this](const std::shared_ptr<render::INode>& node)
                         {

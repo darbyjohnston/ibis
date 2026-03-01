@@ -48,6 +48,7 @@ namespace ibis
             context,
             app->getNodeFactory(),
             document,
+            app->getNodeWidgetFactory(),
             editActions);
 
         p.timelineWidget = ui::TimelineWidget::create(

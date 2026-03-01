@@ -1,48 +1,140 @@
 {
+    "CanvasSize": [
+        2000,
+        2000
+    ],
     "CurrentTime": [
-        4.0,
+        3.0,
         24.0
     ],
     "Graph": {
         "Nodes": [
             {
                 "Attr": {
-                    "ChannelGroup": 1,
-                    "EndFrame": 76,
+                    "EndFrame": 48.0,
                     "Loop": 0,
-                    "Path": "D:\\Imaging\\OpenEXR\\EWR_flyover_beauty2_0066.exr",
-                    "StartFrame": 66,
-                    "SubImage": 0
+                    "Path": "C:\\Dev\\ibis\\ibis\\etc\\SampleData\\CubeSpin.usdc",
+                    "StartFrame": 1.0
                 },
-                "ID": "ImageSequence",
+                "ID": "USDInput",
                 "Pos": [
-                    142,
-                    22
+                    80,
+                    292
                 ]
             },
             {
                 "Attr": {
-                    "ChannelGroup": 0,
-                    "Path": "C:\\Users\\darby\\Downloads\\SoleMates-1.0.0\\lighting_render_layers\\unh0400_0010_render_lighting_vol__all_layer_frames_v005\\unh0400_0010_render_lighting_vol__all_layer_frames_v005.1037.exr",
-                    "SubImage": 35
+                    "Mode": 0,
+                    "Offset": [
+                        0,
+                        0
+                    ]
                 },
-                "ID": "ImageFile",
+                "ID": "Over",
+                "Inputs": [
+                    {
+                        "Index": 2,
+                        "Output": 0
+                    },
+                    {
+                        "Index": 0,
+                        "Output": 0
+                    }
+                ],
                 "Pos": [
-                    481,
-                    12
+                    480,
+                    137
+                ]
+            },
+            {
+                "Attr": {
+                    "Color0": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "Color1": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Orientation": 1,
+                    "Size": [
+                        1920,
+                        1080
+                    ],
+                    "Type": 21
+                },
+                "ID": "Gradient",
+                "Pos": [
+                    81,
+                    45
+                ]
+            },
+            {
+                "Attr": {
+                    "Mode": 0,
+                    "Offset": [
+                        0,
+                        0
+                    ]
+                },
+                "ID": "Over",
+                "Inputs": [
+                    {
+                        "Index": 1,
+                        "Output": 0
+                    },
+                    {
+                        "Index": 4,
+                        "Output": 0
+                    }
+                ],
+                "Pos": [
+                    874,
+                    276
+                ]
+            },
+            {
+                "Attr": {
+                    "Background": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.20000000298023224
+                    ],
+                    "Color": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "Font": "NotoSans-Regular",
+                    "FontSize": 150,
+                    "Margin": 10,
+                    "Text": "Hello world"
+                },
+                "ID": "Text",
+                "Pos": [
+                    558,
+                    416
                 ]
             }
         ]
     },
+    "Grid": true,
+    "GridSize": 100,
     "TimeRange": [
         [
             0.0,
             24.0
         ],
         [
-            10.0,
+            48.0,
             24.0
         ]
     ],
-    "ViewNode": 1
+    "ViewNode": 3
 }

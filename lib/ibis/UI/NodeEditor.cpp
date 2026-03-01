@@ -10,6 +10,7 @@
 
 #include <ibis/Render/Graph.h>
 
+#include <ftk/UI/Bellows.h>
 #include <ftk/UI/RowLayout.h>
 #include <ftk/UI/ScrollWidget.h>
 
@@ -19,7 +20,6 @@ namespace ibis
     {
         struct NodeEditor::Private
         {
-            std::vector<std::shared_ptr<INodeWidget> > widgets;
             std::shared_ptr<ftk::VerticalLayout> layout;
             std::shared_ptr<ftk::ScrollWidget> scrollWidget;
 
@@ -55,21 +55,24 @@ namespace ibis
                             [this, factory, document](const std::vector<std::shared_ptr<render::INode> >& selection)
                             {
                                 FTK_P();
-                                p.widgets.clear();
                                 p.layout->clear();
+                                auto context = getContext();
                                 for (const auto& node : selection)
                                 {
                                     if (auto widget = factory->createWidget(document, node))
                                     {
-                                        widget->setParent(p.layout);
-                                        p.widgets.push_back(widget);
+                                        auto bellows = ftk::Bellows::create(
+                                            context,
+                                            node->getNodeInfo().name,
+                                            p.layout);
+                                        bellows->setOpen(true);
+                                        bellows->setWidget(widget);
                                     }
                                 }
                             });
                     }
                     else
                     {
-                        p.widgets.clear();
                         p.layout->clear();
                         p.selectionObserver.reset();
                     }
