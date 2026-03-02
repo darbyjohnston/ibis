@@ -235,10 +235,10 @@ namespace ibis
 
             std::vector<std::shared_ptr<NodeGraphInput> > inputs;
             std::vector<std::shared_ptr<NodeGraphOutput> > outputs;
-            std::shared_ptr<ftk::ToolButton> editButton;
             std::shared_ptr<ftk::ToolButton> viewButton;
+            std::shared_ptr<ftk::ToolButton> editButton;
             std::shared_ptr<NodeGraphThumbnail> thumbnail;
-            std::shared_ptr<ftk::HorizontalLayout> layout;
+            std::shared_ptr<ftk::VerticalLayout> layout;
             std::map<std::string, std::shared_ptr<ftk::Action> > actions;
             std::shared_ptr<NodeGraphPopup> popup;
 
@@ -274,23 +274,25 @@ namespace ibis
                 p.outputs.push_back(NodeGraphOutput::create(context, node));
             }
 
-            auto label = ftk::Label::create(
-                context,
-                ftk::elide(node->getNodeInfo().name, 10));
-            label->setHAlign(ftk::HAlign::Center);
-            label->setMarginRole(ftk::SizeRole::MarginSmall);
-            label->setTooltip(node->getNodeInfo().name);
-
-            p.editButton = ftk::ToolButton::create(context);
-            p.editButton->setIcon("Edit");
-            p.editButton->setTooltip("Edit the node attributes.");
-
             p.viewButton = ftk::ToolButton::create(context);
             p.viewButton->setCheckable(true);
             p.viewButton->setIcon("View");
             p.viewButton->setTooltip("Set the view node.");
 
+            auto label = ftk::Label::create(
+                context,
+                ftk::elide(node->getNodeInfo().name, 10));
+            label->setHStretch(ftk::Stretch::Expanding);
+            label->setHAlign(ftk::HAlign::Center);
+            label->setMarginRole(ftk::SizeRole::MarginSmall);
+            label->setTooltip(node->getNodeInfo().name);
+
+            p.editButton = ftk::ToolButton::create(context);
+            p.editButton->setIcon("MenuArrow");
+            p.editButton->setTooltip("Edit the node attributes.");
+
             p.thumbnail = NodeGraphThumbnail::create(context, node);
+            p.thumbnail->setHStretch(ftk::Stretch::Expanding);
 
             p.actions["Edit"] = ftk::Action::create(
                 "Edit",
@@ -311,37 +313,32 @@ namespace ibis
                     }
                 });
 
-            p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
+            p.layout = ftk::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(ftk::SizeRole::None);
 
-            auto vLayout = ftk::VerticalLayout::create(context, p.layout);
+            auto hLayout = ftk::HorizontalLayout::create(context, p.layout);
+            hLayout->setSpacingRole(ftk::SizeRole::None);
+            p.viewButton->setParent(hLayout);
+            label->setParent(hLayout);
+            p.editButton->setParent(hLayout);
+
+            hLayout = ftk::HorizontalLayout::create(context, p.layout);
+            hLayout->setSpacingRole(ftk::SizeRole::None);
+            auto vLayout = ftk::VerticalLayout::create(context, hLayout);
             vLayout->setSpacingRole(ftk::SizeRole::None);
             for (const auto& i : p.inputs)
             {
                 i->setParent(vLayout);
             }
 
-            vLayout = ftk::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ftk::SizeRole::None);
-            auto hLayout = ftk::HorizontalLayout::create(context, vLayout);
-            hLayout->setSpacingRole(ftk::SizeRole::None);
-            label->setParent(hLayout);
-            p.editButton->setParent(hLayout);
-            p.viewButton->setParent(hLayout);
-            p.thumbnail->setParent(vLayout);
+            p.thumbnail->setParent(hLayout);
 
-            vLayout = ftk::VerticalLayout::create(context, p.layout);
+            vLayout = ftk::VerticalLayout::create(context, hLayout);
             vLayout->setSpacingRole(ftk::SizeRole::None);
             for (const auto& i : p.outputs)
             {
                 i->setParent(vLayout);
             }
-
-            p.editButton->setClickedCallback(
-                [this]
-                {
-                    _showPopup();
-                });
 
             p.viewButton->setCheckedCallback(
                 [this](bool value)
@@ -351,6 +348,12 @@ namespace ibis
                     {
                         p.viewCallback(value ? p.node : nullptr);
                     }
+                });
+
+            p.editButton->setClickedCallback(
+                [this]
+                {
+                    _showPopup();
                 });
         }
 
