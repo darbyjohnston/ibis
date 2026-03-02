@@ -11,7 +11,7 @@
 
 #include <ftk/UI/CheckBox.h>
 #include <ftk/UI/FloatEditSlider.h>
-#include <ftk/UI/IntEditSlider.h>
+#include <ftk/UI/IntEditShuttle.h>
 #include <ftk/UI/FormLayout.h>
 #include <ftk/UI/RowLayout.h>
 
@@ -21,8 +21,8 @@ namespace ibis
     {
         struct ResizeNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> widthEdit;
-            std::shared_ptr<ftk::IntEditSlider> heightEdit;
+            std::shared_ptr<ftk::IntEditShuttle> widthEdit;
+            std::shared_ptr<ftk::IntEditShuttle> heightEdit;
             std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -37,10 +37,10 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.widthEdit = ftk::IntEditSlider::create(context);
+            p.widthEdit = ftk::IntEditShuttle::create(context);
             p.widthEdit->setRange(1, 8192);
 
-            p.heightEdit = ftk::IntEditSlider::create(context);
+            p.heightEdit = ftk::IntEditShuttle::create(context);
             p.heightEdit->setRange(1, 8192);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
@@ -107,10 +107,10 @@ namespace ibis
 
         struct CropNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> xEdit;
-            std::shared_ptr<ftk::IntEditSlider> yEdit;
-            std::shared_ptr<ftk::IntEditSlider> widthEdit;
-            std::shared_ptr<ftk::IntEditSlider> heightEdit;
+            std::shared_ptr<ftk::IntEditShuttle> xEdit;
+            std::shared_ptr<ftk::IntEditShuttle> yEdit;
+            std::shared_ptr<ftk::IntEditShuttle> widthEdit;
+            std::shared_ptr<ftk::IntEditShuttle> heightEdit;
             std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -125,16 +125,16 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.xEdit = ftk::IntEditSlider::create(context);
+            p.xEdit = ftk::IntEditShuttle::create(context);
             p.xEdit->setRange(0, 8192);
 
-            p.yEdit = ftk::IntEditSlider::create(context);
+            p.yEdit = ftk::IntEditShuttle::create(context);
             p.yEdit->setRange(0, 8192);
 
-            p.widthEdit = ftk::IntEditSlider::create(context);
+            p.widthEdit = ftk::IntEditShuttle::create(context);
             p.widthEdit->setRange(1, 8192);
 
-            p.heightEdit = ftk::IntEditSlider::create(context);
+            p.heightEdit = ftk::IntEditShuttle::create(context);
             p.heightEdit->setRange(1, 8192);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());

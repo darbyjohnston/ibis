@@ -7,9 +7,10 @@
 
 #include <ibis/Render/ColorNode.h>
 
+#include <ftk/UI/ColorSlider.h>
 #include <ftk/UI/DoubleEditSlider.h>
 #include <ftk/UI/FormLayout.h>
-#include <ftk/UI/IntEditSlider.h>
+#include <ftk/UI/LevelsSlider.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -35,7 +36,7 @@ namespace ibis
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
             p.valueSlider->setRange(0.0, 4.0);
-            p.valueSlider->setDefaultValue(1.0);
+            p.valueSlider->setDefault(1.0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
@@ -110,7 +111,7 @@ namespace ibis
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
             p.valueSlider->setRange(0.0, 4.0);
-            p.valueSlider->setDefaultValue(1.0);
+            p.valueSlider->setDefault(1.0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
@@ -185,7 +186,7 @@ namespace ibis
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
             p.valueSlider->setRange(0.0, 4.0);
-            p.valueSlider->setDefaultValue(1.0);
+            p.valueSlider->setDefault(1.0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
@@ -243,7 +244,7 @@ namespace ibis
 
         struct HueNodeWidget::Private
         {
-            std::shared_ptr<ftk::IntEditSlider> valueSlider;
+            std::shared_ptr<ftk::ColorIntEditSlider> valueSlider;
             std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -258,9 +259,17 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.valueSlider = ftk::IntEditSlider::create(context);
+            p.valueSlider = ftk::ColorIntEditSlider::create(context);
+            p.valueSlider->setColors({
+                ftk::hue(6.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(5.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(4.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(3.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(2.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(1.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F),
+                ftk::hue(0.0 / 6.0) * ftk::V4F(1.F, 0.F, 0.F) });
             p.valueSlider->setRange(0, 360);
-            p.valueSlider->setDefaultValue(0);
+            p.valueSlider->getModel()->setDefault(0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
@@ -318,7 +327,9 @@ namespace ibis
 
         struct LevelsNodeWidget::Private
         {
-            std::map<std::string, std::shared_ptr<ftk::DoubleEditSlider> > sliders;
+            std::shared_ptr<ftk::LevelsEditSlider> inSlider;
+            std::shared_ptr<ftk::ColorFloatEditSlider> gammaSlider;
+            std::shared_ptr<ftk::LevelsEditSlider> outSlider;
             std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -333,57 +344,38 @@ namespace ibis
             IInteractionNodeWidget::_init(context, document, node, parent);
             FTK_P();
 
-            p.sliders["InLow"] = ftk::DoubleEditSlider::create(context);
-            p.sliders["InLow"]->setRange(0.0, 1.0);
-            p.sliders["InLow"]->setDefaultValue(0.0);
-            p.sliders["InHigh"] = ftk::DoubleEditSlider::create(context);
-            p.sliders["InHigh"]->setRange(0.0, 1.0);
-            p.sliders["InHigh"]->setDefaultValue(1.0);
-            p.sliders["Gamma"] = ftk::DoubleEditSlider::create(context);
-            p.sliders["Gamma"]->setRange(0.1, 4.0);
-            p.sliders["Gamma"]->setDefaultValue(1.0);
-            p.sliders["OutLow"] = ftk::DoubleEditSlider::create(context);
-            p.sliders["OutLow"]->setRange(0.0, 1.0);
-            p.sliders["OutLow"]->setDefaultValue(0.0);
-            p.sliders["OutHigh"] = ftk::DoubleEditSlider::create(context);
-            p.sliders["OutHigh"]->setRange(0.0, 1.0);
-            p.sliders["OutHigh"]->setDefaultValue(1.0);
+            p.inSlider = ftk::LevelsEditSlider::create(context);
+            p.inSlider->getModel()->setDefault(ftk::RangeF(0.F, 1.F));
+
+            p.gammaSlider = ftk::ColorFloatEditSlider::create(context);
+            p.gammaSlider->setColors({ ftk::V4F(0.F, 0.F, 0.F), ftk::V4F(1.F, 1.F, 1.F) });
+            p.gammaSlider->setRange(0.1, 4.0);
+            p.gammaSlider->getModel()->setDefault(1.0);
+
+            p.outSlider = ftk::LevelsEditSlider::create(context);
+            p.outSlider->getModel()->setDefault(ftk::RangeF(0.F, 1.F));
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
-            p.layout->addRow("In low:", p.sliders["InLow"]);
-            p.layout->addRow("In high:", p.sliders["InHigh"]);
-            p.layout->addRow("Gamma:", p.sliders["Gamma"]);
-            p.layout->addRow("Out low:", p.sliders["OutLow"]);
-            p.layout->addRow("Out high:", p.sliders["OutHigh"]);
+            p.layout->addRow("Input:", p.inSlider);
+            p.layout->addRow("Gamma:", p.gammaSlider);
+            p.layout->addRow("Output:", p.outSlider);
 
-            p.sliders["InLow"]->setPressedCallback(
-                [this](double value, bool pressed)
+            p.inSlider->setPressedCallback(
+                [this](const ftk::RangeF& value, bool pressed)
                 {
                     _callback(
                         {
-                            { "InLow", value },
-                            { "InHigh", _node->getAttr("InHigh") },
+                            { "InLow", static_cast<double>(value.min()) },
+                            { "InHigh", static_cast<double>(value.max()) },
                             { "Gamma", _node->getAttr("Gamma") },
                             { "OutLow", _node->getAttr("OutLow") },
                             { "OutHigh", _node->getAttr("OutHigh") }
                         },
                         pressed);
                 });
-            p.sliders["InHigh"]->setPressedCallback(
-                [this](double value, bool pressed)
-                {
-                    _callback(
-                        {
-                            { "InLow", _node->getAttr("InLow") },
-                            { "InHigh", value },
-                            { "Gamma", _node->getAttr("Gamma") },
-                            { "OutLow", _node->getAttr("OutLow") },
-                            { "OutHigh", _node->getAttr("OutHigh") }
-                        },
-                        pressed);
-                });
-            p.sliders["Gamma"]->setPressedCallback(
+
+            p.gammaSlider->setPressedCallback(
                 [this](double value, bool pressed)
                 {
                     _callback(
@@ -396,29 +388,17 @@ namespace ibis
                         },
                         pressed);
                 });
-            p.sliders["OutLow"]->setPressedCallback(
-                [this](double value, bool pressed)
+
+            p.outSlider->setPressedCallback(
+                [this](const ftk::RangeF& value, bool pressed)
                 {
                     _callback(
                         {
                             { "InLow", _node->getAttr("InLow") },
                             { "InHigh", _node->getAttr("InHigh") },
                             { "Gamma", _node->getAttr("Gamma") },
-                            { "OutLow", value },
-                            { "OutHigh", _node->getAttr("OutHigh") }
-                        },
-                        pressed);
-                });
-            p.sliders["OutHigh"]->setPressedCallback(
-                [this](double value, bool pressed)
-                {
-                    _callback(
-                        {
-                            { "InLow", _node->getAttr("InLow") },
-                            { "InHigh", _node->getAttr("InHigh") },
-                            { "Gamma", _node->getAttr("Gamma") },
-                            { "OutLow", _node->getAttr("OutLow") },
-                            { "OutHigh", value }
+                            { "OutLow", static_cast<double>(value.min()) },
+                            { "OutHigh", static_cast<double>(value.max()) }
                         },
                         pressed);
                 });
@@ -429,11 +409,9 @@ namespace ibis
                 {
                     FTK_P();
                     auto tmp = value;
-                    p.sliders["InLow"]->setValue(tmp["InLow"]);
-                    p.sliders["InHigh"]->setValue(tmp["InHigh"]);
-                    p.sliders["Gamma"]->setValue(tmp["Gamma"]);
-                    p.sliders["OutLow"]->setValue(tmp["OutLow"]);
-                    p.sliders["OutHigh"]->setValue(tmp["OutHigh"]);
+                    p.inSlider->setValue(ftk::RangeF(tmp["InLow"], tmp["InHigh"]));
+                    p.gammaSlider->setValue(tmp["Gamma"]);
+                    p.outSlider->setValue(ftk::RangeF(tmp["OutLow"], tmp["OutHigh"]));
                 });
         }
 
@@ -490,7 +468,7 @@ namespace ibis
 
             p.valueSlider = ftk::DoubleEditSlider::create(context);
             p.valueSlider->setRange(0.0, 1.0);
-            p.valueSlider->setDefaultValue(0.0);
+            p.valueSlider->setDefault(0.0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);

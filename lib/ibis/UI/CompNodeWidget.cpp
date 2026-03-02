@@ -11,7 +11,7 @@
 
 #include <ftk/UI/ComboBox.h>
 #include <ftk/UI/FormLayout.h>
-#include <ftk/UI/IntEditSlider.h>
+#include <ftk/UI/IntEditShuttle.h>
 #include <ftk/UI/RowLayout.h>
 
 namespace ibis
@@ -21,8 +21,8 @@ namespace ibis
         struct OverNodeWidget::Private
         {
             std::shared_ptr<ftk::ComboBox> modeComboBox;
-            std::shared_ptr<ftk::IntEditSlider> xSlider;
-            std::shared_ptr<ftk::IntEditSlider> ySlider;
+            std::shared_ptr<ftk::IntEditShuttle> xEdit;
+            std::shared_ptr<ftk::IntEditShuttle> yEdit;
             std::shared_ptr<ftk::FormLayout> layout;
 
             std::shared_ptr<ftk::MapObserver<std::string, nlohmann::json> > observer;
@@ -39,18 +39,19 @@ namespace ibis
 
             p.modeComboBox = ftk::ComboBox::create(context, render::getOverModeLabels());
 
-            p.xSlider = ftk::IntEditSlider::create(context);
-            p.xSlider->setRange(-4096, 4096);
-            p.xSlider->setDefaultValue(0);
-            p.ySlider = ftk::IntEditSlider::create(context);
-            p.ySlider->setRange(-4096, 4096);
-            p.ySlider->setDefaultValue(0);
+            p.xEdit = ftk::IntEditShuttle::create(context);
+            p.xEdit->setRange(-4096, 4096);
+            p.xEdit->setDefault(0);
+
+            p.yEdit = ftk::IntEditShuttle::create(context);
+            p.yEdit->setRange(-4096, 4096);
+            p.yEdit->setDefault(0);
 
             p.layout = ftk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ftk::SizeRole::Margin);
             p.layout->addRow("Operator:", p.modeComboBox);
-            p.layout->addRow("X offset:", p.xSlider);
-            p.layout->addRow("Y offset:", p.ySlider);
+            p.layout->addRow("X offset:", p.xEdit);
+            p.layout->addRow("Y offset:", p.yEdit);
 
             p.modeComboBox->setIndexCallback(
                 [this](int value)
@@ -59,7 +60,7 @@ namespace ibis
                         _document->getGraph(), _node, "Mode", value));
                 });
 
-            p.xSlider->setPressedCallback(
+            p.xEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::V2I pos = _node->getAttr("Offset");
@@ -67,7 +68,7 @@ namespace ibis
                     _callback({ { "Offset", pos } }, pressed);
                 });
 
-            p.ySlider->setPressedCallback(
+            p.yEdit->setPressedCallback(
                 [this](int value, bool pressed)
                 {
                     ftk::V2I pos = _node->getAttr("Offset");
@@ -83,8 +84,8 @@ namespace ibis
                     auto tmp = value;
                     p.modeComboBox->setCurrentIndex(static_cast<int>(tmp["Mode"]));
                     const ftk::V2I pos = tmp["Offset"];
-                    p.xSlider->setValue(pos.x);
-                    p.ySlider->setValue(pos.y);
+                    p.xEdit->setValue(pos.x);
+                    p.yEdit->setValue(pos.y);
                 });
         }
 

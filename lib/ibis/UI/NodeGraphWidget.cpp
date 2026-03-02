@@ -16,6 +16,7 @@
 #include <ftk/UI/ToolButton.h>
 #include <ftk/GL/GL.h>
 #include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 namespace ibis
 {
@@ -273,9 +274,12 @@ namespace ibis
                 p.outputs.push_back(NodeGraphOutput::create(context, node));
             }
 
-            auto label = ftk::Label::create(context, node->getNodeInfo().name);
+            auto label = ftk::Label::create(
+                context,
+                ftk::elide(node->getNodeInfo().name, 10));
             label->setHAlign(ftk::HAlign::Center);
             label->setMarginRole(ftk::SizeRole::MarginSmall);
+            label->setTooltip(node->getNodeInfo().name);
 
             p.editButton = ftk::ToolButton::create(context);
             p.editButton->setIcon("Edit");
@@ -290,12 +294,14 @@ namespace ibis
 
             p.actions["Edit"] = ftk::Action::create(
                 "Edit",
+                "Edit",
                 [this]
                 {
                     _showPopup();
                 });
             p.actions["SetView"] = ftk::Action::create(
                 "Set View",
+                "View",
                 [this](bool value)
                 {
                     FTK_P();
@@ -482,27 +488,25 @@ namespace ibis
         void NodeGraphWidget::_showPopup()
         {
             FTK_P();
-            if (auto context = getContext())
+            if (!p.popup)
             {
-                if (!p.popup)
-                {
-                    p.popup = NodeGraphPopup::create(
-                        context,
-                        p.node,
-                        p.document,
-                        p.widgetFactory);
-                    p.popup->open(getWindow(), getGeometry());
-                    p.popup->setCloseCallback(
-                        [this]
-                        {
-                            _p->popup.reset();
-                        });
-                }
-                else
-                {
-                    p.popup->close();
-                    p.popup.reset();
-                }
+                auto context = getContext();
+                p.popup = NodeGraphPopup::create(
+                    context,
+                    p.node,
+                    p.document,
+                    p.widgetFactory);
+                p.popup->open(getWindow(), p.editButton->getGeometry(), getGeometry());
+                p.popup->setCloseCallback(
+                    [this]
+                    {
+                        _p->popup.reset();
+                    });
+            }
+            else
+            {
+                p.popup->close();
+                p.popup.reset();
             }
         }
     }
